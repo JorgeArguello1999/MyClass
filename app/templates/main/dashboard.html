@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h4>Dashboard</h4>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Hola, {{ current_user.username }}!</h5>
+                <p class="card-text">Has iniciado sesión correctamente y tienes acceso a esta ruta protegida.</p>
+                <hr>
+                <p>Aquí puedes comenzar a desarrollar las funcionalidades específicas de MyClass.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
