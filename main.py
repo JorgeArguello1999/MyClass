@@ -3,36 +3,36 @@ import sys
 
 from app import create_app, db
 
-# Inicializa la app con el entorno definido en FLASK_CONFIG (por defecto "development")
+# Initialize the app with the environment defined in FLASK_CONFIG (default is "development")
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
 def check_integrity():
-    print("Verificando integridad del entorno...")
+    print("Verifying environment integrity...")
     
-    # 1. Comprobar que existe .env
+    # 1. Check if .env exists
     base_dir = os.path.abspath(os.path.dirname(__file__))
     env_path = os.path.join(base_dir, '.env')
     if not os.path.exists(env_path):
-        print("⚠️ No se encontró el archivo .env. Asegúrate de configurarlo correctamente.")
+        print("⚠️ .env file not found. Make sure to configure it correctly.")
     else:
-        print("✅ Archivo .env verificado.")
+        print("✅ .env file verified.")
         
-    # 2. Comprobar conexión a la BD
+    # 2. Check Database connection
     try:
         with app.app_context():
-            # Prueba iniciar una conexión básica
+            # Try to start a basic connection
             with db.engine.connect() as conn:
                 pass
-        print("✅ Conexión a la Base de Datos verificada.")
+        print("✅ Database connection verified.")
     except Exception as e:
-        print(f"❌ Error al conectar con la Base de Datos: {e}")
-        print("ℹ️ Es posible que no hayas ejecutado las migraciones.")
-        print("ℹ️ Ejecuta: 'flask db upgrade'")
+        print(f"❌ Error connecting to Database: {e}")
+        print("ℹ️ You might not have executed migrations.")
+        print("ℹ️ Run: 'flask db upgrade'")
         sys.exit(1)
         
-    print("🚀 Verificación completada exitosamente.\n")
+    print("🚀 Verification completed successfully.\n")
 
 if __name__ == "__main__":
     check_integrity()
-    # Inicia el servidor de desarrollo nativo de Flask
+    # Start Flask's native development server
     app.run(host="127.0.0.1", port=5000, debug=True)

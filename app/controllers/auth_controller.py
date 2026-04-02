@@ -17,12 +17,12 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user is not None and user.check_password(password):
             login_user(user)
-            # Redireccionar a la página que el usuario quería ir antes
+            # Redirect to the page the user originally requested
             next_page = request.args.get('next')
             if next_page is None or not next_page.startswith('/'):
                 next_page = url_for('main.index')
             return redirect(next_page)
-        flash('Email o contraseña inválidos.', 'error')
+        flash('Invalid email or password.', 'error')
         
     return render_template('auth/login.html')
 
@@ -36,22 +36,22 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Validación super básica
+        # Very basic validation
         if User.query.filter_by(email=email).first():
-            flash('Ese email ya está registrado.', 'error')
+            flash('That email is already registered.', 'error')
             return redirect(url_for('auth.register'))
             
         if User.query.filter_by(username=username).first():
-            flash('Ese nombre de usuario ya está ocupado.', 'error')
+            flash('That username is already taken.', 'error')
             return redirect(url_for('auth.register'))
             
-        # Crear usuario
+        # Create user
         user = User(email=email, username=username)
         user.password = password
         db.session.add(user)
         db.session.commit()
         
-        flash('Puedes iniciar sesión ahora.', 'success')
+        flash('You can now log in.', 'success')
         return redirect(url_for('auth.login'))
         
     return render_template('auth/register.html')
@@ -60,5 +60,5 @@ def register():
 @login_required
 def logout():
     logout_user()
-    flash('Has cerrado sesión.', 'info')
+    flash('You have been logged out.', 'info')
     return redirect(url_for('main.index'))

@@ -11,7 +11,7 @@ class User(UserMixin, db.Model):
 
     @property
     def password(self):
-        raise AttributeError('La contraseña no es un atributo de lectura.')
+        raise AttributeError('Password is not a readable attribute.')
 
     @password.setter
     def password(self, password):

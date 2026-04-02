@@ -6,3 +6,9 @@ data-dev.sqlite
 
 */__pycache__/*
 */__pycache__/*
+app/controllers/__pycache__/*
+app/models/__pycache__/*
+app/templates/__pycache__/*
+app/__pycache__/*
+app/static/__pycache__/*
+
