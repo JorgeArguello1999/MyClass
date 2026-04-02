@@ -1,30 +1,62 @@
-{% extends 'base.html' %}
+{% extends 'auth_base.html' %}
 
 {% block content %}
-<div class="row h-100 justify-content-center align-items-center mt-5">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white text-center">
-                <h4>Log In</h4>
+<div class="auth-container mt-2 mb-5">
+    <div class="text-center">
+        <div class="brand-icon-wrapper mb-3">
+            <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <h1 class="auth-title">LuminaAcademic</h1>
+        <p class="auth-subtitle">Access your academic intelligence hub.</p>
+    </div>
+
+    <div class="auth-card">
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="auth-input-group">
+                <label for="identity" class="form-label">Email or Username</label>
+                <input type="text" class="form-control auth-input" id="identity" name="identity" placeholder="student@university.edu" required>
+                <i class="bi bi-at input-icon"></i>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('auth.login') }}">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Log In</button>
-                    </div>
-                </form>
+            
+            <div class="auth-input-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control auth-input" id="password" name="password" placeholder="••••••••" required>
+                <i class="bi bi-lock input-icon"></i>
+                <a href="#" class="forgot-link">Forgot?</a>
             </div>
-            <div class="card-footer text-center">
-                Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a>
+
+            <button type="submit" class="btn btn-auth mt-4">
+                <i class="bi bi-key"></i> Log In
+            </button>
+        </form>
+
+        <div class="sso-divider">
+            <span class="sso-text">ACADEMIC SSO</span>
+        </div>
+
+        <div class="row gx-3">
+            <div class="col-6">
+                <button type="button" class="btn btn-outline-sso w-100">
+                    <i class="bi bi-google"></i> Google
+                </button>
             </div>
+            <div class="col-6">
+                <button type="button" class="btn btn-outline-sso w-100">
+                    <i class="bi bi-bank"></i> University
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-footer-link">
+        New to LuminaAcademic? <a href="{{ url_for('auth.register') }}">Create an account</a>
+    </div>
+
+    <div class="weekly-insight-card">
+        <img src="{{ url_for('static', filename='images/weekly_insight.png') }}" alt="Weekly Insight" class="weekly-insight-img">
+        <div class="weekly-insight-content">
+            <h6>WEEKLY INSIGHT</h6>
+            <p>Students using AI synthesis tools report a 40% increase in retention during lecture reviews.</p>
         </div>
     </div>
 </div>

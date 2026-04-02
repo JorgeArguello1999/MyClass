@@ -11,10 +11,11 @@ def login():
         return redirect(url_for('main.index'))
     
     if request.method == 'POST':
-        email = request.form.get('email')
+        identity = request.form.get('identity') # Represents email or username
         password = request.form.get('password')
         
-        user = User.query.filter_by(email=email).first()
+        # Check if user exists by email OR username
+        user = User.query.filter((User.email == identity) | (User.username == identity)).first()
         if user is not None and user.check_password(password):
             login_user(user)
             # Redirect to the page the user originally requested
@@ -32,9 +33,15 @@ def register():
         return redirect(url_for('main.index'))
         
     if request.method == 'POST':
+        full_name = request.form.get('full_name')
         email = request.form.get('email')
-        username = request.form.get('username')
+        username = email.split('@')[0] if email else ''  # Derive basic username from email
         password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return redirect(url_for('auth.register'))
         
         # Very basic validation
         if User.query.filter_by(email=email).first():
@@ -46,7 +53,7 @@ def register():
             return redirect(url_for('auth.register'))
             
         # Create user
-        user = User(email=email, username=username)
+        user = User(email=email, username=username, full_name=full_name)
         user.password = password
         db.session.add(user)
         db.session.commit()
