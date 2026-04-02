@@ -135,7 +135,7 @@ body.auth-body {
 .forgot-link {
     position: absolute;
     right: 0;
-    top: -1.75rem;
+    top: 0;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--brand-blue);

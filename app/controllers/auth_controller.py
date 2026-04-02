@@ -11,11 +11,11 @@ def login():
         return redirect(url_for('main.index'))
     
     if request.method == 'POST':
-        identity = request.form.get('identity') # Represents email or username
+        email = request.form.get('email')
         password = request.form.get('password')
         
-        # Check if user exists by email OR username
-        user = User.query.filter((User.email == identity) | (User.username == identity)).first()
+        # Check if user exists by email
+        user = User.query.filter_by(email=email).first()
         if user is not None and user.check_password(password):
             login_user(user)
             # Redirect to the page the user originally requested

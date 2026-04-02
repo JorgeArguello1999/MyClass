@@ -13,9 +13,9 @@
     <div class="auth-card">
         <form method="POST" action="{{ url_for('auth.login') }}">
             <div class="auth-input-group">
-                <label for="identity" class="form-label">Email or Username</label>
-                <input type="text" class="form-control auth-input" id="identity" name="identity" placeholder="student@university.edu" required>
-                <i class="bi bi-at input-icon"></i>
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control auth-input" id="email" name="email" placeholder="student@university.edu" required>
+                <i class="bi bi-envelope input-icon"></i>
             </div>
             
             <div class="auth-input-group">
@@ -37,12 +37,12 @@
         <div class="row gx-3">
             <div class="col-6">
                 <button type="button" class="btn btn-outline-sso w-100">
-                    <i class="bi bi-google"></i> Google
+                    <i class="bi bi-google"></i> Google (Testing)
                 </button>
             </div>
             <div class="col-6">
                 <button type="button" class="btn btn-outline-sso w-100">
-                    <i class="bi bi-bank"></i> University
+                    <i class="bi bi-bank"></i> University (Testing)
                 </button>
             </div>
         </div>
