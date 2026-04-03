@@ -1,16 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="p-5 mb-4 bg-light rounded-3 shadow mt-4">
-    <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">Welcome to LuminaAcademic</h1>
-        <p class="col-md-8 fs-4">The core of your Flask project using the Model-View-Controller pattern and SQLAlchemy.</p>
-        {% if not current_user.is_authenticated %}
-            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Log In</a>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-secondary btn-lg">Register</a>
-        {% else %}
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-success btn-lg">Go to Dashboard</a>
-        {% endif %}
+<div class="page-header" style="margin-top: 3rem; text-align: center;">
+    <h1 style="font-size: 2.5rem; color: var(--primary-blue);">Welcome to LuminaAcademic</h1>
+    <p style="font-size: 1.1rem; max-width: 600px; margin: 1rem auto 2rem;">The core of your modern academic
+        intelligence hub.</p>
+
+    {% if not current_user.is_authenticated %}
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('auth.login') }}" class="btn-initialize"
+            style="position: relative; right: auto; bottom: auto; background: var(--primary-blue); color: white; text-decoration: none;">Log
+            In</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-initialize"
+            style="position: relative; right: auto; bottom: auto; background: white; color: var(--text-sec); border: 1px solid #ddd; text-decoration: none;">Register</a>
     </div>
+    {% else %}
+    <a href="{{ url_for('main.dashboard') }}" class="btn-initialize"
+        style="position: relative; right: auto; bottom: auto; background: var(--primary-blue); color: white; text-decoration: none;">Go
+        to Dashboard</a>
+    {% endif %}
 </div>
+{% endblock %}
+
+{% block fab %}
+<!-- No microphone fab on the index page -->
 {% endblock %}
