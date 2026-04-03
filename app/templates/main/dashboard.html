@@ -1,19 +1,146 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuminaAcademic Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
 
-{% block content %}
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white">
-                <h4>Dashboard</h4>
+<div class="mobile-wrapper">
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="menu-btn d-md-none">
+            <i class="bi bi-list"></i>
+        </div>
+        <div class="logo-text">
+            Lumina Academic
+        </div>
+        
+        <nav class="desktop-nav">
+            <a href="#" class="active">Courses</a>
+            <a href="#">Records</a>
+            <a href="#">Settings</a>
+        </nav>
+
+        <img src="{{ url_for('static', filename='images/weekly_insight.png') }}" onerror="this.src='https://ui-avatars.com/api/?name=Alexander&background=0D8ABC&color=fff'" alt="Profile" class="profile-img">
+    </header>
+
+    <!-- Header Text -->
+    <div class="page-header">
+        <h1>Good morning,<br>Alexander</h1>
+        <p>Your academic intelligence is up to date.</p>
+    </div>
+
+    <!-- Add Course Card -->
+    <div class="add-course-card">
+        <div class="icon-circle">
+            <i class="bi bi-plus"></i>
+        </div>
+        <div class="add-course-title">Add New Course</div>
+        <div class="add-course-desc">Initialize a new intelligent tracking system for your upcoming semester modules.</div>
+        <button class="btn-initialize">Initialize</button>
+    </div>
+
+    <!-- Course List -->
+    <div class="course-list">
+        <!-- Software Dev -->
+        <div class="course-card core">
+            <div class="card-top">
+                <div class="module-icon">
+                    <i class="bi bi-braces"></i>
+                </div>
+                <div class="badge badge-core">CORE MODULE</div>
             </div>
-            <div class="card-body">
-                <h5 class="card-title">Hello, {{ current_user.username }}!</h5>
-                <p class="card-text">You have logged in successfully and have access to this protected route.</p>
-                <hr>
-                <p>Here you can start developing the specific features for LuminaAcademic.</p>
+            <h4>Software Dev</h4>
+            <p>Winter Semester 2024</p>
+            <div class="card-bottom">
+                <div class="sessions">
+                    <i class="bi bi-mic-fill"></i> 12 Sessions
+                </div>
+                <button class="btn-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Dev -->
+        <div class="course-card elective">
+            <div class="card-top">
+                <div class="module-icon">
+                    <i class="bi bi-phone"></i>
+                </div>
+                <div class="badge badge-elective">ELECTIVE</div>
+            </div>
+            <h4>Mobile Dev</h4>
+            <p>Winter Semester 2024</p>
+            <div class="card-bottom">
+                <div class="sessions">
+                    <i class="bi bi-broadcast"></i> 8 Sessions
+                </div>
+                <button class="btn-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Database Systems -->
+        <div class="course-card technical">
+            <div class="card-top">
+                <div class="module-icon">
+                    <i class="bi bi-database"></i>
+                </div>
+                <div class="badge badge-technical">TECHNICAL</div>
+            </div>
+            <h4>Database Systems</h4>
+            <p>Winter Semester 2024</p>
+            <div class="card-bottom">
+                <div class="sessions">
+                    <i class="bi bi-calendar3"></i> 15 Sessions
+                </div>
+                <button class="btn-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Insight Card -->
+    <div class="insight-card">
+        <div class="insight-label">ACADEMIC INSIGHT</div>
+        <p class="insight-text">
+            "You've recorded <span>35 total hours</span> of lectures this month. Your AI summaries have saved you approximately 12 hours of manual note-taking."
+        </p>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab">
+        <i class="bi bi-mic-fill"></i>
+    </button>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>Courses</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="bi bi-mic"></i>
+            <span>Records</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="bi bi-gear"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
 </div>
-{% endblock %}
+
+</body>
+</html>
