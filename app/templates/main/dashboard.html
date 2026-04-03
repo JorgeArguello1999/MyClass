@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuminaAcademic Dashboard</title>
+    <title>LuminaAcademic Dashboard</title>    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +22,8 @@
         <div class="menu-btn d-md-none">
             <i class="bi bi-list"></i>
         </div>
-        <div class="logo-text">
+        <div class="logo-text d-flex align-items-center gap-2">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="width:28px; height:28px; border-radius:4px;">
             Lumina Academic
         </div>
         
