@@ -7,17 +7,21 @@
         intelligence hub.</p>
 
     {% if not current_user.is_authenticated %}
-    <div style="display: flex; gap: 1rem; justify-content: center;">
+    <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
         <a href="{{ url_for('auth.login') }}" class="btn-initialize"
-            style="position: relative; right: auto; bottom: auto; background: var(--primary-blue); color: white; text-decoration: none;">Log
-            In</a>
+            style="position: relative; right: auto; bottom: auto; background: var(--primary-blue); color: white; text-decoration: none; padding: 0.8rem 2rem; font-size: 1.1rem; box-shadow: 0 8px 20px rgba(3, 59, 129, 0.4);">
+            🔑 Log In
+        </a>
         <a href="{{ url_for('auth.register') }}" class="btn-initialize"
-            style="position: relative; right: auto; bottom: auto; background: white; color: var(--text-sec); border: 1px solid #ddd; text-decoration: none;">Register</a>
+            style="position: relative; right: auto; bottom: auto; background: white; color: var(--text-sec); border: 2px solid #E5E7EB; text-decoration: none; padding: 0.8rem 2rem; font-size: 1.1rem; box-shadow: 0 8px 20px rgba(0,0,0,0.06);">
+            📝 Register
+        </a>
     </div>
     {% else %}
     <a href="{{ url_for('main.dashboard') }}" class="btn-initialize"
-        style="position: relative; right: auto; bottom: auto; background: var(--primary-blue); color: white; text-decoration: none;">Go
-        to Dashboard</a>
+        style="position: relative; right: auto; bottom: auto; background: var(--primary-blue); color: white; text-decoration: none; padding: 1rem 2.5rem; font-size: 1.2rem; box-shadow: 0 10px 25px rgba(3, 59, 129, 0.5);">
+        🚀 Enter Dashboard
+    </a>
     {% endif %}
 </div>
 {% endblock %}
