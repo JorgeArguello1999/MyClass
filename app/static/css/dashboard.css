@@ -445,7 +445,7 @@ body {
     .course-list { 
         grid-area: courselist; 
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 columns for the courses on desktop */
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Auto adapts columns to prevent overlap */
         gap: 1.5rem;
         padding: 0 2rem 2rem 2rem;
     }
@@ -453,8 +453,10 @@ body {
     /* Desktop Navigation overrides */
     .desktop-nav {
         display: flex;
-        gap: 2.5rem;
+        gap: 2rem;
         align-items: center;
+        flex-wrap: wrap; /* Prevents overlap if screen shrinks */
+        justify-content: center;
     }
     
     .desktop-nav a {
