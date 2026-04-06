@@ -416,23 +416,29 @@ body {
         border-radius: 24px;
         background: var(--bg-color);
         box-shadow: 0 10px 40px rgba(0,0,0,0.08); /* nicer shadow for desktop float */
-        
-        /* Grid layout without touching HTML! */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Top Bar adjustments */
+    .top-bar { padding: 2rem; border-radius: 24px 24px 0 0; }
+    .page-header { padding: 0 2rem; }
+
+    /* Dashboard Grid layout */
+    .dashboard-grid {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        grid-template-rows: auto auto auto 1fr;
         grid-template-areas: 
-            "topbar topbar"
-            "header header"
             "addcourse insight"
             "courselist insight";
         align-content: start;
-        overflow: hidden;
+        grid-gap: 0;
+        margin-top: 1.5rem;
     }
 
     /* Grid Area Assignments */
-    .top-bar { grid-area: topbar; padding: 2rem; border-radius: 24px 24px 0 0; }
-    .page-header { grid-area: header; padding: 0 2rem; }
     .add-course-card { grid-area: addcourse; margin: 0 2rem 2rem 2rem; }
     
     /* Make Insight act like a side panel */

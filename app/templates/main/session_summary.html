@@ -1,0 +1,570 @@
+{% extends 'base.html' %}
+
+{% block title %}Session Summary - LuminaAcademic{% endblock %}
+
+{% block extra_css %}
+<style>
+    .session-container {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Header Region */
+    .session-badge {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .session-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1.1;
+        margin-bottom: 0.5rem;
+    }
+
+    .session-meta {
+        font-size: 0.8rem;
+        color: var(--text-sec);
+        margin-bottom: 1.25rem;
+        line-height: 1.4;
+    }
+
+    .btn-transcript {
+        display: inline-block;
+        background: var(--primary-blue);
+        color: white;
+        text-decoration: none;
+        padding: 0.6rem 1.25rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+        box-shadow: 0 4px 10px rgba(3, 59, 129, 0.2);
+    }
+    
+    .btn-transcript:hover {
+        background: var(--secondary-blue);
+        color: white;
+    }
+
+    /* Audio Card */
+    .audio-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-bottom: 0.5rem;
+    }
+
+    .audio-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+    }
+
+    .audio-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-play {
+        width: 48px;
+        height: 48px;
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding-left: 5px; /* Offset for perfect triangle center */
+    }
+
+    .audio-text h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 0.1rem 0;
+    }
+
+    .audio-text p {
+        font-size: 0.75rem;
+        color: var(--text-sec);
+        margin: 0;
+    }
+
+    .audio-speed {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+    }
+
+    /* Waveform simulation */
+    .waveform {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        height: 50px;
+        gap: 3px;
+        padding: 0 0.5rem;
+        position: relative;
+    }
+
+    .wave-bar {
+        flex: 1;
+        background: #E5E7EB;
+        border-radius: 3px;
+        min-height: 10px;
+    }
+
+    .wave-bar.active { background: var(--primary-blue); }
+    .wave-bar.light { background: #BFDBFE; }
+
+    /* Timeline scrub head */
+    .scrub-head {
+        position: absolute;
+        left: 35%; /* arbitrary position for demo */
+        top: -5px;
+        bottom: -15px;
+        width: 2px;
+        background: var(--primary-blue);
+        z-index: 2;
+    }
+    
+    .scrub-head::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -4px;
+        width: 10px;
+        height: 10px;
+        background: var(--primary-blue);
+        border-radius: 50%;
+    }
+
+    .scrub-time {
+        position: absolute;
+        bottom: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary-blue);
+        color: white;
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 0.2rem 0.4rem;
+        border-radius: 6px;
+    }
+
+    /* Main Topic */
+    .section-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+
+    .topic-desc {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-main);
+        line-height: 1.4;
+        margin-bottom: 1.25rem;
+    }
+
+    .topic-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .topic-tag {
+        background: #DBEAFE;
+        color: var(--secondary-blue);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 12px;
+    }
+
+    /* Important Notes */
+    .notes-card {
+        background: var(--primary-blue);
+        color: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+    }
+
+    .notes-card .section-label { color: rgba(255,255,255,0.7); }
+
+    .note-item {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .note-item i {
+        font-size: 1.2rem;
+        color: rgba(255,255,255,0.9);
+        margin-top: 0.1rem;
+    }
+
+    .notes-divider {
+        height: 1px;
+        background: rgba(255,255,255,0.2);
+        margin: 1.25rem 0 1rem 0;
+    }
+
+    .prof-tip-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.25rem;
+    }
+
+    .prof-tip-text {
+        font-size: 0.9rem;
+        font-style: italic;
+    }
+
+    /* Timeline */
+    .timeline {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0.45rem;
+        width: 2px;
+        background: #E5E7EB;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.35rem;
+        top: 0.3rem;
+        width: 12px;
+        height: 12px;
+        background: var(--primary-blue);
+        border: 3px solid var(--bg-color);
+        border-radius: 50%;
+        z-index: 2;
+    }
+
+    .timeline-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .time-badge {
+        background: #DBEAFE;
+        color: var(--secondary-blue);
+        font-size: 0.7rem;
+        font-weight: 800;
+        padding: 0.2rem 0.5rem;
+        border-radius: 8px;
+    }
+
+    .timeline-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--text-main);
+    }
+
+    .timeline-desc {
+        font-size: 0.85rem;
+        color: var(--text-sec);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* Homework List */
+    .homework-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .hw-due-badge {
+        background: #990000;
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 0.3rem 0.6rem;
+        border-radius: 12px;
+        text-transform: uppercase;
+    }
+
+    .hw-item {
+        background: white;
+        border-radius: 16px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .hw-circle {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #D1D5DB;
+        border-radius: 50%;
+    }
+
+    .hw-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    /* Study Group Note */
+    .study-group-note {
+        background: #F3F4F6;
+        border-radius: 20px;
+        padding: 1.5rem;
+    }
+
+    .study-group-desc {
+        font-size: 0.85rem;
+        color: var(--text-sec);
+        font-style: italic;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* Desktop Grid Overrides */
+    @media (min-width: 768px) {
+        .session-container {
+            max-width: 900px;
+            padding-top: 1rem;
+        }
+        
+        .session-desktop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .session-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .session-right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: sticky;
+            top: 2rem; /* Keep right side sticky when scrolling left */
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="session-container">
+    
+    <!-- Top Meta -->
+    <div>
+        <a href="{{ url_for('main.records') }}" class="btn-back-nav" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; font-weight: 800; color: var(--primary-blue); text-transform: uppercase; text-decoration: none; margin-bottom: 1rem;">
+            <i class="bi bi-arrow-left"></i> Back to Lecture History
+        </a>
+        <div class="session-badge">
+            <i class="bi bi-journal-text"></i> Session Summary
+        </div>
+        <h1 class="session-title">Advanced Quantum Mechanics</h1>
+        <p class="session-meta">October 24, 2024 • Professor Aris Thorne • Lecture Hall B</p>
+        <a href="#" class="btn-transcript">View Full Transcript</a>
+    </div>
+
+    <!-- Wrapping Content in Desktop Grid -->
+    <div class="session-desktop-grid">
+        <!-- Left Column -->
+        <div class="session-left-col">
+            <!-- Audio Player Card -->
+            <div class="audio-card">
+                <div class="audio-header">
+                    <div class="audio-info">
+                        <button class="btn-play">
+                            <i class="bi bi-play-fill"></i>
+                        </button>
+                        <div class="audio-text">
+                            <h4>Audio Recording</h4>
+                            <p>54:12 total duration</p>
+                        </div>
+                    </div>
+                    <div class="audio-speed">
+                        <i class="bi bi-speedometer2"></i> 1.5x
+                    </div>
+                </div>
+                
+                <!-- Fake Waveform -->
+                <div class="waveform">
+                    <div class="wave-bar active" style="height: 20%"></div>
+                    <div class="wave-bar active" style="height: 40%"></div>
+                    <div class="wave-bar active" style="height: 80%"></div>
+                    <div class="wave-bar active" style="height: 60%"></div>
+                    <div class="wave-bar active" style="height: 100%"></div>
+                    <div class="wave-bar active" style="height: 50%"></div>
+                    <div class="wave-bar active" style="height: 70%"></div>
+                    <div class="wave-bar light" style="height: 90%"></div>
+                    <div class="wave-bar light" style="height: 60%"></div>
+                    <div class="wave-bar light" style="height: 30%"></div>
+                    <div class="wave-bar light" style="height: 80%"></div>
+                    <div class="wave-bar light" style="height: 70%"></div>
+                    <div class="wave-bar light" style="height: 40%"></div>
+                    <div class="wave-bar light" style="height: 60%"></div>
+                    <div class="wave-bar light" style="height: 50%"></div>
+                    <div class="wave-bar light" style="height: 80%"></div>
+                    <div class="wave-bar light" style="height: 30%"></div>
+                    
+                    <div class="scrub-head">
+                        <div class="scrub-time">18:42</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Topic -->
+            <div>
+                <div class="section-label">Main Topic</div>
+                <div class="topic-desc">
+                    Exploration of Schrödinger's wave equation and the transition from classical mechanics to quantum probability density.
+                </div>
+                <div class="topic-tags">
+                    <div class="topic-tag">Quantum Physics</div>
+                    <div class="topic-tag">Wave Equation</div>
+                </div>
+            </div>
+            
+            <!-- Key Moments -->
+            <div>
+                <div class="section-label" style="margin-bottom: 1.5rem;">Key Moments</div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="time-badge">04:15</span>
+                            <span class="timeline-title">The Ultraviolet Catastrophe</span>
+                        </div>
+                        <p class="timeline-desc">Introduction to why classical physics failed to explain blackbody radiation.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="time-badge">22:40</span>
+                            <span class="timeline-title">Operators & Observables</span>
+                        </div>
+                        <p class="timeline-desc">Detailed breakdown of how position and momentum operators interact.</p>
+                    </div>
+
+                    <div class="timeline-item" style="margin-bottom: 0;">
+                        <div class="timeline-header">
+                            <span class="time-badge">48:12</span>
+                            <span class="timeline-title">Summary of Lab #3 Requirements</span>
+                        </div>
+                        <p class="timeline-desc">Instructions for the upcoming experiment on electron diffraction.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Group Note -->
+            <div class="study-group-note">
+                <div class="section-label">Study Group Note</div>
+                <p class="study-group-desc">
+                    "Hey, check the shared drive for the simulation we ran last semester, it helps with Problem 2!" - Sarah M.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="session-right-col">
+            <!-- Important Notes -->
+            <div class="notes-card">
+                <div class="section-label">Important Notes</div>
+                
+                <div class="note-item">
+                    <i class="bi bi-lightbulb"></i>
+                    <div>Focus on normalized wave functions for the midterm exam.</div>
+                </div>
+                
+                <div class="note-item" style="margin-bottom: 0;">
+                    <i class="bi bi-hash"></i>
+                    <div>δ (x, t) must be continuous everywhere.</div>
+                </div>
+
+                <div class="notes-divider"></div>
+
+                <div class="prof-tip-label">Professor Tip</div>
+                <div class="prof-tip-text">"The math is the map, not the territory."</div>
+            </div>
+
+            <!-- Homework -->
+            <div>
+                <div class="homework-header" style="margin-bottom: 1rem;">
+                    <div class="section-label" style="margin-bottom: 0;">Homework</div>
+                    <div class="hw-due-badge">Due in 2 Days</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div class="hw-item">
+                        <div class="hw-circle"></div>
+                        <div class="hw-text">Read Chapter 5: Wave Mechanics</div>
+                    </div>
+                    <div class="hw-item">
+                        <div class="hw-circle"></div>
+                        <div class="hw-text">Complete Problem Set #4 (Even Nos.)</div>
+                    </div>
+                    <div class="hw-item">
+                        <div class="hw-circle"></div>
+                        <div class="hw-text">Pre-read Lab Instructions for Wed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block fab %}
+<!-- Disable FAB -->
+{% endblock %}
