@@ -7,7 +7,7 @@ main_bp = Blueprint('main', __name__)
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-    return render_template('main/index.html')
+    return redirect(url_for('auth.login'))
 
 @main_bp.route('/dashboard')
 @login_required # Ruta protegida con auth
