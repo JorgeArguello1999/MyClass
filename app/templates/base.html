@@ -59,12 +59,13 @@
 
     <!-- FAB -->
     {% block fab %}
-    <button class="fab">
+    <a href="{{ url_for('main.live_session') }}" class="fab" style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
         <i class="bi bi-mic-fill"></i>
-    </button>
+    </a>
     {% endblock %}
 
     <!-- Bottom Nav -->
+    {% block bottom_nav %}
     <nav class="bottom-nav">
         <a href="{{ url_for('main.dashboard') }}" class="nav-item {{ 'active' if active_page == 'dashboard' else '' }}">
             <i class="bi bi-mortarboard-fill"></i>
@@ -79,6 +80,7 @@
             <span>Settings</span>
         </a>
     </nav>
+    {% endblock %}
 </div>
 
 <script>

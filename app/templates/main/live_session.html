@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block title %}Live Session - Transcript{% endblock %}
+
+{% block extra_css %}
+<style>
+    .live-container {
+        padding: 0 1.5rem 8rem 1.5rem; /* Large bottom padding for floating controls */
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        min-height: calc(100vh - 70px);
+        background: white; /* Maintain white background */
+    }
+
+    /* Top Translator Component */
+    .translator-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .lang-pill {
+        flex: 1;
+        text-align: center;
+        padding: 0.85rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .lang-pill.active {
+        background: var(--primary-blue);
+        color: white;
+        box-shadow: 0 4px 12px rgba(3, 59, 129, 0.2);
+    }
+
+    .lang-pill.inactive {
+        background: #F3F4F6;
+        color: var(--primary-blue);
+    }
+
+    .translator-icon {
+        color: var(--text-sec);
+        font-size: 1.1rem;
+    }
+
+    /* Live Recording Indicator */
+    .recording-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 1rem 0;
+    }
+
+    .sound-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 45px;
+        margin-bottom: 0.75rem;
+    }
+
+    .s-bar {
+        width: 4px;
+        background: #990000;
+        border-radius: 2px;
+        animation: soundbounce 1s infinite alternate ease-in-out;
+    }
+
+    .s-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+    .s-bar:nth-child(2) { height: 80%; animation-delay: 0.3s; }
+    .s-bar:nth-child(3) { height: 100%; animation-delay: 0.2s; }
+    .s-bar:nth-child(4) { height: 60%; animation-delay: 0.5s; background: #DC2626; }
+    .s-bar:nth-child(5) { height: 90%; animation-delay: 0.4s; }
+    .s-bar:nth-child(6) { height: 100%; animation-delay: 0.1s; }
+    .s-bar:nth-child(7) { height: 50%; animation-delay: 0.3s; }
+    .s-bar:nth-child(8) { height: 80%; animation-delay: 0.2s; background: #FCA5A5; }
+    .s-bar:nth-child(9) { height: 40%; animation-delay: 0.6s; background: #FCA5A5; }
+
+    @keyframes soundbounce {
+        0% { transform: scaleY(0.5); }
+        100% { transform: scaleY(1); }
+    }
+
+    .rec-status {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #990000;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .rec-dot {
+        width: 8px;
+        height: 8px;
+        background: #990000;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.4; }
+        100% { opacity: 1; }
+    }
+
+    /* Transcript Cards */
+    .transcript-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .t-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        position: relative;
+    }
+
+    .t-card.highlighted {
+        background: #DBEAFE;
+    }
+
+    .t-card.active-talking {
+        box-shadow: none;
+        border-radius: 0;
+        border-left: 4px solid var(--primary-blue);
+        padding: 0.5rem 1rem;
+        background: transparent;
+    }
+
+    .t-source {
+        font-size: 1.15rem;
+        color: var(--text-main);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .t-translated {
+        font-size: 0.9rem;
+        color: var(--text-sec);
+        line-height: 1.4;
+    }
+    
+    .t-card.active-talking .t-source {
+        font-size: 1.35rem;
+        color: var(--primary-blue);
+    }
+
+    /* Badge and Sparkle */
+    .highlight-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        color: var(--primary-blue);
+        font-size: 1.25rem;
+    }
+
+    .badge-insight {
+        display: inline-block;
+        background: #BFDBFE;
+        color: var(--primary-blue);
+        font-size: 0.55rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        text-transform: uppercase;
+        margin-top: 1rem;
+    }
+
+    /* Bottom Control Bar */
+    .live-controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(0deg, rgba(255,255,255,1) 70%, rgba(255,255,255,0) 100%);
+        padding: 2rem 1.5rem 2.5rem 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 2.5rem;
+        z-index: 100;
+    }
+
+    /* Remove limits for desktop centering properly */
+    @media (min-width: 768px) {
+        .live-controls {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+
+    .ctrl-btn-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ctrl-circle {
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+        border: none;
+    }
+
+    .ctrl-circle:hover {
+        transform: scale(1.05);
+    }
+
+    .ctrl-secondary {
+        width: 56px;
+        height: 56px;
+        background: #E5E7EB;
+        color: var(--text-sec);
+        font-size: 1.25rem;
+    }
+
+    .ctrl-primary {
+        width: 72px;
+        height: 72px;
+        background: #990000;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 10px 25px rgba(153, 0, 0, 0.3);
+    }
+
+    .ctrl-label {
+        font-size: 0.6rem;
+        font-weight: 800;
+        color: var(--text-sec);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .ctrl-label.red {
+        color: #990000;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="live-container">
+    
+    <!-- Top Translator Navigation -->
+    <div class="translator-bar">
+        <div class="lang-pill active">Korean</div>
+        <div class="translator-icon"><i class="bi bi-arrow-left-right"></i></div>
+        <div class="lang-pill inactive">English</div>
+    </div>
+
+    <!-- Indicator -->
+    <div class="recording-indicator">
+        <div class="sound-bars">
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+            <div class="s-bar"></div>
+        </div>
+        <div class="rec-status">
+            <div class="rec-dot"></div> LIVE RECORDING
+        </div>
+    </div>
+
+    <!-- Transcripts List -->
+    <div class="transcript-list">
+        
+        <div class="t-card">
+            <div class="t-source">안녕하세요, 오늘 강의에 오신 것을 환영합니다.</div>
+            <div class="t-translated">Hello, and welcome to today's lecture.</div>
+        </div>
+
+        <div class="t-card">
+            <div class="t-source">우리는 현대 건축의 진화에 대해 논의할 것입니다.</div>
+            <div class="t-translated">We will be discussing the evolution of modern architecture.</div>
+        </div>
+
+        <div class="t-card highlighted">
+            <i class="bi bi-stars highlight-icon"></i>
+            <div class="t-source">바우하우스 운동은 기능주의를 도입했습니다.</div>
+            <div class="t-translated">The Bauhaus movement introduced functionalism.</div>
+            <div class="badge-insight">KEY INSIGHT</div>
+        </div>
+
+        <div class="t-card active-talking">
+            <div class="t-source">형태는 기능을 따릅니다...</div>
+            <div class="t-translated">Form follows function...</div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Bottom Control Bar -->
+<div class="live-controls">
+    <div class="ctrl-btn-container">
+        <button class="ctrl-circle ctrl-secondary">
+            <i class="bi bi-pause-fill"></i>
+        </button>
+        <span class="ctrl-label">PAUSE</span>
+    </div>
+
+    <div class="ctrl-btn-container">
+        <a href="{{ url_for('main.session_summary') }}" style="text-decoration: none;">
+            <div class="ctrl-circle ctrl-primary">
+                <i class="bi bi-stop-fill"></i>
+            </div>
+        </a>
+        <span class="ctrl-label red">END SESSION</span>
+    </div>
+
+    <div class="ctrl-btn-container">
+        <button class="ctrl-circle ctrl-secondary">
+            <i class="bi bi-star"></i>
+        </button>
+        <span class="ctrl-label">KEY POINT</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block bottom_nav %}{% endblock %}
+{% block fab %}{% endblock %}

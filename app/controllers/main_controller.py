@@ -29,6 +29,11 @@ def settings():
 def records():
     return render_template('main/records.html', active_page='records')
 
+@main_bp.route('/live')
+@login_required
+def live_session():
+    return render_template('main/live_session.html')
+
 @main_bp.route('/course/session')
 @login_required
 def session_summary():
