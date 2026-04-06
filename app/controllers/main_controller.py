@@ -12,9 +12,14 @@ def index():
 @main_bp.route('/dashboard')
 @login_required # Ruta protegida con auth
 def dashboard():
-    return render_template('main/dashboard.html')
+    return render_template('main/dashboard.html', active_page='dashboard')
 
 @main_bp.route('/course/new')
 @login_required
 def add_course():
     return render_template('main/add_course.html')
+
+@main_bp.route('/settings')
+@login_required
+def settings():
+    return render_template('main/settings.html', active_page='settings')
