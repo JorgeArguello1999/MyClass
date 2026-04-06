@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New Course - LuminaAcademic{% endblock %}
+
+{% block extra_css %}
+<style>
+    .course-form-container {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+    
+    .course-form-card {
+        background: var(--card-bg);
+        border-radius: 24px;
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        position: relative;
+        /* Desktop specific alignment */
+        margin: 0 auto;
+    }
+
+    .btn-close-custom {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        background: transparent;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-sec);
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .btn-close-custom:hover {
+        color: var(--text-main);
+    }
+
+    .form-title {
+        color: var(--primary-blue);
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        padding-right: 2rem; /* prevent overlap with close btn */
+    }
+
+    .form-subtitle {
+        color: var(--text-sec);
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+        line-height: 1.4;
+    }
+
+    /* Cover Upload Area */
+    .upload-cover {
+        background: rgba(243, 244, 246, 0.4);
+        border: 2px dashed #D1D5DB;
+        border-radius: 16px;
+        height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-cover:hover {
+        background: #F3F4F6;
+        border-color: #9CA3AF;
+    }
+
+    .upload-icon-circle {
+        background: white;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        color: var(--primary-blue);
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .upload-text {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* Form Labels & Inputs */
+    .form-label-custom {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-main);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-underline {
+        width: 100%;
+        border: none;
+        border-bottom: 2px solid #E5E7EB;
+        background: transparent;
+        padding: 0.5rem 0 0.75rem 0;
+        font-size: 1.1rem;
+        color: var(--text-main);
+        margin-bottom: 2rem;
+        transition: border-color 0.2s;
+    }
+
+    .input-underline:focus {
+        outline: none;
+        border-bottom-color: var(--primary-blue);
+    }
+    
+    .input-underline::placeholder {
+        color: #9CA3AF;
+    }
+
+    /* Icon Selector */
+    .icon-selector-grid {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+    }
+
+    .icon-selector-item {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        background: #F3F4F6;
+        color: var(--text-sec);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .icon-selector-item:hover {
+        background: #E5E7EB;
+    }
+
+    .icon-selector-item.active {
+        background: var(--primary-blue);
+        color: white;
+        box-shadow: 0 4px 12px rgba(3, 59, 129, 0.3);
+    }
+
+    /* Pro Tip */
+    .pro-tip {
+        background: #F8FAFC;
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+        border: 1px solid #F1F5F9;
+    }
+
+    .pro-tip-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .pro-tip-text {
+        font-size: 0.85rem;
+        color: var(--text-sec);
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Main Button */
+    .btn-submit-course {
+        width: 100%;
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        padding: 1.1rem;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-submit-course:hover {
+        background: var(--secondary-blue);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="course-form-container">
+    <div class="course-form-card">
+        <a href="{{ url_for('main.dashboard') }}" class="btn-close-custom">
+            <i class="bi bi-x-lg"></i>
+        </a>
+
+        <h1 class="form-title">Add New Course</h1>
+        <p class="form-subtitle">Organize your academic intelligence.</p>
+
+        <form action="{{ url_for('main.dashboard') }}" method="GET">
+            <!-- Cover Upload -->
+            <div class="upload-cover">
+                <div class="upload-icon-circle">
+                    <i class="bi bi-camera"></i>
+                </div>
+                <div class="upload-text">Upload Cover Image</div>
+            </div>
+
+            <!-- Course Name -->
+            <label class="form-label-custom">Course Name</label>
+            <input type="text" class="input-underline" placeholder="e.g. Advanced Macroeconomy" required>
+
+            <!-- Icon Selection -->
+            <label class="form-label-custom">Select Course Icon</label>
+            <div class="icon-selector-grid">
+                <div class="icon-selector-item active"><i class="bi bi-book"></i></div>
+                <div class="icon-selector-item"><i class="bi bi-car-front"></i></div>
+                <div class="icon-selector-item"><i class="bi bi-image"></i></div>
+                <div class="icon-selector-item"><i class="bi bi-magic"></i></div>
+                <div class="icon-selector-item"><i class="bi bi-calculator"></i></div>
+            </div>
+
+            <!-- Pro tip -->
+            <div class="pro-tip">
+                <div class="pro-tip-header">
+                    <i class="bi bi-info-circle"></i> Pro Tip
+                </div>
+                <p class="pro-tip-text">
+                    Adding a unique icon helps the AI categorize your lecture transcripts more accurately.
+                </p>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-submit-course">
+                Create Course <i class="bi bi-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Simple script to toggle active state on icons
+    document.querySelectorAll('.icon-selector-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.icon-selector-item').forEach(el => el.classList.remove('active'));
+            this.classList.add('active');
+            // Here you'd typically also update a hidden input field with the selected icon value
+        });
+    });
+</script>
+{% endblock %}
+
+{% block fab %}
+<!-- No FAB on this page -->
+{% endblock %}

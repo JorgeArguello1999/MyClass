@@ -29,9 +29,9 @@
         </div>
         
         <nav class="desktop-nav">
-            <a href="#" class="active">Courses</a>
-            <a href="#">Records</a>
-            <a href="#">Settings</a>
+            <a href="{{ url_for('main.dashboard') }}" class="{{ 'active' if active_page == 'dashboard' else '' }}">Courses</a>
+            <a href="{{ url_for('main.records') }}" class="{{ 'active' if active_page == 'records' else '' }}">Records</a>
+            <a href="{{ url_for('main.settings') }}" class="{{ 'active' if active_page == 'settings' else '' }}">Settings</a>
         </nav>
 
         <div class="profile-dropdown" style="position: relative; cursor: pointer;">
@@ -59,26 +59,28 @@
 
     <!-- FAB -->
     {% block fab %}
-    <button class="fab">
+    <a href="{{ url_for('main.live_session') }}" class="fab" style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
         <i class="bi bi-mic-fill"></i>
-    </button>
+    </a>
     {% endblock %}
 
     <!-- Bottom Nav -->
+    {% block bottom_nav %}
     <nav class="bottom-nav">
-        <a href="#" class="nav-item active">
+        <a href="{{ url_for('main.dashboard') }}" class="nav-item {{ 'active' if active_page == 'dashboard' else '' }}">
             <i class="bi bi-mortarboard-fill"></i>
             <span>Courses</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="{{ url_for('main.records') }}" class="nav-item {{ 'active' if active_page == 'records' else '' }}">
             <i class="bi bi-mic"></i>
             <span>Records</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="{{ url_for('main.settings') }}" class="nav-item {{ 'active' if active_page == 'settings' else '' }}">
             <i class="bi bi-gear"></i>
             <span>Settings</span>
         </a>
     </nav>
+    {% endblock %}
 </div>
 
 <script>
