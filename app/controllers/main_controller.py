@@ -13,3 +13,8 @@ def index():
 @login_required # Ruta protegida con auth
 def dashboard():
     return render_template('main/dashboard.html')
+
+@main_bp.route('/course/new')
+@login_required
+def add_course():
+    return render_template('main/add_course.html')
