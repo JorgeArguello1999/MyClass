@@ -470,7 +470,7 @@
 {% endblock %}
 
 {% block fab %}
-<button class="fab" style="background-color: var(--primary-blue); font-size: 1.8rem; box-shadow: 0 10px 25px rgba(3, 59, 129, 0.45);">
+<a href="{{ url_for('main.live_session') }}" class="fab" style="text-decoration: none; display: flex; justify-content: center; align-items: center; background-color: var(--primary-blue); font-size: 1.8rem; box-shadow: 0 10px 25px rgba(3, 59, 129, 0.45);">
     <i class="bi bi-plus"></i>
-</button>
+</a>
 {% endblock %}
