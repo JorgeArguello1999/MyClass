@@ -1,0 +1,476 @@
+{% extends 'base.html' %}
+
+{% block title %}Lecture History - LuminaAcademic{% endblock %}
+
+{% block extra_css %}
+<style>
+    .records-container {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    /* Top Nav specific for records */
+    .btn-back-nav {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+    }
+
+    .btn-back-nav:hover {
+        color: var(--secondary-blue);
+        text-decoration: underline;
+    }
+
+    .view-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1.1;
+        margin-bottom: 0.4rem;
+    }
+
+    .view-meta {
+        font-size: 0.8rem;
+        color: var(--text-sec);
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+
+    /* Main Progress Card */
+    .progress-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+    
+    .progress-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .icon-square-container {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: var(--primary-blue);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5rem;
+    }
+
+    .progress-header-text h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 0.15rem 0;
+    }
+
+    .progress-header-text p {
+        font-size: 0.75rem;
+        color: var(--text-sec);
+        margin: 0;
+    }
+
+    /* Progress Stats */
+    .progress-stats-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-big-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+    }
+
+    .progress-light-text {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-sec);
+    }
+
+    .progress-percent {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: var(--primary-blue);
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background: #E5E7EB;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--primary-blue);
+        border-radius: 3px;
+        width: 40%;
+    }
+
+    /* Stat Blocks Inside Card */
+    .stat-blocks {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .stat-block {
+        flex: 1;
+        background: #F8FAFC;
+        border-radius: 16px;
+        padding: 1rem;
+    }
+
+    .stat-block-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: var(--text-sec);
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+    }
+
+    .stat-block-val {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-main);
+    }
+
+    /* Filters row */
+    .records-filters {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+    }
+
+    .filter-pill {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .filter-pill.active {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .filter-pill.inactive {
+        background: #DBEAFE;
+        color: var(--secondary-blue);
+    }
+
+    .filter-pill.inactive:hover {
+        background: #BFDBFE;
+    }
+
+    .more-options-btn {
+        margin-left: auto;
+        color: var(--text-sec);
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+
+    /* History List items */
+    .history-card {
+        background: white;
+        border-radius: 24px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-decoration: none;
+    }
+
+    .history-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+    }
+
+    .history-card-date {
+        flex-shrink: 0;
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: #F8FAFC;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #F1F5F9;
+    }
+
+    .date-month {
+        font-size: 0.6rem;
+        font-weight: 800;
+        color: var(--text-sec);
+        line-height: 1;
+        margin-bottom: 0.1rem;
+        text-transform: uppercase;
+    }
+
+    .date-day {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1;
+    }
+
+    .history-card-body {
+        flex-grow: 1;
+    }
+
+    .status-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .status-badge {
+        font-size: 0.55rem;
+        font-weight: 800;
+        padding: 0.2rem 0.4rem;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.ready {
+        background: #DBEAFE;
+        color: var(--secondary-blue);
+    }
+
+    .status-badge.unprocessed {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+
+    .duration-dot {
+        font-size: 0.6rem;
+        color: #9CA3AF;
+        padding-top: 1px;
+    }
+
+    .duration-text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-sec);
+    }
+
+    .history-card-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 0.1rem 0;
+    }
+
+    .history-card-desc {
+        font-size: 0.75rem;
+        color: var(--text-sec);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
+
+    .history-action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid #E5E7EB;
+        background: transparent;
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    
+    .history-action-btn.unprocessed {
+        border: none;
+        background: #F3F4F6;
+    }
+
+    /* Add override for spacing at end of list */
+    .history-list-end {
+        height: 60px; /* space for the nav */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="records-container">
+    
+    <!-- Top Meta -->
+    <div>
+        <a href="{{ url_for('main.dashboard') }}" class="btn-back-nav">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1 class="view-title">Software Development</h1>
+        <p class="view-meta">Computer Science Department • CS304</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="progress-card">
+        <div class="progress-header">
+            <div class="icon-square-container">
+                <i class="bi bi-book"></i>
+            </div>
+            <div class="progress-header-text">
+                <h3>Course Progress</h3>
+                <p>Semester 1 • 2024</p>
+            </div>
+        </div>
+        
+        <div class="progress-stats-row">
+            <div>
+                <span class="progress-big-number">12</span>
+                <span class="progress-light-text"> / 30 Sessions</span>
+            </div>
+            <div class="progress-percent">40%</div>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill"></div>
+        </div>
+
+        <div class="stat-blocks">
+            <div class="stat-block">
+                <div class="stat-block-label">Total Hours</div>
+                <div class="stat-block-val">18.5h</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-block-label">Key Topics</div>
+                <div class="stat-block-val">42</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="records-filters">
+        <div class="filter-pill active">All</div>
+        <div class="filter-pill inactive">Recent</div>
+        <div class="filter-pill inactive">Unprocessed</div>
+        
+        <div class="more-options-btn">
+            <i class="bi bi-three-dots-vertical"></i>
+        </div>
+    </div>
+
+    <!-- History List -->
+    <a class="history-card" href="{{ url_for('main.session_summary') }}">
+        <div class="history-card-date">
+            <span class="date-month">Mar</span>
+            <span class="date-day">14</span>
+        </div>
+        <div class="history-card-body">
+            <div class="status-row">
+                <span class="status-badge ready">Summary Ready</span>
+                <i class="bi bi-circle-fill duration-dot"></i>
+                <span class="duration-text">1h 24m</span>
+            </div>
+            <h4 class="history-card-title">Software Design Patterns</h4>
+            <p class="history-card-desc">Discussion on architectural patterns...</p>
+        </div>
+        <div class="history-action-btn">
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </a>
+
+    <a class="history-card" href="{{ url_for('main.session_summary') }}">
+        <div class="history-card-date">
+            <span class="date-month">Mar</span>
+            <span class="date-day">11</span>
+        </div>
+        <div class="history-card-body">
+            <div class="status-row">
+                <span class="status-badge ready">Summary Ready</span>
+                <i class="bi bi-circle-fill duration-dot"></i>
+                <span class="duration-text">58m</span>
+            </div>
+            <h4 class="history-card-title">Architecture Fundamentals</h4>
+            <p class="history-card-desc">Introduction to monolithic and microservices structures.</p>
+        </div>
+        <div class="history-action-btn">
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </a>
+
+    <a class="history-card" href="#">
+        <div class="history-card-date">
+            <span class="date-month">Mar</span>
+            <span class="date-day">07</span>
+        </div>
+        <div class="history-card-body">
+            <div class="status-row">
+                <span class="status-badge unprocessed">Unprocessed</span>
+                <i class="bi bi-circle-fill duration-dot"></i>
+                <span class="duration-text">1h 45m</span>
+            </div>
+            <h4 class="history-card-title">Database Normalization</h4>
+            <p class="history-card-desc">Processing background audio tracking...</p>
+        </div>
+        <div class="history-action-btn unprocessed">
+            <i class="bi bi-arrow-repeat"></i>
+        </div>
+    </a>
+
+    <a class="history-card" href="{{ url_for('main.session_summary') }}">
+        <div class="history-card-date">
+            <span class="date-month">Mar</span>
+            <span class="date-day">04</span>
+        </div>
+        <div class="history-card-body">
+            <div class="status-row">
+                <span class="status-badge ready">Summary Ready</span>
+                <i class="bi bi-circle-fill duration-dot"></i>
+                <span class="duration-text">1h 10m</span>
+            </div>
+            <h4 class="history-card-title">Intro to Git & CI/CD</h4>
+            <p class="history-card-desc">Version control methodologies and pipeline building.</p>
+        </div>
+        <div class="history-action-btn">
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </a>
+
+    <!-- Spacer to avoid overlapping bottom bar completely -->
+    <div class="history-list-end"></div>
+</div>
+{% endblock %}
+
+{% block fab %}
+<button class="fab" style="background-color: var(--primary-blue); font-size: 1.8rem; box-shadow: 0 10px 25px rgba(3, 59, 129, 0.45);">
+    <i class="bi bi-plus"></i>
+</button>
+{% endblock %}

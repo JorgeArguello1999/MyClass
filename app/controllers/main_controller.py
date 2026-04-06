@@ -23,3 +23,13 @@ def add_course():
 @login_required
 def settings():
     return render_template('main/settings.html', active_page='settings')
+
+@main_bp.route('/records')
+@login_required
+def records():
+    return render_template('main/records.html', active_page='records')
+
+@main_bp.route('/course/session')
+@login_required
+def session_summary():
+    return render_template('main/session_summary.html', active_page='dashboard')

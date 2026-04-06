@@ -30,7 +30,7 @@
         
         <nav class="desktop-nav">
             <a href="#" class="active">Courses</a>
-            <a href="#">Records</a>
+            <a href="{{ url_for('main.records') }}" class="{{ 'active' if active_page == 'records' else '' }}">Records</a>
             <a href="#">Settings</a>
         </nav>
 
@@ -70,7 +70,7 @@
             <i class="bi bi-mortarboard-fill"></i>
             <span>Courses</span>
         </a>
-        <a href="#" class="nav-item {{ 'active' if active_page == 'records' else '' }}">
+        <a href="{{ url_for('main.records') }}" class="nav-item {{ 'active' if active_page == 'records' else '' }}">
             <i class="bi bi-mic"></i>
             <span>Records</span>
         </a>
