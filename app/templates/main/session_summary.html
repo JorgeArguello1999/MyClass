@@ -371,6 +371,34 @@
         margin: 0;
     }
 
+    /* Desktop Grid Overrides */
+    @media (min-width: 768px) {
+        .session-container {
+            max-width: 900px;
+            padding-top: 1rem;
+        }
+        
+        .session-desktop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .session-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .session-right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: sticky;
+            top: 2rem; /* Keep right side sticky when scrolling left */
+        }
+    }
 </style>
 {% endblock %}
 
@@ -390,143 +418,150 @@
         <a href="#" class="btn-transcript">View Full Transcript</a>
     </div>
 
-    <!-- Audio Player Card -->
-    <div class="audio-card">
-        <div class="audio-header">
-            <div class="audio-info">
-                <button class="btn-play">
-                    <i class="bi bi-play-fill"></i>
-                </button>
-                <div class="audio-text">
-                    <h4>Audio Recording</h4>
-                    <p>54:12 total duration</p>
+    <!-- Wrapping Content in Desktop Grid -->
+    <div class="session-desktop-grid">
+        <!-- Left Column -->
+        <div class="session-left-col">
+            <!-- Audio Player Card -->
+            <div class="audio-card">
+                <div class="audio-header">
+                    <div class="audio-info">
+                        <button class="btn-play">
+                            <i class="bi bi-play-fill"></i>
+                        </button>
+                        <div class="audio-text">
+                            <h4>Audio Recording</h4>
+                            <p>54:12 total duration</p>
+                        </div>
+                    </div>
+                    <div class="audio-speed">
+                        <i class="bi bi-speedometer2"></i> 1.5x
+                    </div>
+                </div>
+                
+                <!-- Fake Waveform -->
+                <div class="waveform">
+                    <div class="wave-bar active" style="height: 20%"></div>
+                    <div class="wave-bar active" style="height: 40%"></div>
+                    <div class="wave-bar active" style="height: 80%"></div>
+                    <div class="wave-bar active" style="height: 60%"></div>
+                    <div class="wave-bar active" style="height: 100%"></div>
+                    <div class="wave-bar active" style="height: 50%"></div>
+                    <div class="wave-bar active" style="height: 70%"></div>
+                    <div class="wave-bar light" style="height: 90%"></div>
+                    <div class="wave-bar light" style="height: 60%"></div>
+                    <div class="wave-bar light" style="height: 30%"></div>
+                    <div class="wave-bar light" style="height: 80%"></div>
+                    <div class="wave-bar light" style="height: 70%"></div>
+                    <div class="wave-bar light" style="height: 40%"></div>
+                    <div class="wave-bar light" style="height: 60%"></div>
+                    <div class="wave-bar light" style="height: 50%"></div>
+                    <div class="wave-bar light" style="height: 80%"></div>
+                    <div class="wave-bar light" style="height: 30%"></div>
+                    
+                    <div class="scrub-head">
+                        <div class="scrub-time">18:42</div>
+                    </div>
                 </div>
             </div>
-            <div class="audio-speed">
-                <i class="bi bi-speedometer2"></i> 1.5x
+
+            <!-- Main Topic -->
+            <div>
+                <div class="section-label">Main Topic</div>
+                <div class="topic-desc">
+                    Exploration of Schrödinger's wave equation and the transition from classical mechanics to quantum probability density.
+                </div>
+                <div class="topic-tags">
+                    <div class="topic-tag">Quantum Physics</div>
+                    <div class="topic-tag">Wave Equation</div>
+                </div>
             </div>
-        </div>
-        
-        <!-- Fake Waveform -->
-        <div class="waveform">
-            <!-- Simulated bars -->
-            <div class="wave-bar active" style="height: 20%"></div>
-            <div class="wave-bar active" style="height: 40%"></div>
-            <div class="wave-bar active" style="height: 80%"></div>
-            <div class="wave-bar active" style="height: 60%"></div>
-            <div class="wave-bar active" style="height: 100%"></div>
-            <div class="wave-bar active" style="height: 50%"></div>
-            <div class="wave-bar active" style="height: 70%"></div>
-            <div class="wave-bar light" style="height: 90%"></div>
-            <div class="wave-bar light" style="height: 60%"></div>
-            <div class="wave-bar light" style="height: 30%"></div>
-            <div class="wave-bar light" style="height: 80%"></div>
-            <div class="wave-bar light" style="height: 70%"></div>
-            <div class="wave-bar light" style="height: 40%"></div>
-            <div class="wave-bar light" style="height: 60%"></div>
-            <div class="wave-bar light" style="height: 50%"></div>
-            <div class="wave-bar light" style="height: 80%"></div>
-            <div class="wave-bar light" style="height: 30%"></div>
             
-            <div class="scrub-head">
-                <div class="scrub-time">18:42</div>
-            </div>
-        </div>
-    </div>
+            <!-- Key Moments -->
+            <div>
+                <div class="section-label" style="margin-bottom: 1.5rem;">Key Moments</div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="time-badge">04:15</span>
+                            <span class="timeline-title">The Ultraviolet Catastrophe</span>
+                        </div>
+                        <p class="timeline-desc">Introduction to why classical physics failed to explain blackbody radiation.</p>
+                    </div>
 
-    <!-- Main Topic -->
-    <div>
-        <div class="section-label">Main Topic</div>
-        <div class="topic-desc">
-            Exploration of Schrödinger's wave equation and the transition from classical mechanics to quantum probability density.
-        </div>
-        <div class="topic-tags">
-            <div class="topic-tag">Quantum Physics</div>
-            <div class="topic-tag">Wave Equation</div>
-        </div>
-    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="time-badge">22:40</span>
+                            <span class="timeline-title">Operators & Observables</span>
+                        </div>
+                        <p class="timeline-desc">Detailed breakdown of how position and momentum operators interact.</p>
+                    </div>
 
-    <!-- Important Notes -->
-    <div class="notes-card">
-        <div class="section-label">Important Notes</div>
-        
-        <div class="note-item">
-            <i class="bi bi-lightbulb"></i>
-            <div>Focus on normalized wave functions for the midterm exam.</div>
-        </div>
-        
-        <div class="note-item" style="margin-bottom: 0;">
-            <i class="bi bi-hash"></i> <!-- Using hash as a substitute for Sigma icon in standard bi -->
-            <div>δ (x, t) must be continuous everywhere.</div>
-        </div>
-
-        <div class="notes-divider"></div>
-
-        <div class="prof-tip-label">Professor Tip</div>
-        <div class="prof-tip-text">"The math is the map, not the territory."</div>
-    </div>
-
-    <!-- Key Moments -->
-    <div>
-        <div class="section-label" style="margin-bottom: 1.5rem;">Key Moments</div>
-        <div class="timeline">
-            <div class="timeline-item">
-                <div class="timeline-header">
-                    <span class="time-badge">04:15</span>
-                    <span class="timeline-title">The Ultraviolet Catastrophe</span>
+                    <div class="timeline-item" style="margin-bottom: 0;">
+                        <div class="timeline-header">
+                            <span class="time-badge">48:12</span>
+                            <span class="timeline-title">Summary of Lab #3 Requirements</span>
+                        </div>
+                        <p class="timeline-desc">Instructions for the upcoming experiment on electron diffraction.</p>
+                    </div>
                 </div>
-                <p class="timeline-desc">Introduction to why classical physics failed to explain blackbody radiation.</p>
             </div>
 
-            <div class="timeline-item">
-                <div class="timeline-header">
-                    <span class="time-badge">22:40</span>
-                    <span class="timeline-title">Operators & Observables</span>
+            <!-- Study Group Note -->
+            <div class="study-group-note">
+                <div class="section-label">Study Group Note</div>
+                <p class="study-group-desc">
+                    "Hey, check the shared drive for the simulation we ran last semester, it helps with Problem 2!" - Sarah M.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="session-right-col">
+            <!-- Important Notes -->
+            <div class="notes-card">
+                <div class="section-label">Important Notes</div>
+                
+                <div class="note-item">
+                    <i class="bi bi-lightbulb"></i>
+                    <div>Focus on normalized wave functions for the midterm exam.</div>
                 </div>
-                <p class="timeline-desc">Detailed breakdown of how position and momentum operators interact.</p>
-            </div>
-
-            <div class="timeline-item" style="margin-bottom: 0;">
-                <div class="timeline-header">
-                    <span class="time-badge">48:12</span>
-                    <span class="timeline-title">Summary of Lab #3 Requirements</span>
+                
+                <div class="note-item" style="margin-bottom: 0;">
+                    <i class="bi bi-hash"></i>
+                    <div>δ (x, t) must be continuous everywhere.</div>
                 </div>
-                <p class="timeline-desc">Instructions for the upcoming experiment on electron diffraction.</p>
+
+                <div class="notes-divider"></div>
+
+                <div class="prof-tip-label">Professor Tip</div>
+                <div class="prof-tip-text">"The math is the map, not the territory."</div>
+            </div>
+
+            <!-- Homework -->
+            <div>
+                <div class="homework-header" style="margin-bottom: 1rem;">
+                    <div class="section-label" style="margin-bottom: 0;">Homework</div>
+                    <div class="hw-due-badge">Due in 2 Days</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div class="hw-item">
+                        <div class="hw-circle"></div>
+                        <div class="hw-text">Read Chapter 5: Wave Mechanics</div>
+                    </div>
+                    <div class="hw-item">
+                        <div class="hw-circle"></div>
+                        <div class="hw-text">Complete Problem Set #4 (Even Nos.)</div>
+                    </div>
+                    <div class="hw-item">
+                        <div class="hw-circle"></div>
+                        <div class="hw-text">Pre-read Lab Instructions for Wed</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Homework -->
-    <div>
-        <div class="homework-header" style="margin-bottom: 1rem;">
-            <div class="section-label" style="margin-bottom: 0;">Homework</div>
-            <div class="hw-due-badge">Due in 2 Days</div>
-        </div>
-        
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div class="hw-item">
-                <div class="hw-circle"></div>
-                <div class="hw-text">Read Chapter 5: Wave Mechanics</div>
-            </div>
-            <div class="hw-item">
-                <div class="hw-circle"></div>
-                <div class="hw-text">Complete Problem Set #4 (Even Nos.)</div>
-            </div>
-            <div class="hw-item">
-                <div class="hw-circle"></div>
-                <div class="hw-text">Pre-read Lab Instructions for Wed</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Study Group Note -->
-    <div class="study-group-note">
-        <div class="section-label">Study Group Note</div>
-        <p class="study-group-desc">
-            "Hey, check the shared drive for the simulation we ran last semester, it helps with Problem 2!" - Sarah M.
-        </p>
-    </div>
-
 </div>
 {% endblock %}
 

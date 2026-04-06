@@ -9,84 +9,86 @@
         <p>Your academic intelligence is up to date.</p>
     </div>
 
-    <!-- Add Course Card -->
-    <div class="add-course-card">
-        <div class="icon-circle">
-            <i class="bi bi-plus"></i>
-        </div>
-        <div class="add-course-title">Add New Course</div>
-        <div class="add-course-desc">Initialize a new intelligent tracking system for your upcoming semester modules.</div>
-        <a href="{{ url_for('main.add_course') }}" class="btn-initialize" style="text-decoration: none; display: inline-block;">Initialize</a>
-    </div>
-
-    <!-- Course List -->
-    <div class="course-list">
-        <!-- Software Dev -->
-        <div class="course-card core">
-            <div class="card-top">
-                <div class="module-icon">
-                    <i class="bi bi-braces"></i>
-                </div>
-                <div class="badge badge-core">CORE MODULE</div>
+    <div class="dashboard-grid">
+        <!-- Add Course Card -->
+        <div class="add-course-card">
+            <div class="icon-circle">
+                <i class="bi bi-plus"></i>
             </div>
-            <h4>Software Dev</h4>
-            <p>Winter Semester 2024</p>
-            <div class="card-bottom">
-                <div class="sessions">
-                    <i class="bi bi-mic-fill"></i> 12 Sessions
-                </div>
-                <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
+            <div class="add-course-title">Add New Course</div>
+            <div class="add-course-desc">Initialize a new intelligent tracking system for your upcoming semester modules.</div>
+            <a href="{{ url_for('main.add_course') }}" class="btn-initialize" style="text-decoration: none; display: inline-block;">Initialize</a>
         </div>
 
-        <!-- Mobile Dev -->
-        <div class="course-card elective">
-            <div class="card-top">
-                <div class="module-icon">
-                    <i class="bi bi-phone"></i>
+        <!-- Course List -->
+        <div class="course-list">
+            <!-- Software Dev -->
+            <div class="course-card core">
+                <div class="card-top">
+                    <div class="module-icon">
+                        <i class="bi bi-braces"></i>
+                    </div>
+                    <div class="badge badge-core">CORE MODULE</div>
                 </div>
-                <div class="badge badge-elective">ELECTIVE</div>
+                <h4>Software Dev</h4>
+                <p>Winter Semester 2024</p>
+                <div class="card-bottom">
+                    <div class="sessions">
+                        <i class="bi bi-mic-fill"></i> 12 Sessions
+                    </div>
+                    <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
             </div>
-            <h4>Mobile Dev</h4>
-            <p>Winter Semester 2024</p>
-            <div class="card-bottom">
-                <div class="sessions">
-                    <i class="bi bi-broadcast"></i> 8 Sessions
+
+            <!-- Mobile Dev -->
+            <div class="course-card elective">
+                <div class="card-top">
+                    <div class="module-icon">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                    <div class="badge badge-elective">ELECTIVE</div>
                 </div>
-                <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
-                    <i class="bi bi-arrow-right"></i>
-                </a>
+                <h4>Mobile Dev</h4>
+                <p>Winter Semester 2024</p>
+                <div class="card-bottom">
+                    <div class="sessions">
+                        <i class="bi bi-broadcast"></i> 8 Sessions
+                    </div>
+                    <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Database Systems -->
+            <div class="course-card technical">
+                <div class="card-top">
+                    <div class="module-icon">
+                        <i class="bi bi-database"></i>
+                    </div>
+                    <div class="badge badge-technical">TECHNICAL</div>
+                </div>
+                <h4>Database Systems</h4>
+                <p>Winter Semester 2024</p>
+                <div class="card-bottom">
+                    <div class="sessions">
+                        <i class="bi bi-calendar3"></i> 15 Sessions
+                    </div>
+                    <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Database Systems -->
-        <div class="course-card technical">
-            <div class="card-top">
-                <div class="module-icon">
-                    <i class="bi bi-database"></i>
-                </div>
-                <div class="badge badge-technical">TECHNICAL</div>
-            </div>
-            <h4>Database Systems</h4>
-            <p>Winter Semester 2024</p>
-            <div class="card-bottom">
-                <div class="sessions">
-                    <i class="bi bi-calendar3"></i> 15 Sessions
-                </div>
-                <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
+        <!-- Insight Card -->
+        <div class="insight-card">
+            <div class="insight-label">ACADEMIC INSIGHT</div>
+            <p class="insight-text">
+                "You've recorded <span>35 total hours</span> of lectures this month. Your AI summaries have saved you approximately 12 hours of manual note-taking."
+            </p>
         </div>
-    </div>
-
-    <!-- Insight Card -->
-    <div class="insight-card">
-        <div class="insight-label">ACADEMIC INSIGHT</div>
-        <p class="insight-text">
-            "You've recorded <span>35 total hours</span> of lectures this month. Your AI summaries have saved you approximately 12 hours of manual note-taking."
-        </p>
     </div>
 {% endblock %}

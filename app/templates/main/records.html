@@ -325,6 +325,43 @@
     .history-list-end {
         height: 60px; /* space for the nav */
     }
+
+    /* Desktop Grid Overrides */
+    @media (min-width: 768px) {
+        .records-container {
+            max-width: 900px;
+            padding-top: 1rem;
+        }
+
+        .records-desktop-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        .records-left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .records-right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .history-card {
+            padding: 1.5rem; /* Larger padding on desktop */
+        }
+        
+        .history-list-end {
+            display: none; /* Desktop doesn't need bottom space for nav */
+        }
+    }
 </style>
 {% endblock %}
 
@@ -332,7 +369,7 @@
 <div class="records-container">
     
     <!-- Top Meta -->
-    <div>
+    <div style="margin-bottom: 1rem;">
         <a href="{{ url_for('main.dashboard') }}" class="btn-back-nav">
             <i class="bi bi-arrow-left"></i> Back to Dashboard
         </a>
@@ -340,132 +377,142 @@
         <p class="view-meta">Computer Science Department • CS304</p>
     </div>
 
-    <!-- Main Card -->
-    <div class="progress-card">
-        <div class="progress-header">
-            <div class="icon-square-container">
-                <i class="bi bi-book"></i>
+    <div class="records-desktop-grid">
+        <!-- Left Column: Progress Card -->
+        <div class="records-left-col">
+            <!-- Main Card -->
+            <div class="progress-card">
+                <div class="progress-header">
+                    <div class="icon-square-container">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="progress-header-text">
+                        <h3>Course Progress</h3>
+                        <p>Semester 1 • 2024</p>
+                    </div>
+                </div>
+                
+                <div class="progress-stats-row">
+                    <div>
+                        <span class="progress-big-number">12</span>
+                        <span class="progress-light-text"> / 30 Sessions</span>
+                    </div>
+                    <div class="progress-percent">40%</div>
+                </div>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill"></div>
+                </div>
+
+                <div class="stat-blocks">
+                    <div class="stat-block">
+                        <div class="stat-block-label">Total Hours</div>
+                        <div class="stat-block-val">18.5h</div>
+                    </div>
+                    <div class="stat-block">
+                        <div class="stat-block-label">Key Topics</div>
+                        <div class="stat-block-val">42</div>
+                    </div>
+                </div>
             </div>
-            <div class="progress-header-text">
-                <h3>Course Progress</h3>
-                <p>Semester 1 • 2024</p>
-            </div>
-        </div>
-        
-        <div class="progress-stats-row">
-            <div>
-                <span class="progress-big-number">12</span>
-                <span class="progress-light-text"> / 30 Sessions</span>
-            </div>
-            <div class="progress-percent">40%</div>
-        </div>
-        
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill"></div>
         </div>
 
-        <div class="stat-blocks">
-            <div class="stat-block">
-                <div class="stat-block-label">Total Hours</div>
-                <div class="stat-block-val">18.5h</div>
+        <!-- Right Column: Filters and History -->
+        <div class="records-right-col">
+            <!-- Filters Row -->
+            <div class="records-filters">
+                <div class="filter-pill active">All</div>
+                <div class="filter-pill inactive">Recent</div>
+                <div class="filter-pill inactive">Unprocessed</div>
+                
+                <div class="more-options-btn">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </div>
             </div>
-            <div class="stat-block">
-                <div class="stat-block-label">Key Topics</div>
-                <div class="stat-block-val">42</div>
+
+            <!-- History List -->
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <a class="history-card" href="{{ url_for('main.session_summary') }}">
+                    <div class="history-card-date">
+                        <span class="date-month">Mar</span>
+                        <span class="date-day">14</span>
+                    </div>
+                    <div class="history-card-body">
+                        <div class="status-row">
+                            <span class="status-badge ready">Summary Ready</span>
+                            <i class="bi bi-circle-fill duration-dot"></i>
+                            <span class="duration-text">1h 24m</span>
+                        </div>
+                        <h4 class="history-card-title">Software Design Patterns</h4>
+                        <p class="history-card-desc">Discussion on architectural patterns...</p>
+                    </div>
+                    <div class="history-action-btn">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </a>
+
+                <a class="history-card" href="{{ url_for('main.session_summary') }}">
+                    <div class="history-card-date">
+                        <span class="date-month">Mar</span>
+                        <span class="date-day">11</span>
+                    </div>
+                    <div class="history-card-body">
+                        <div class="status-row">
+                            <span class="status-badge ready">Summary Ready</span>
+                            <i class="bi bi-circle-fill duration-dot"></i>
+                            <span class="duration-text">58m</span>
+                        </div>
+                        <h4 class="history-card-title">Architecture Fundamentals</h4>
+                        <p class="history-card-desc">Introduction to monolithic and microservices structures.</p>
+                    </div>
+                    <div class="history-action-btn">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </a>
+
+                <a class="history-card" href="#">
+                    <div class="history-card-date">
+                        <span class="date-month">Mar</span>
+                        <span class="date-day">07</span>
+                    </div>
+                    <div class="history-card-body">
+                        <div class="status-row">
+                            <span class="status-badge unprocessed">Unprocessed</span>
+                            <i class="bi bi-circle-fill duration-dot"></i>
+                            <span class="duration-text">1h 45m</span>
+                        </div>
+                        <h4 class="history-card-title">Database Normalization</h4>
+                        <p class="history-card-desc">Processing background audio tracking...</p>
+                    </div>
+                    <div class="history-action-btn unprocessed">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                </a>
+
+                <a class="history-card" href="{{ url_for('main.session_summary') }}">
+                    <div class="history-card-date">
+                        <span class="date-month">Mar</span>
+                        <span class="date-day">04</span>
+                    </div>
+                    <div class="history-card-body">
+                        <div class="status-row">
+                            <span class="status-badge ready">Summary Ready</span>
+                            <i class="bi bi-circle-fill duration-dot"></i>
+                            <span class="duration-text">1h 10m</span>
+                        </div>
+                        <h4 class="history-card-title">Intro to Git & CI/CD</h4>
+                        <p class="history-card-desc">Version control methodologies and pipeline building.</p>
+                    </div>
+                    <div class="history-action-btn">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </a>
             </div>
+
+            <!-- Spacer to avoid overlapping bottom bar completely -->
+            <div class="history-list-end"></div>
         </div>
     </div>
-
-    <!-- Filters Row -->
-    <div class="records-filters">
-        <div class="filter-pill active">All</div>
-        <div class="filter-pill inactive">Recent</div>
-        <div class="filter-pill inactive">Unprocessed</div>
-        
-        <div class="more-options-btn">
-            <i class="bi bi-three-dots-vertical"></i>
-        </div>
-    </div>
-
-    <!-- History List -->
-    <a class="history-card" href="{{ url_for('main.session_summary') }}">
-        <div class="history-card-date">
-            <span class="date-month">Mar</span>
-            <span class="date-day">14</span>
-        </div>
-        <div class="history-card-body">
-            <div class="status-row">
-                <span class="status-badge ready">Summary Ready</span>
-                <i class="bi bi-circle-fill duration-dot"></i>
-                <span class="duration-text">1h 24m</span>
-            </div>
-            <h4 class="history-card-title">Software Design Patterns</h4>
-            <p class="history-card-desc">Discussion on architectural patterns...</p>
-        </div>
-        <div class="history-action-btn">
-            <i class="bi bi-chevron-right"></i>
-        </div>
-    </a>
-
-    <a class="history-card" href="{{ url_for('main.session_summary') }}">
-        <div class="history-card-date">
-            <span class="date-month">Mar</span>
-            <span class="date-day">11</span>
-        </div>
-        <div class="history-card-body">
-            <div class="status-row">
-                <span class="status-badge ready">Summary Ready</span>
-                <i class="bi bi-circle-fill duration-dot"></i>
-                <span class="duration-text">58m</span>
-            </div>
-            <h4 class="history-card-title">Architecture Fundamentals</h4>
-            <p class="history-card-desc">Introduction to monolithic and microservices structures.</p>
-        </div>
-        <div class="history-action-btn">
-            <i class="bi bi-chevron-right"></i>
-        </div>
-    </a>
-
-    <a class="history-card" href="#">
-        <div class="history-card-date">
-            <span class="date-month">Mar</span>
-            <span class="date-day">07</span>
-        </div>
-        <div class="history-card-body">
-            <div class="status-row">
-                <span class="status-badge unprocessed">Unprocessed</span>
-                <i class="bi bi-circle-fill duration-dot"></i>
-                <span class="duration-text">1h 45m</span>
-            </div>
-            <h4 class="history-card-title">Database Normalization</h4>
-            <p class="history-card-desc">Processing background audio tracking...</p>
-        </div>
-        <div class="history-action-btn unprocessed">
-            <i class="bi bi-arrow-repeat"></i>
-        </div>
-    </a>
-
-    <a class="history-card" href="{{ url_for('main.session_summary') }}">
-        <div class="history-card-date">
-            <span class="date-month">Mar</span>
-            <span class="date-day">04</span>
-        </div>
-        <div class="history-card-body">
-            <div class="status-row">
-                <span class="status-badge ready">Summary Ready</span>
-                <i class="bi bi-circle-fill duration-dot"></i>
-                <span class="duration-text">1h 10m</span>
-            </div>
-            <h4 class="history-card-title">Intro to Git & CI/CD</h4>
-            <p class="history-card-desc">Version control methodologies and pipeline building.</p>
-        </div>
-        <div class="history-action-btn">
-            <i class="bi bi-chevron-right"></i>
-        </div>
-    </a>
-
-    <!-- Spacer to avoid overlapping bottom bar completely -->
-    <div class="history-list-end"></div>
 </div>
 {% endblock %}
 
