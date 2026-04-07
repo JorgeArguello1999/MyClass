@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}LuminaAcademic Dashboard{% endblock %}</title>    
+    <title>{% block title %}LuminaAcademic Dashboard{% endblock %}</title>
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.jpeg') }}">
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -15,88 +16,105 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
 
-<div class="mobile-wrapper">
-    <!-- Top Bar -->
-    <header class="top-bar">
-        <div class="menu-btn d-md-none">
-            <i class="bi bi-list"></i>
-        </div>
-        <div class="logo-text d-flex align-items-center gap-2">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="width:28px; height:28px; border-radius:4px;">
-            Lumina Academic
-        </div>
-        
-        <nav class="desktop-nav">
-            <a href="{{ url_for('main.dashboard') }}" class="{{ 'active' if active_page == 'dashboard' else '' }}">Courses</a>
-            <a href="{{ url_for('main.records') }}" class="{{ 'active' if active_page == 'records' else '' }}">Records</a>
-            <a href="{{ url_for('main.settings') }}" class="{{ 'active' if active_page == 'settings' else '' }}">Settings</a>
-        </nav>
-
-        <div class="profile-dropdown" style="position: relative; cursor: pointer;">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Profile" class="profile-img" onclick="toggleDropdown(event)" style="border-color: var(--primary-blue);">
-            <div id="logoutDropdown" class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 120%; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 12px; padding: 0.5rem; min-width: 180px; z-index: 1000; border: 1px solid #eee;">
-                <div style="padding: 0.5rem 1rem; border-bottom: 1px solid #eee; margin-bottom: 0.5rem; font-size: 0.85rem; color: #666;">
-                    Signed in as <strong>{{ current_user.username if current_user.is_authenticated else 'Guest' }}</strong>
-                </div>
-                {% if current_user.is_authenticated %}
-                <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
-                    <i class="bi bi-box-arrow-right"></i> Log out
-                </a>
-                {% else %}
-                <a href="{{ url_for('auth.login') }}" style="color: var(--primary-blue); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='transparent'">
-                    <i class="bi bi-box-arrow-in-right"></i> Log in
-                </a>
-                {% endif %}
+    <div class="mobile-wrapper">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="menu-btn d-md-none">
+                <i class="bi bi-list"></i>
             </div>
-        </div>
-    </header>
+            <div class="logo-text d-flex align-items-center gap-2">
+                <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo"
+                    style="width:28px; height:28px; border-radius:4px;">
+                Lumina Academic
+            </div>
 
-    <!-- Main Content -->
-    {% block content %}
-    {% endblock %}
+            <nav class="desktop-nav">
+                <a href="{{ url_for('main.dashboard') }}"
+                    class="{{ 'active' if active_page == 'dashboard' else '' }}">Courses</a>
+                <a href="{{ url_for('main.records') }}"
+                    class="{{ 'active' if active_page == 'records' else '' }}">Records</a>
+                <a href="{{ url_for('main.settings') }}"
+                    class="{{ 'active' if active_page == 'settings' else '' }}">Settings</a>
+            </nav>
 
-    <!-- FAB -->
-    {% block fab %}
-    <a href="{{ url_for('main.live_session') }}" class="fab" style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
-        <i class="bi bi-mic-fill"></i>
-    </a>
-    {% endblock %}
+            <div class="profile-dropdown" style="position: relative; cursor: pointer;">
+                <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Profile" class="profile-img"
+                    onclick="toggleDropdown(event)" style="border-color: var(--primary-blue);">
+                <div id="logoutDropdown" class="dropdown-menu"
+                    style="display: none; position: absolute; right: 0; top: 120%; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 12px; padding: 0.5rem; min-width: 180px; z-index: 1000; border: 1px solid #eee;">
+                    <div
+                        style="padding: 0.5rem 1rem; border-bottom: 1px solid #eee; margin-bottom: 0.5rem; font-size: 0.85rem; color: #666;">
+                        Signed in as <strong>{{ current_user.username if current_user.is_authenticated else 'Guest'
+                            }}</strong>
+                    </div>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.logout') }}"
+                        style="color: #ef4444; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; transition: background 0.2s;"
+                        onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                        <i class="bi bi-box-arrow-right"></i> Log out
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}"
+                        style="color: var(--primary-blue); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; transition: background 0.2s;"
+                        onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='transparent'">
+                        <i class="bi bi-box-arrow-in-right"></i> Log in
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
 
-    <!-- Bottom Nav -->
-    {% block bottom_nav %}
-    <nav class="bottom-nav">
-        <a href="{{ url_for('main.dashboard') }}" class="nav-item {{ 'active' if active_page == 'dashboard' else '' }}">
-            <i class="bi bi-mortarboard-fill"></i>
-            <span>Courses</span>
+        <!-- Main Content -->
+        {% block content %}
+        {% endblock %}
+
+        <!-- FAB -->
+        {% block fab %}
+        <a href="{{ url_for('main.live_session') }}" class="fab"
+            style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
+            <i class="bi bi-mic-fill"></i>
         </a>
-        <a href="{{ url_for('main.records') }}" class="nav-item {{ 'active' if active_page == 'records' else '' }}">
-            <i class="bi bi-mic"></i>
-            <span>Records</span>
-        </a>
-        <a href="{{ url_for('main.settings') }}" class="nav-item {{ 'active' if active_page == 'settings' else '' }}">
-            <i class="bi bi-gear"></i>
-            <span>Settings</span>
-        </a>
-    </nav>
-    {% endblock %}
-</div>
+        {% endblock %}
 
-<script>
-    function toggleDropdown(event) {
-        var dropdown = document.getElementById('logoutDropdown');
-        dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
-        event.stopPropagation();
-    }
-    window.onclick = function(event) {
-        if (!event.target.matches('.profile-img')) {
+        <!-- Bottom Nav -->
+        {% block bottom_nav %}
+        <nav class="bottom-nav">
+            <a href="{{ url_for('main.dashboard') }}"
+                class="nav-item {{ 'active' if active_page == 'dashboard' else '' }}">
+                <i class="bi bi-mortarboard-fill"></i>
+                <span>Courses</span>
+            </a>
+            <a href="{{ url_for('main.records') }}" class="nav-item {{ 'active' if active_page == 'records' else '' }}">
+                <i class="bi bi-mic"></i>
+                <span>Records</span>
+            </a>
+            <a href="{{ url_for('main.settings') }}"
+                class="nav-item {{ 'active' if active_page == 'settings' else '' }}">
+                <i class="bi bi-gear"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+        {% endblock %}
+    </div>
+
+    <script>
+        function toggleDropdown(event) {
             var dropdown = document.getElementById('logoutDropdown');
-            if (dropdown && dropdown.style.display === 'block') {
-                dropdown.style.display = 'none';
+            dropdown.style.display = dropdown.style.display === 'none' || dropdown.style.display === '' ? 'block' : 'none';
+            event.stopPropagation();
+        }
+        window.onclick = function (event) {
+            if (!event.target.matches('.profile-img')) {
+                var dropdown = document.getElementById('logoutDropdown');
+                if (dropdown && dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                }
             }
         }
-    }
-</script>
+    </script>
 </body>
+
 </html>
