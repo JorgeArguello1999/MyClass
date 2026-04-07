@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="app/static/images/logo.png" alt="LuminaAcademic Logo" width="120" />
+  <img src="app/static/images/logo.jpeg" alt="LuminaAcademic Logo" width="120" />
   <h1>LuminaAcademic</h1>
 </div>
 
