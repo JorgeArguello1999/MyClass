@@ -22,65 +22,45 @@
 
         <!-- Course List -->
         <div class="course-list">
-            <!-- Software Dev -->
-            <div class="course-card core">
-                <div class="card-top">
-                    <div class="module-icon">
-                        <i class="bi bi-braces"></i>
+            {% if courses %}
+                {% for course in courses %}
+                <div class="course-card" style="border-bottom: 4px solid var(--primary-blue);">
+                    <div class="card-top">
+                        <div class="module-icon" style="background: var(--core-bg); color: var(--core-color);">
+                            <i class="{{ course.icon }}"></i>
+                        </div>
+                        <div class="badge badge-core">CURSO</div>
                     </div>
-                    <div class="badge badge-core">CORE MODULE</div>
-                </div>
-                <h4>Software Dev</h4>
-                <p>Winter Semester 2024</p>
-                <div class="card-bottom">
-                    <div class="sessions">
-                        <i class="bi bi-mic-fill"></i> 12 Sessions
+                    <h4>{{ course.name }}</h4>
+                    <p style="margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--text-sec);"><strong>Professor:</strong> {{ course.professor or 'Not Set' }}</p>
+                    <p style="margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--text-sec);"><strong>Schedule:</strong> {{ course.schedule or 'Not Set' }}</p>
+                    <p style="font-size: 0.8rem; color: var(--text-sec);"><strong>Location:</strong> {{ course.location or 'Not Set' }}</p>
+                    <div class="card-bottom">
+                        <div class="sessions">
+                            <i class="bi bi-mic-fill"></i> 0 Sessions
+                        </div>
+                        <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center;">
+                            <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;" title="Go to Sessions">
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                            <a href="{{ url_for('course.edit_course', course_id=course.id) }}" class="btn-action" style="border:none;background:transparent;color:var(--text-sec);cursor:pointer;padding:0.5rem;text-decoration:none;" title="Edit Course">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('course.delete_course', course_id=course.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this course?');">
+                                <button type="submit" class="btn-action" style="border:none;background:transparent;color:var(--elective-color);cursor:pointer;padding:0.5rem;" title="Delete Course">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
                 </div>
-            </div>
-
-            <!-- Mobile Dev -->
-            <div class="course-card elective">
-                <div class="card-top">
-                    <div class="module-icon">
-                        <i class="bi bi-phone"></i>
-                    </div>
-                    <div class="badge badge-elective">ELECTIVE</div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state" style="text-align: center; padding: 3rem 1rem; background: var(--card-bg); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                    <i class="bi bi-journal-x" style="font-size: 3rem; color: var(--text-sec); margin-bottom: 1rem; display: block;"></i>
+                    <p style="color: var(--text-sec); font-weight: 500; font-size: 1.1rem; margin-bottom: 1.5rem;">No tienes cursos aún. Crea tu primer curso.</p>
                 </div>
-                <h4>Mobile Dev</h4>
-                <p>Winter Semester 2024</p>
-                <div class="card-bottom">
-                    <div class="sessions">
-                        <i class="bi bi-broadcast"></i> 8 Sessions
-                    </div>
-                    <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Database Systems -->
-            <div class="course-card technical">
-                <div class="card-top">
-                    <div class="module-icon">
-                        <i class="bi bi-database"></i>
-                    </div>
-                    <div class="badge badge-technical">TECHNICAL</div>
-                </div>
-                <h4>Database Systems</h4>
-                <p>Winter Semester 2024</p>
-                <div class="card-bottom">
-                    <div class="sessions">
-                        <i class="bi bi-calendar3"></i> 15 Sessions
-                    </div>
-                    <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;">
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
+            {% endif %}
         </div>
 
         <!-- Insight Card -->

@@ -67,6 +67,44 @@
             </div>
         </header>
 
+        <!-- Flash Messages Handler -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div id="flash-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px;">
+            {% set rendered_messages = [] %}
+            {% for category, message in messages %}
+                {% if message not in rendered_messages %}
+                    {% set _ = rendered_messages.append(message) %}
+                    <div class="custom-toast toast-{{ category }}" style="background: {% if category == 'success' %}#10B981{% elif category == 'error' %}#EF4444{% else %}#3B82F6{% endif %}; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: 500; opacity: 0; animation: slideDown 0.3s forwards;">
+                        <span>{{ message }}</span>
+                        <button type="button" onclick="this.parentElement.remove()" style="background: transparent; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 0; margin-left: 10px; opacity: 0.8;">&times;</button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <style>
+            @keyframes slideDown {
+                from { transform: translateY(-20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        </style>
+        <script>
+            // Auto dismiss after 4 seconds
+            document.addEventListener('DOMContentLoaded', function() {
+                const toasts = document.querySelectorAll('.custom-toast');
+                toasts.forEach(toast => {
+                    setTimeout(() => {
+                        toast.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(-10px)';
+                        setTimeout(() => toast.remove(), 500);
+                    }, 4000);
+                });
+            });
+        </script>
+        {% endif %}
+        {% endwith %}
+
         <!-- Main Content -->
         {% block content %}
         {% endblock %}
