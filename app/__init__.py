@@ -26,8 +26,14 @@ def create_app(config_name='default'):
     # Import and register Blueprints (controllers)
     from app.controllers.main_controller import main_bp
     from app.controllers.auth_controller import auth_bp
+    from app.controllers.course_controller import course_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(course_bp, url_prefix='/courses')
+
+    # Import models so they are registered with SQLAlchemy
+    from app.models.user import User
+    from app.models.course import Course
 
     return app

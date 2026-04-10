@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Add New Course - LuminaAcademic{% endblock %}
+{% block title %}Edit Course - LuminaAcademic{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -19,7 +19,6 @@
         max-width: 400px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.04);
         position: relative;
-        /* Desktop specific alignment */
         margin: 0 auto;
     }
 
@@ -46,7 +45,7 @@
         font-size: 1.8rem;
         font-weight: 800;
         margin-bottom: 0.25rem;
-        padding-right: 2rem; /* prevent overlap with close btn */
+        padding-right: 2rem;
     }
 
     .form-subtitle {
@@ -177,34 +176,6 @@
         border-color: var(--primary-blue);
     }
 
-    /* Pro Tip */
-    .pro-tip {
-        background: #F8FAFC;
-        border-radius: 16px;
-        padding: 1.25rem;
-        margin-bottom: 2rem;
-        border: 1px solid #F1F5F9;
-    }
-
-    .pro-tip-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--primary-blue);
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        margin-bottom: 0.5rem;
-    }
-
-    .pro-tip-text {
-        font-size: 0.85rem;
-        color: var(--text-sec);
-        margin: 0;
-        line-height: 1.5;
-    }
-
     /* Main Button */
     .btn-submit-course {
         width: 100%;
@@ -237,93 +208,76 @@
             <i class="bi bi-x-lg"></i>
         </a>
 
-        <h1 class="form-title">Add New Course</h1>
-        <p class="form-subtitle">Organize your academic intelligence.</p>
+        <h1 class="form-title">Edit Course</h1>
+        <p class="form-subtitle">Update your academic intelligence module.</p>
 
-        <form action="{{ url_for('course.create_course') }}" method="POST">
-            <input type="hidden" name="icon" id="selectedIcon" value="bi bi-calculator">
-            <!-- Cover Upload -->
-            <div class="upload-cover">
-                <div class="upload-icon-circle">
-                    <i class="bi bi-camera"></i>
-                </div>
-                <div class="upload-text">Upload Cover Image</div>
-            </div>
-
+        <form action="{{ url_for('course.edit_course', course_id=course.id) }}" method="POST">
+            <input type="hidden" name="icon" id="selectedIcon" value="{{ course.icon }}">
+            
             <!-- Course Name -->
             <label class="form-label-custom">Course Name</label>
-            <input type="text" name="name" class="input-underline" placeholder="e.g. Advanced Macroeconomy" required>
+            <input type="text" name="name" class="input-underline" value="{{ course.name }}" required>
 
             <!-- Professor -->
             <label class="form-label-custom">Professor</label>
-            <input type="text" name="professor" class="input-underline" placeholder="e.g. Dr. John Doe">
+            <input type="text" name="professor" class="input-underline" value="{{ course.professor or '' }}" placeholder="e.g. Dr. John Doe">
 
             <!-- Schedule -->
             <label class="form-label-custom">Schedule</label>
-            <input type="text" name="schedule" class="input-underline" placeholder="e.g. Mon & Wed 10:00 AM - 12:00 PM">
+            <input type="text" name="schedule" class="input-underline" value="{{ course.schedule or '' }}" placeholder="e.g. Mon & Wed 10:00 AM - 12:00 PM">
 
             <!-- Location -->
             <label class="form-label-custom">Location</label>
-            <input type="text" name="location" class="input-underline" placeholder="e.g. Room 3B or Zoom Link" style="margin-bottom: 2rem;">
+            <input type="text" name="location" class="input-underline" value="{{ course.location or '' }}" placeholder="e.g. Room 3B or Zoom Link" style="margin-bottom: 2rem;">
 
             <!-- Icon Selection -->
             <label class="form-label-custom">Select Subject Group</label>
             <div class="icon-selector-grid">
-                <div class="icon-selector-item active">
+                <div class="icon-selector-item {% if 'bi-calculator' in course.icon or not course.icon %}active{% endif %}">
                     <i class="bi bi-calculator"></i>
                     <span>Math</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-flask' in course.icon %}active{% endif %}">
                     <i class="bi bi-flask"></i>
                     <span>Science</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-code-slash' in course.icon %}active{% endif %}">
                     <i class="bi bi-code-slash"></i>
                     <span>Computing</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-book' in course.icon and 'bi-calculator' not in course.icon %}active{% endif %}">
                     <i class="bi bi-book"></i>
                     <span>Literature</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-clock-history' in course.icon %}active{% endif %}">
                     <i class="bi bi-clock-history"></i>
                     <span>History</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-palette' in course.icon %}active{% endif %}">
                     <i class="bi bi-palette"></i>
                     <span>Art</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-music-note' in course.icon %}active{% endif %}">
                     <i class="bi bi-music-note"></i>
                     <span>Music</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-translate' in course.icon %}active{% endif %}">
                     <i class="bi bi-translate"></i>
                     <span>Language</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-globe' in course.icon %}active{% endif %}">
                     <i class="bi bi-globe"></i>
                     <span>Geography</span>
                 </div>
-                <div class="icon-selector-item">
+                <div class="icon-selector-item {% if 'bi-cpu' in course.icon %}active{% endif %}">
                     <i class="bi bi-cpu"></i>
                     <span>Engineering</span>
                 </div>
             </div>
 
-            <!-- Pro tip -->
-            <div class="pro-tip">
-                <div class="pro-tip-header">
-                    <i class="bi bi-info-circle"></i> Pro Tip
-                </div>
-                <p class="pro-tip-text">
-                    Adding a unique icon helps the AI categorize your lecture transcripts more accurately.
-                </p>
-            </div>
-
             <!-- Submit Button -->
             <button type="submit" class="btn-submit-course">
-                Create Course <i class="bi bi-arrow-right"></i>
+                Save Changes <i class="bi bi-check-lg"></i>
             </button>
         </form>
     </div>

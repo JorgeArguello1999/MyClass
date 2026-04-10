@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 
 main_bp = Blueprint('main', __name__)
 
+from app.models.course import Course
+
 @main_bp.route('/')
 def index():
     if current_user.is_authenticated:
@@ -12,7 +14,8 @@ def index():
 @main_bp.route('/dashboard')
 @login_required # Ruta protegida con auth
 def dashboard():
-    return render_template('main/dashboard.html', active_page='dashboard')
+    courses = Course.query.filter_by(user_id=current_user.id).order_by(Course.created_at.desc()).all()
+    return render_template('main/dashboard.html', active_page='dashboard', courses=courses)
 
 @main_bp.route('/course/new')
 @login_required
