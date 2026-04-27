@@ -35,4 +35,4 @@ def check_integrity():
 if __name__ == "__main__":
     check_integrity()
     # Start Flask's native development server
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
