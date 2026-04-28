@@ -24,41 +24,36 @@
         <div class="course-list">
             {% if courses %}
                 {% for course in courses %}
-                <div class="course-card" style="border-bottom: 4px solid var(--primary-blue);">
-                    <div class="card-top">
-                        <div class="module-icon" style="background: var(--core-bg); color: var(--core-color);">
-                            <i class="{{ course.icon }}"></i>
+                <a href="{{ url_for('course.detail', course_id=course.id) }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="course-card" style="border-bottom: 4px solid var(--primary-blue); position: relative; transition: transform 0.2s, box-shadow 0.2s;">
+                        <div class="card-top">
+                            <div class="module-icon" style="background: var(--core-bg); color: var(--core-color);">
+                                <i class="{{ course.icon }}"></i>
+                            </div>
+                            <div class="badge badge-core">COURSE</div>
                         </div>
-                        <div class="badge badge-core">CURSO</div>
-                    </div>
-                    <h4>{{ course.name }}</h4>
-                    <p style="margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--text-sec);"><strong>Professor:</strong> {{ course.professor or 'Not Set' }}</p>
-                    <p style="margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--text-sec);"><strong>Schedule:</strong> {{ course.schedule or 'Not Set' }}</p>
-                    <p style="font-size: 0.8rem; color: var(--text-sec);"><strong>Location:</strong> {{ course.location or 'Not Set' }}</p>
-                    <div class="card-bottom">
-                        <div class="sessions">
-                            <i class="bi bi-mic-fill"></i> 0 Sessions
-                        </div>
-                        <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center;">
-                            <a href="{{ url_for('main.records') }}" class="btn-arrow" style="text-decoration: none;" title="Go to Sessions">
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                            <a href="{{ url_for('course.edit_course', course_id=course.id) }}" class="btn-action" style="border:none;background:transparent;color:var(--text-sec);cursor:pointer;padding:0.5rem;text-decoration:none;" title="Edit Course">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <form action="{{ url_for('course.delete_course', course_id=course.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this course?');">
-                                <button type="submit" class="btn-action" style="border:none;background:transparent;color:var(--elective-color);cursor:pointer;padding:0.5rem;" title="Delete Course">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                        <h4>{{ course.name }}</h4>
+                        <p style="margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--text-sec);"><strong>Professor:</strong> {{ course.professor or 'Not Set' }}</p>
+                        <p style="margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--text-sec);"><strong>Schedule:</strong> {{ course.schedule or 'Not Set' }}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-sec);"><strong>Location:</strong> {{ course.location or 'Not Set' }}</p>
+                        <div class="card-bottom" style="justify-content: flex-end; margin-top: 1rem;">
+                            <!-- Actions are now positioned slightly differently so they don't trigger the main link inadvertently, 
+                                 but for iOS it's better to manage edit/delete from inside the course detail. 
+                                 However, to preserve functionality, we will put them in a dedicated actions area.
+                                 Since the whole card is an <a> tag, clicking inside buttons will trigger the link too unless prevented.
+                                 For simplicity, we move Edit/Delete inside the course detail view later, but for now we leave an arrow. -->
+                            <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center; color: var(--text-sec);">
+                                <span style="font-size: 0.9rem;">View details</span>
+                                <i class="bi bi-chevron-right"></i>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
                 {% endfor %}
             {% else %}
                 <div class="empty-state" style="text-align: center; padding: 3rem 1rem; background: var(--card-bg); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
                     <i class="bi bi-journal-x" style="font-size: 3rem; color: var(--text-sec); margin-bottom: 1rem; display: block;"></i>
-                    <p style="color: var(--text-sec); font-weight: 500; font-size: 1.1rem; margin-bottom: 1.5rem;">No tienes cursos aún. Crea tu primer curso.</p>
+                    <p style="color: var(--text-sec); font-weight: 500; font-size: 1.1rem; margin-bottom: 1.5rem;">You don't have any courses yet. Create your first course.</p>
                 </div>
             {% endif %}
         </div>
