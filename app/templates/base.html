@@ -21,7 +21,7 @@
 
     <div class="mobile-wrapper">
         <!-- Top Bar -->
-        <header class="top-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+        <header class="top-bar" style="position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
             <div class="left-action" style="flex: 1; display: flex; align-items: center;">
                 {% if show_back_button %}
                     <a href="{{ back_url or url_for('main.dashboard') }}" style="color: var(--primary-blue); text-decoration: none; display: flex; align-items: center; font-weight: 500; font-size: 1.05rem;">
