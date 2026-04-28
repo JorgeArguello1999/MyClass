@@ -326,7 +326,7 @@
     </div>
 
     <div class="ctrl-btn-container">
-        <a href="{{ url_for('main.session_summary') }}" style="text-decoration: none;">
+        <a href="{{ url_for('main.session_summary', course_id=course.id) }}" style="text-decoration: none;">
             <div class="ctrl-circle ctrl-primary">
                 <i class="bi bi-stop-fill"></i>
             </div>

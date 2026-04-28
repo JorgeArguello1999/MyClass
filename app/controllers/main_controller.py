@@ -37,9 +37,14 @@ def records():
 def live_session(course_id):
     from app.models.course import Course
     course = Course.query.get_or_404(course_id)
-    return render_template('main/live_session.html', show_back_button=True, course=course)
+    return render_template('main/live_session.html', show_back_button=True, back_url=url_for('course.detail', course_id=course.id), course=course)
 
 @main_bp.route('/course/session')
+@main_bp.route('/course/<int:course_id>/session')
 @login_required
-def session_summary():
-    return render_template('main/session_summary.html', active_page='dashboard', show_back_button=True)
+def session_summary(course_id=None):
+    if course_id:
+        back_url = url_for('course.detail', course_id=course_id)
+    else:
+        back_url = url_for('main.dashboard')
+    return render_template('main/session_summary.html', active_page='dashboard', show_back_button=True, back_url=back_url)
