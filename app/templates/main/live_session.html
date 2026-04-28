@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
-{% block title %}Live Session - Transcript{% endblock %}
-
+{% block title %}Live Session - {{ course.name }}{% endblock %}
+{% block header_title %}<span style="color: #ef4444;"><i class="bi bi-record-circle"></i></span> {{ course.name }}{% endblock %}
 {% block extra_css %}
 <style>
     .live-container {

@@ -62,3 +62,15 @@ def delete_course(course_id):
     db.session.commit()
     flash('Course deleted successfully!', 'success')
     return redirect(url_for('main.dashboard'))
+
+@course_bp.route('/<int:course_id>')
+@login_required
+def detail(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course.user_id != current_user.id:
+        abort(403)
+    
+    # Since we are not updating DB models, we just render the detail template.
+    # In a full integration, we would load `records = course.records`.
+    # For now, we just pass the course.
+    return render_template('main/course_detail.html', course=course, show_back_button=True)
