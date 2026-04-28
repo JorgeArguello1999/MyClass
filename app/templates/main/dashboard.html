@@ -30,7 +30,7 @@
                             <div class="module-icon" style="background: var(--core-bg); color: var(--core-color);">
                                 <i class="{{ course.icon }}"></i>
                             </div>
-                            <div class="badge badge-core">CURSO</div>
+                            <div class="badge badge-core">COURSE</div>
                         </div>
                         <h4>{{ course.name }}</h4>
                         <p style="margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--text-sec);"><strong>Professor:</strong> {{ course.professor or 'Not Set' }}</p>
@@ -43,7 +43,7 @@
                                  Since the whole card is an <a> tag, clicking inside buttons will trigger the link too unless prevented.
                                  For simplicity, we move Edit/Delete inside the course detail view later, but for now we leave an arrow. -->
                             <div class="card-actions" style="display: flex; gap: 0.5rem; align-items: center; color: var(--text-sec);">
-                                <span style="font-size: 0.9rem;">Ver detalles</span>
+                                <span style="font-size: 0.9rem;">View details</span>
                                 <i class="bi bi-chevron-right"></i>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
             {% else %}
                 <div class="empty-state" style="text-align: center; padding: 3rem 1rem; background: var(--card-bg); border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
                     <i class="bi bi-journal-x" style="font-size: 3rem; color: var(--text-sec); margin-bottom: 1rem; display: block;"></i>
-                    <p style="color: var(--text-sec); font-weight: 500; font-size: 1.1rem; margin-bottom: 1.5rem;">No tienes cursos aún. Crea tu primer curso.</p>
+                    <p style="color: var(--text-sec); font-weight: 500; font-size: 1.1rem; margin-bottom: 1.5rem;">You don't have any courses yet. Create your first course.</p>
                 </div>
             {% endif %}
         </div>
