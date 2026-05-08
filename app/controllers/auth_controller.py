@@ -55,6 +55,24 @@ def register():
         # Create user
         user = User(email=email, username=username, full_name=full_name)
         user.password = password
+        
+        # Handle profile picture upload
+        profile_pic = request.files.get('profile_picture')
+        if profile_pic and profile_pic.filename != '':
+            from werkzeug.utils import secure_filename
+            from flask import current_app
+            import os
+            import uuid
+            
+            ext = profile_pic.filename.rsplit('.', 1)[1].lower() if '.' in profile_pic.filename else ''
+            if ext in {'png', 'jpg', 'jpeg'}:
+                filename = f"{uuid.uuid4().hex}_{secure_filename(profile_pic.filename)}"
+                # Ensure the directory exists
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                profile_pic.save(save_path)
+                user.profile_picture = filename
+
         db.session.add(user)
         db.session.commit()
         

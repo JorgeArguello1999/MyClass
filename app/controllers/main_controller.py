@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, current_user
+from flask import request
 
 main_bp = Blueprint('main', __name__)
 
@@ -9,6 +10,7 @@ from app.models.summary_topic import SummaryTopic
 from app.models.key_moment import KeyMoment
 from app.models.homework import Homework
 from app.models.study_note import StudyNote
+from app.models.user import User
 from app import db
 import random
 from datetime import timedelta
@@ -29,9 +31,44 @@ def dashboard():
 def add_course():
     return render_template('main/add_course.html', show_back_button=True)
 
-@main_bp.route('/settings')
+@main_bp.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
+    if request.method == 'POST':
+        full_name = request.form.get('full_name')
+        email = request.form.get('email')
+        
+        if full_name:
+            current_user.full_name = full_name
+            
+        if email:
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user and existing_user.id != current_user.id:
+                from flask import flash
+                flash('Email is already taken.', 'error')
+            else:
+                current_user.email = email
+                
+        profile_pic = request.files.get('profile_picture')
+        if profile_pic and profile_pic.filename != '':
+            from werkzeug.utils import secure_filename
+            from flask import current_app
+            import os
+            import uuid
+            
+            ext = profile_pic.filename.rsplit('.', 1)[1].lower() if '.' in profile_pic.filename else ''
+            if ext in {'png', 'jpg', 'jpeg'}:
+                filename = f"{uuid.uuid4().hex}_{secure_filename(profile_pic.filename)}"
+                os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
+                save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                profile_pic.save(save_path)
+                current_user.profile_picture = filename
+                
+        db.session.commit()
+        from flask import flash
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('main.settings'))
+        
     return render_template('main/settings.html', active_page='settings', show_back_button=True)
 
 @main_bp.route('/records')
