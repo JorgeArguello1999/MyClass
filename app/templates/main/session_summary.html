@@ -411,8 +411,8 @@
         <div class="session-badge">
             <i class="bi bi-journal-text"></i> Session Summary
         </div>
-        <h1 class="session-title">Advanced Quantum Mechanics</h1>
-        <p class="session-meta">October 24, 2024 • Professor Aris Thorne • Lecture Hall B</p>
+        <h1 class="session-title">{{ session.title }}</h1>
+        <p class="session-meta">{{ session.recorded_date.strftime('%B %d, %Y') }} • {{ course.professor or 'Professor' }} • {{ course.location or 'Location' }}</p>
         <a href="#" class="btn-transcript">View Full Transcript</a>
     </div>
 
@@ -429,7 +429,7 @@
                         </button>
                         <div class="audio-text">
                             <h4>Audio Recording</h4>
-                            <p>54:12 total duration</p>
+                            <p>{{ session.duration_seconds // 60 }}:{{ "%02d" % (session.duration_seconds % 60) }} total duration</p>
                         </div>
                     </div>
                     <div class="audio-speed">
@@ -464,44 +464,40 @@
             </div>
 
             <!-- Main Topic -->
+            {% set topic = session.summary_topics.first() %}
+            {% if topic %}
             <div>
                 <div class="section-label">Main Topic</div>
                 <div class="topic-desc">
-                    Exploration of Schrödinger's wave equation and the transition from classical mechanics to quantum probability density.
+                    {{ topic.description }}
                 </div>
                 <div class="topic-tags">
-                    <div class="topic-tag">Quantum Physics</div>
-                    <div class="topic-tag">Wave Equation</div>
+                    {% if topic.tags %}
+                        {% for tag in topic.tags.split(',') %}
+                        <div class="topic-tag">{{ tag.strip() }}</div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
+            {% endif %}
             
             <!-- Key Moments -->
             <div>
                 <div class="section-label" style="margin-bottom: 1.5rem;">Key Moments</div>
                 <div class="timeline">
-                    <div class="timeline-item">
+                    {% for km in session.key_moments %}
+                    <div class="timeline-item" {% if loop.last %}style="margin-bottom: 0;"{% endif %}>
                         <div class="timeline-header">
-                            <span class="time-badge">04:15</span>
-                            <span class="timeline-title">The Ultraviolet Catastrophe</span>
+                            <span class="time-badge">{{ "%02d" % (km.timestamp_seconds // 60) }}:{{ "%02d" % (km.timestamp_seconds % 60) }}</span>
+                            <span class="timeline-title">{{ km.title }}</span>
                         </div>
-                        <p class="timeline-desc">Introduction to why classical physics failed to explain blackbody radiation.</p>
+                        <p class="timeline-desc">{{ km.description }}</p>
                     </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-header">
-                            <span class="time-badge">22:40</span>
-                            <span class="timeline-title">Operators & Observables</span>
-                        </div>
-                        <p class="timeline-desc">Detailed breakdown of how position and momentum operators interact.</p>
-                    </div>
-
+                    {% else %}
                     <div class="timeline-item" style="margin-bottom: 0;">
-                        <div class="timeline-header">
-                            <span class="time-badge">48:12</span>
-                            <span class="timeline-title">Summary of Lab #3 Requirements</span>
-                        </div>
-                        <p class="timeline-desc">Instructions for the upcoming experiment on electron diffraction.</p>
+                        <p class="timeline-desc">No key moments recorded.</p>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
 
@@ -520,42 +516,58 @@
             <div class="notes-card">
                 <div class="section-label">Important Notes</div>
                 
-                <div class="note-item">
-                    <i class="bi bi-lightbulb"></i>
-                    <div>Focus on normalized wave functions for the midterm exam.</div>
-                </div>
+                {% set regular_notes = [] %}
+                {% set prof_tips = [] %}
                 
-                <div class="note-item" style="margin-bottom: 0;">
-                    <i class="bi bi-hash"></i>
-                    <div>δ (x, t) must be continuous everywhere.</div>
+                {% for note in session.study_notes %}
+                    {% if note.is_professor_tip %}
+                        {% set _ = prof_tips.append(note) %}
+                    {% else %}
+                        {% set _ = regular_notes.append(note) %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% for note in regular_notes %}
+                <div class="note-item" {% if loop.last and not prof_tips %}style="margin-bottom: 0;"{% endif %}>
+                    <i class="bi bi-lightbulb"></i>
+                    <div>{{ note.note_text }}</div>
                 </div>
+                {% else %}
+                <div class="note-item" {% if not prof_tips %}style="margin-bottom: 0;"{% endif %}>
+                    <i class="bi bi-journal-text"></i>
+                    <div>No important notes for this session.</div>
+                </div>
+                {% endfor %}
 
+                {% if prof_tips %}
                 <div class="notes-divider"></div>
-
+                {% for tip in prof_tips %}
                 <div class="prof-tip-label">Professor Tip</div>
-                <div class="prof-tip-text">"The math is the map, not the territory."</div>
+                <div class="prof-tip-text">"{{ tip.note_text }}"</div>
+                {% endfor %}
+                {% endif %}
             </div>
 
             <!-- Homework -->
             <div>
                 <div class="homework-header" style="margin-bottom: 1rem;">
                     <div class="section-label" style="margin-bottom: 0;">Homework</div>
-                    <div class="hw-due-badge">Due in 2 Days</div>
+                    {% if session.homeworks.first() %}
+                    <div class="hw-due-badge">{{ session.homeworks.first().due_date_extracted or 'Due Soon' }}</div>
+                    {% endif %}
                 </div>
                 
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    {% for hw in session.homeworks %}
                     <div class="hw-item">
                         <div class="hw-circle"></div>
-                        <div class="hw-text">Read Chapter 5: Wave Mechanics</div>
+                        <div class="hw-text">{{ hw.task_description }}</div>
                     </div>
+                    {% else %}
                     <div class="hw-item">
-                        <div class="hw-circle"></div>
-                        <div class="hw-text">Complete Problem Set #4 (Even Nos.)</div>
+                        <div class="hw-text" style="color: var(--text-sec); font-weight: normal;">No homework detected.</div>
                     </div>
-                    <div class="hw-item">
-                        <div class="hw-circle"></div>
-                        <div class="hw-text">Pre-read Lab Instructions for Wed</div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
