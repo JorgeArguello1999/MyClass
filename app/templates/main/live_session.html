@@ -264,14 +264,16 @@
     
     <!-- Top Translator Navigation -->
     <div class="translator-bar">
-        <div class="lang-pill active">Korean</div>
-        <div class="translator-icon"><i class="bi bi-arrow-left-right"></i></div>
-        <div class="lang-pill inactive">English</div>
+        <select id="spoken-language" class="lang-pill active" style="appearance: none; border: none; outline: none; cursor: pointer; padding-right: 2rem; background-image: url('data:image/svg+xml;utf8,<svg fill=%22white%22 height=%2224%22 viewBox=%220 0 24 24%22 width=%2224%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22M7 10l5 5 5-5z%22/></svg>'); background-repeat: no-repeat; background-position: right 0.7rem top 50%; background-size: 1.5rem auto;">
+            <option value="es-ES">Español</option>
+            <option value="en-US">English</option>
+            <option value="ko-KR">한국어</option>
+        </select>
     </div>
 
     <!-- Indicator -->
     <div class="recording-indicator">
-        <div class="sound-bars">
+        <div class="sound-bars" id="sound-bars">
             <div class="s-bar"></div>
             <div class="s-bar"></div>
             <div class="s-bar"></div>
@@ -282,36 +284,14 @@
             <div class="s-bar"></div>
             <div class="s-bar"></div>
         </div>
-        <div class="rec-status">
+        <div class="rec-status" id="rec-status">
             <div class="rec-dot"></div> LIVE RECORDING
         </div>
     </div>
 
     <!-- Transcripts List -->
-    <div class="transcript-list">
-        
-        <div class="t-card">
-            <div class="t-source">안녕하세요, 오늘 강의에 오신 것을 환영합니다.</div>
-            <div class="t-translated">Hello, and welcome to today's lecture.</div>
-        </div>
-
-        <div class="t-card">
-            <div class="t-source">우리는 현대 건축의 진화에 대해 논의할 것입니다.</div>
-            <div class="t-translated">We will be discussing the evolution of modern architecture.</div>
-        </div>
-
-        <div class="t-card highlighted">
-            <i class="bi bi-stars highlight-icon"></i>
-            <div class="t-source">바우하우스 운동은 기능주의를 도입했습니다.</div>
-            <div class="t-translated">The Bauhaus movement introduced functionalism.</div>
-            <div class="badge-insight">KEY INSIGHT</div>
-        </div>
-
-        <div class="t-card active-talking">
-            <div class="t-source">형태는 기능을 따릅니다...</div>
-            <div class="t-translated">Form follows function...</div>
-        </div>
-
+    <div class="transcript-list" id="transcript-list">
+        <!-- Transcripts will appear here dynamically -->
     </div>
 
 </div>
@@ -319,18 +299,21 @@
 <!-- Bottom Control Bar -->
 <div class="live-controls">
     <div class="ctrl-btn-container">
-        <button class="ctrl-circle ctrl-secondary">
+        <button class="ctrl-circle ctrl-secondary" id="btn-pause">
             <i class="bi bi-pause-fill"></i>
         </button>
         <span class="ctrl-label">PAUSE</span>
     </div>
 
-    <div class="ctrl-btn-container">
-        <a href="{{ url_for('main.end_session', course_id=course.id) }}" style="text-decoration: none;">
-            <div class="ctrl-circle ctrl-primary">
-                <i class="bi bi-stop-fill"></i>
-            </div>
-        </a>
+    <form id="end-session-form" method="POST" action="{{ url_for('main.end_session', course_id=course.id) }}" style="display: none;">
+        <input type="hidden" name="raw_transcript" id="raw-transcript-input">
+        <input type="hidden" name="duration" id="duration-input">
+    </form>
+
+    <div class="ctrl-btn-container" onclick="submitSession()">
+        <div class="ctrl-circle ctrl-primary">
+            <i class="bi bi-stop-fill"></i>
+        </div>
         <span class="ctrl-label red">END SESSION</span>
     </div>
 
@@ -341,6 +324,160 @@
         <span class="ctrl-label">KEY POINT</span>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Tu navegador no soporta el reconocimiento de voz nativo. Por favor usa Chrome, Edge o Safari.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        const langSelect = document.getElementById('spoken-language');
+        recognition.lang = langSelect.value;
+        
+        langSelect.addEventListener('change', function(e) {
+            recognition.lang = e.target.value;
+            // Restart to apply new language if already running
+            if (isRecording) {
+                recognition.stop();
+                setTimeout(() => recognition.start(), 300);
+            }
+        });
+
+        const transcriptList = document.getElementById('transcript-list');
+        const soundBars = document.getElementById('sound-bars');
+        const recStatus = document.getElementById('rec-status');
+        const pauseBtn = document.getElementById('btn-pause');
+        
+        let isRecording = false;
+        let isPaused = false;
+        let currentActiveCard = null;
+        let currentActiveText = null;
+        
+        let fullTranscript = [];
+        let startTime = Date.now();
+        
+        // Expose submit to global scope for the button onClick
+        window.submitSession = function() {
+            // Stop recording
+            isPaused = true;
+            try { recognition.stop(); } catch(e) {}
+            
+            document.getElementById('raw-transcript-input').value = fullTranscript.join(' ');
+            document.getElementById('duration-input').value = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById('end-session-form').submit();
+        };
+
+        function startRecording() {
+            if (!isPaused) {
+                try {
+                    recognition.start();
+                    isRecording = true;
+                    soundBars.style.opacity = '1';
+                    recStatus.innerHTML = '<div class="rec-dot"></div> LIVE RECORDING';
+                } catch(e) {}
+            }
+        }
+        
+        pauseBtn.addEventListener('click', function() {
+            if (isPaused) {
+                isPaused = false;
+                startRecording();
+                pauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+            } else {
+                isPaused = true;
+                recognition.stop();
+                isRecording = false;
+                soundBars.style.opacity = '0.3';
+                recStatus.innerHTML = 'PAUSED';
+                pauseBtn.innerHTML = '<i class="bi bi-play-fill" style="color: var(--primary-blue);"></i>';
+            }
+        });
+
+        recognition.onstart = function() {
+            isRecording = true;
+        };
+
+        recognition.onerror = function(event) {
+            console.error(event.error);
+        };
+
+        recognition.onend = function() {
+            isRecording = false;
+            currentActiveCard = null;
+            // Auto-restart if not paused manually
+            if (!isPaused) {
+                startRecording();
+            }
+        };
+
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                    fullTranscript.push(event.results[i][0].transcript.trim());
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            if (finalTranscript !== '') {
+                // Remove active talking card if it exists
+                if (currentActiveCard) {
+                    currentActiveCard.remove();
+                    currentActiveCard = null;
+                }
+                
+                // Add permanent card
+                const tCard = document.createElement('div');
+                tCard.className = 't-card';
+                
+                const tSource = document.createElement('div');
+                tSource.className = 't-source';
+                tSource.textContent = finalTranscript;
+                
+                tCard.appendChild(tSource);
+                transcriptList.appendChild(tCard);
+                
+                // Auto scroll
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+
+            if (interimTranscript !== '') {
+                if (!currentActiveCard) {
+                    currentActiveCard = document.createElement('div');
+                    currentActiveCard.className = 't-card active-talking';
+                    
+                    currentActiveText = document.createElement('div');
+                    currentActiveText.className = 't-source';
+                    
+                    currentActiveCard.appendChild(currentActiveText);
+                    transcriptList.appendChild(currentActiveCard);
+                }
+                currentActiveText.textContent = interimTranscript + "...";
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        };
+
+        // Ensure we gracefully stop when navigating away
+        window.addEventListener('beforeunload', function() {
+            isPaused = true;
+            recognition.stop();
+        });
+
+        // Start automatically after a short delay to ensure DOM is ready
+        setTimeout(startRecording, 500);
+    });
+</script>
+
 {% endblock %}
 
 {% block bottom_nav %}{% endblock %}

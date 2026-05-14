@@ -95,7 +95,7 @@ def live_session(course_id):
     course = Course.query.get_or_404(course_id)
     return render_template('main/live_session.html', show_back_button=True, back_url=url_for('course.detail', course_id=course.id), course=course)
 
-@main_bp.route('/course/<int:course_id>/end_session')
+@main_bp.route('/course/<int:course_id>/end_session', methods=['GET', 'POST'])
 @login_required
 def end_session(course_id):
     course = Course.query.get_or_404(course_id)
@@ -103,24 +103,57 @@ def end_session(course_id):
         from flask import abort
         abort(403)
         
-    # Generate random dummy data to see differences
+    raw_transcript = ""
+    duration = 1800
+    
+    if request.method == 'POST':
+        raw_transcript = request.form.get('raw_transcript', '').strip()
+        dur_str = request.form.get('duration', '1800')
+        try:
+            duration = int(dur_str)
+            if duration < 60: duration = 60 # min 1 min for display
+        except:
+            duration = 1800
+    else:
+        # Fallback to random if hit via GET directly
+        duration = random.choice([1800, 3600, 5400, 7200, 2400])
+
     session_titles = ["Introduction to Concepts", "Advanced Theories", "Midterm Review", "Lab Session", "Guest Lecture"]
-    durations = [1800, 3600, 5400, 7200, 2400]
     
     new_session = Session(
         course_id=course.id,
         title=f"{random.choice(session_titles)} - {course.name}",
-        duration_seconds=random.choice(durations),
+        duration_seconds=duration,
+        raw_transcript=raw_transcript,
         status='ready'
     )
     db.session.add(new_session)
     db.session.commit()
     
+    import re
+    # Split by common punctuation marks to extract sentences
+    sentences = [s.strip() for s in re.split(r'[.?!]+', raw_transcript) if len(s.strip()) > 10]
+    
+    fallback_sentences = [
+        "We will explore the fundamental properties discussed today.",
+        "Remember to review the notes before the final exam.",
+        "The core methodology relies on practical application.",
+        "Read chapter 3 and write a short summary.",
+        "Group study is highly recommended for this topic.",
+        "The professor emphasized this concept multiple times.",
+        "This is an essential insight into the subject matter."
+    ]
+    
+    def get_random_sentence():
+        if sentences:
+            return random.choice(sentences)
+        return random.choice(fallback_sentences)
+    
     # Dummy Summary Topic
     topic = SummaryTopic(
         session_id=new_session.id,
-        main_topic=f"Exploration of {course.name} fundamentals.",
-        description="Detailed breakdown of the core methodologies and practical applications discussed during the class.",
+        main_topic=f"Summary of {course.name}",
+        description=get_random_sentence(),
         tags="Core, Review, Essential"
     )
     db.session.add(topic)
@@ -129,9 +162,9 @@ def end_session(course_id):
     for i in range(3):
         km = KeyMoment(
             session_id=new_session.id,
-            timestamp_seconds=random.randint(100, new_session.duration_seconds - 100),
-            title=f"Important Concept {i+1}",
-            description="The professor emphasized this point significantly."
+            timestamp_seconds=random.randint(10, max(duration - 10, 11)),
+            title=f"Key Point {i+1}",
+            description=get_random_sentence()
         )
         db.session.add(km)
         
@@ -139,7 +172,7 @@ def end_session(course_id):
     for i in range(2):
         hw = Homework(
             session_id=new_session.id,
-            task_description=f"Read chapter {random.randint(1, 10)} and summarize.",
+            task_description=f"Task: {get_random_sentence()}",
             due_date_extracted=f"In {random.randint(2, 7)} days"
         )
         db.session.add(hw)
@@ -149,7 +182,7 @@ def end_session(course_id):
         is_tip = random.choice([True, False])
         note = StudyNote(
             session_id=new_session.id,
-            note_text="Make sure to review the provided slides before the next exam." if is_tip else "Group study session scheduled for tomorrow.",
+            note_text=get_random_sentence(),
             is_professor_tip=is_tip
         )
         db.session.add(note)
