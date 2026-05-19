@@ -7,6 +7,8 @@ load_dotenv(os.path.join(basedir, '.env'))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'clave-secreta-por-defecto'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    UPLOAD_FOLDER = os.path.join(basedir, 'app', 'static', 'uploads', 'profiles')
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB max
 
 class DevelopmentConfig(Config):
     DEBUG = True

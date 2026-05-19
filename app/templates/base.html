@@ -40,7 +40,7 @@
 
             <div class="right-action" style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
                 <a href="{{ url_for('main.settings') }}">
-                    <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Profile" class="profile-img" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-blue);">
+                    <img src="{% if current_user.is_authenticated and current_user.profile_picture %}{{ url_for('static', filename='uploads/profiles/' + current_user.profile_picture) }}{% else %}{{ url_for('static', filename='images/logo.jpeg') }}{% endif %}" alt="Profile" class="profile-img" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-blue);">
                 </a>
             </div>
         </header>
