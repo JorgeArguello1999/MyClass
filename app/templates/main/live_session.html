@@ -265,10 +265,12 @@
     <!-- Top Translator Navigation -->
     <div class="translator-bar">
         <select id="spoken-language" class="lang-pill active" style="appearance: none; border: none; outline: none; cursor: pointer; padding-right: 2rem; background-image: url('data:image/svg+xml;utf8,<svg fill=%22white%22 height=%2224%22 viewBox=%220 0 24 24%22 width=%2224%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22M7 10l5 5 5-5z%22/></svg>'); background-repeat: no-repeat; background-position: right 0.7rem top 50%; background-size: 1.5rem auto;">
+            <option value="ko-KR" selected>한국어 (Korean)</option>
             <option value="es-ES">Español</option>
             <option value="en-US">English</option>
-            <option value="ko-KR">한국어</option>
         </select>
+        <div class="translator-icon"><i class="bi bi-arrow-right" style="color: var(--primary-blue);"></i></div>
+        <div class="lang-pill inactive" style="background: #F3F4F6; color: #9CA3AF; cursor: not-allowed;" title="Translation coming soon">English</div>
     </div>
 
     <!-- Indicator -->
@@ -380,10 +382,17 @@
                 if (e.data.size > 0) {
                     const formData = new FormData();
                     formData.append('audio_chunk', e.data);
-                    fetch(`/course/{{ course.id }}/upload_audio_chunk/${sessionUuid}`, {
+                    
+                    const uploadUrl = "{{ url_for('main.upload_audio_chunk', course_id=course.id, session_uuid='DUMMY_UUID') }}".replace('DUMMY_UUID', sessionUuid);
+                    
+                    fetch(uploadUrl, {
                         method: 'POST',
                         body: formData
-                    });
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.error("Audio chunk upload failed:", response.status);
+                        }
+                    }).catch(err => console.error("Fetch error:", err));
                 }
             };
         }).catch(err => {
@@ -442,7 +451,10 @@
         };
 
         recognition.onerror = function(event) {
-            console.error(event.error);
+            console.error("recognition.onerror: ", event.error);
+            if (event.error === 'network') {
+                console.warn("Network error in Speech API. Chrome requires an active internet connection (and no ad-blockers blocking Google servers) for dictation to work.");
+            }
         };
 
         recognition.onend = function() {
@@ -481,8 +493,15 @@
                 const tSource = document.createElement('div');
                 tSource.className = 't-source';
                 tSource.textContent = finalTranscript;
+
+                const tTranslated = document.createElement('div');
+                tTranslated.className = 't-translated';
+                tTranslated.style.fontStyle = 'italic';
+                tTranslated.style.opacity = '0.6';
+                tTranslated.textContent = "(Translation pending...)";
                 
                 tCard.appendChild(tSource);
+                tCard.appendChild(tTranslated);
                 transcriptList.appendChild(tCard);
                 
                 // Auto scroll
