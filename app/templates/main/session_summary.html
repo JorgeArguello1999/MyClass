@@ -413,7 +413,14 @@
         </div>
         <h1 class="session-title">{{ session.title }}</h1>
         <p class="session-meta">{{ session.recorded_date.strftime('%B %d, %Y') }} • {{ course.professor or 'Professor' }} • {{ course.location or 'Location' }}</p>
-        <a href="#" class="btn-transcript">View Full Transcript</a>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="#" class="btn-transcript" style="margin-bottom: 0;">View Full Transcript</a>
+            <form action="{{ url_for('main.delete_session', session_id=session.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta clase y TODOS sus recursos (audio, transcripción, apuntes y tareas)? Esta acción no se puede deshacer.');" style="margin: 0;">
+                <button type="submit" class="btn-transcript" style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; margin-bottom: 0; cursor: pointer;">
+                    <i class="bi bi-trash"></i> Delete Session
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Wrapping Content in Desktop Grid -->

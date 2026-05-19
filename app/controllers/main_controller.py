@@ -227,6 +227,35 @@ def end_session(course_id):
     
     return redirect(url_for('main.session_summary', session_id=new_session.id))
 
+@main_bp.route('/session/<int:session_id>/delete', methods=['POST'])
+@login_required
+def delete_session(session_id):
+    session = Session.query.get_or_404(session_id)
+    course = session.course
+    
+    if course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    import os
+    from flask import current_app
+    
+    # Delete the physical audio file if it exists to free up space
+    if session.audio_file_path:
+        file_path = os.path.join(current_app.root_path, 'static', 'uploads', 'audio', session.audio_file_path)
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Error deleting audio file: {e}")
+                
+    db.session.delete(session) # This cascades to SummaryTopic, KeyMoment, etc.
+    db.session.commit()
+    
+    from flask import flash
+    flash('Class session and all its resources have been successfully deleted.', 'success')
+    return redirect(url_for('course.detail', course_id=course.id))
+
 @main_bp.route('/session/<int:session_id>')
 @login_required
 def session_summary(session_id):
