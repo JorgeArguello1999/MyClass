@@ -95,6 +95,33 @@ def live_session(course_id):
     course = Course.query.get_or_404(course_id)
     return render_template('main/live_session.html', show_back_button=True, back_url=url_for('course.detail', course_id=course.id), course=course)
 
+@main_bp.route('/course/<int:course_id>/upload_audio_chunk/<session_uuid>', methods=['POST'])
+@login_required
+def upload_audio_chunk(course_id, session_uuid):
+    course = Course.query.get_or_404(course_id)
+    if course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    chunk = request.files.get('audio_chunk')
+    if chunk:
+        from werkzeug.utils import secure_filename
+        from flask import current_app
+        import os
+        safe_uuid = secure_filename(session_uuid)
+        if not safe_uuid:
+            return 'Invalid UUID', 400
+            
+        filename = f"{safe_uuid}.webm"
+        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'audio')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        file_path = os.path.join(upload_dir, filename)
+        with open(file_path, 'ab') as f:
+            f.write(chunk.read())
+            
+    return 'OK', 200
+
 @main_bp.route('/course/<int:course_id>/end_session', methods=['GET', 'POST'])
 @login_required
 def end_session(course_id):
@@ -105,15 +132,23 @@ def end_session(course_id):
         
     raw_transcript = ""
     duration = 1800
+    session_uuid = None
+    audio_filename = None
     
     if request.method == 'POST':
         raw_transcript = request.form.get('raw_transcript', '').strip()
         dur_str = request.form.get('duration', '1800')
+        session_uuid = request.form.get('session_uuid')
         try:
             duration = int(dur_str)
             if duration < 60: duration = 60 # min 1 min for display
         except:
             duration = 1800
+            
+        if session_uuid:
+            from werkzeug.utils import secure_filename
+            safe_uuid = secure_filename(session_uuid)
+            audio_filename = f"{safe_uuid}.webm"
     else:
         # Fallback to random if hit via GET directly
         duration = random.choice([1800, 3600, 5400, 7200, 2400])
@@ -125,6 +160,7 @@ def end_session(course_id):
         title=f"{random.choice(session_titles)} - {course.name}",
         duration_seconds=duration,
         raw_transcript=raw_transcript,
+        audio_file_path=audio_filename,
         status='ready'
     )
     db.session.add(new_session)

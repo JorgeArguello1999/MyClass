@@ -437,6 +437,15 @@
                     </div>
                 </div>
                 
+                <!-- Real Audio Player or Fake Waveform -->
+                {% if session.audio_file_path %}
+                <div style="padding: 0.5rem 1rem 1rem 1rem;">
+                    <audio controls style="width: 100%; height: 40px; outline: none;">
+                        <source src="{{ url_for('static', filename='uploads/audio/' + session.audio_file_path) }}" type="audio/webm">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                {% else %}
                 <!-- Fake Waveform -->
                 <div class="waveform">
                     <div class="wave-bar active" style="height: 20%"></div>
@@ -448,19 +457,14 @@
                     <div class="wave-bar active" style="height: 70%"></div>
                     <div class="wave-bar light" style="height: 90%"></div>
                     <div class="wave-bar light" style="height: 60%"></div>
-                    <div class="wave-bar light" style="height: 30%"></div>
-                    <div class="wave-bar light" style="height: 80%"></div>
-                    <div class="wave-bar light" style="height: 70%"></div>
                     <div class="wave-bar light" style="height: 40%"></div>
-                    <div class="wave-bar light" style="height: 60%"></div>
-                    <div class="wave-bar light" style="height: 50%"></div>
-                    <div class="wave-bar light" style="height: 80%"></div>
                     <div class="wave-bar light" style="height: 30%"></div>
-                    
+                    <div class="wave-bar light" style="height: 70%"></div>
                     <div class="scrub-head">
                         <div class="scrub-time">18:42</div>
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             <!-- Main Topic -->
