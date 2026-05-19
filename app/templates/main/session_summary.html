@@ -413,7 +413,14 @@
         </div>
         <h1 class="session-title">{{ session.title }}</h1>
         <p class="session-meta">{{ session.recorded_date.strftime('%B %d, %Y') }} • {{ course.professor or 'Professor' }} • {{ course.location or 'Location' }}</p>
-        <a href="#" class="btn-transcript">View Full Transcript</a>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="#" id="btn-view-transcript" class="btn-transcript" style="margin-bottom: 0;">View Full Transcript</a>
+            <form action="{{ url_for('main.delete_session', session_id=session.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta clase y TODOS sus recursos (audio, transcripción, apuntes y tareas)? Esta acción no se puede deshacer.');" style="margin: 0;">
+                <button type="submit" class="btn-transcript" style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; margin-bottom: 0; cursor: pointer;">
+                    <i class="bi bi-trash"></i> Delete Session
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Wrapping Content in Desktop Grid -->
@@ -437,6 +444,15 @@
                     </div>
                 </div>
                 
+                <!-- Real Audio Player or Fake Waveform -->
+                {% if session.audio_file_path %}
+                <div style="padding: 0.5rem 1rem 1rem 1rem;">
+                    <audio controls style="width: 100%; height: 40px; outline: none;">
+                        <source src="{{ url_for('static', filename='uploads/audio/' + session.audio_file_path) }}" type="audio/webm">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                {% else %}
                 <!-- Fake Waveform -->
                 <div class="waveform">
                     <div class="wave-bar active" style="height: 20%"></div>
@@ -448,19 +464,14 @@
                     <div class="wave-bar active" style="height: 70%"></div>
                     <div class="wave-bar light" style="height: 90%"></div>
                     <div class="wave-bar light" style="height: 60%"></div>
-                    <div class="wave-bar light" style="height: 30%"></div>
-                    <div class="wave-bar light" style="height: 80%"></div>
-                    <div class="wave-bar light" style="height: 70%"></div>
                     <div class="wave-bar light" style="height: 40%"></div>
-                    <div class="wave-bar light" style="height: 60%"></div>
-                    <div class="wave-bar light" style="height: 50%"></div>
-                    <div class="wave-bar light" style="height: 80%"></div>
                     <div class="wave-bar light" style="height: 30%"></div>
-                    
+                    <div class="wave-bar light" style="height: 70%"></div>
                     <div class="scrub-head">
                         <div class="scrub-time">18:42</div>
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             <!-- Main Topic -->
@@ -573,6 +584,146 @@
         </div>
     </div>
 </div>
+
+<!-- Transcript Modal -->
+<div id="transcriptModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 style="margin-top: 0;">Full Transcript</h2>
+        <div id="transcript-loader" style="text-align: center; padding: 2rem; display: none;">
+            <div class="spinner-border text-primary" role="status" style="display: inline-block; width: 2rem; height: 2rem; vertical-align: text-bottom; border: 0.25em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite;"></div>
+            <p style="margin-top: 1rem; color: #6B7280;">Translating to English via Deep-Translator...</p>
+        </div>
+        <div id="transcript-content" style="display: none; margin-top: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                    <h4 style="color: var(--primary-blue); margin-bottom: 0.5rem;"><i class="bi bi-mic"></i> Original (Korean)</h4>
+                    <div id="transcript-original" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.6; border: 1px solid #e5e7eb; max-height: 60vh; overflow-y: auto;"></div>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-blue); margin-bottom: 0.5rem;"><i class="bi bi-translate"></i> English Translation</h4>
+                    <div id="transcript-translated" style="background: #EFF6FF; padding: 1.5rem; border-radius: 8px; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.6; border: 1px solid #BFDBFE; max-height: 60vh; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Basic Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+}
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+}
+.close-modal {
+    color: #9CA3AF;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+.close-modal:hover {
+    color: #111827;
+}
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    #transcript-content > div {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('transcriptModal');
+    const btn = document.getElementById('btn-view-transcript');
+    const span = document.getElementsByClassName('close-modal')[0];
+    const loader = document.getElementById('transcript-loader');
+    const content = document.getElementById('transcript-content');
+    const txtOrig = document.getElementById('transcript-original');
+    const txtTrans = document.getElementById('transcript-translated');
+    
+    let isLoaded = false;
+
+    if (btn) {
+        btn.onclick = function(e) {
+            e.preventDefault();
+            modal.style.display = "block";
+            
+            if (!isLoaded) {
+                loader.style.display = "block";
+                content.style.display = "none";
+                
+                function fetchTranscript() {
+                    fetch("{{ url_for('main.transcript_data', session_id=session.id) }}")
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'processing') {
+                                loader.innerHTML = `<div class="spinner-border text-primary" role="status" style="display: inline-block; width: 2rem; height: 2rem; vertical-align: text-bottom; border: 0.25em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite;"></div><p style="margin-top: 1rem; color: #6B7280;">Transcribing audio and generating AI insights in background... Please wait.</p>`;
+                                setTimeout(fetchTranscript, 3000);
+                            } else {
+                                txtOrig.textContent = data.original;
+                                txtTrans.textContent = data.translated;
+                                loader.style.display = "none";
+                                content.style.display = "block";
+                                isLoaded = true;
+                                span.dataset.reloadOnClose = "true";
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            txtOrig.textContent = "Error loading transcript.";
+                            txtTrans.textContent = "Error loading translation.";
+                            loader.style.display = "none";
+                            content.style.display = "block";
+                        });
+                }
+                
+                fetchTranscript();
+            }
+        }
+    }
+
+    if (span) {
+        span.onclick = function() {
+            modal.style.display = "none";
+            if (span.dataset.reloadOnClose === "true") {
+                window.location.reload();
+            }
+        }
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+            if (span.dataset.reloadOnClose === "true") {
+                window.location.reload();
+            }
+        }
+    }
+});
+</script>
 {% endblock %}
 
 {% block fab %}

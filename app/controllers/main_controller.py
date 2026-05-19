@@ -14,6 +14,112 @@ from app.models.user import User
 from app import db
 import random
 from datetime import timedelta
+import threading
+from flask import current_app
+
+def process_audio_background(app, session_id):
+    with app.app_context():
+        from app.models.session import Session
+        from app.models.summary_topic import SummaryTopic
+        from app.models.key_moment import KeyMoment
+        from app.models.homework import Homework
+        from app.models.study_note import StudyNote
+        import re
+        import os
+        from deep_translator import GoogleTranslator
+        
+        session = Session.query.get(session_id)
+        if not session:
+            return
+            
+        text = session.raw_transcript
+        
+        # 1. Transcribe if missing
+        if not text and session.audio_file_path:
+            file_path = os.path.join(app.root_path, 'static', 'uploads', 'audio', session.audio_file_path)
+            if os.path.exists(file_path):
+                try:
+                    from pydub import AudioSegment
+                    import speech_recognition as sr
+                    
+                    wav_path = file_path.rsplit('.', 1)[0] + '.wav'
+                    audio = AudioSegment.from_file(file_path, format="webm")
+                    audio.export(wav_path, format="wav")
+                    
+                    recognizer = sr.Recognizer()
+                    with sr.AudioFile(wav_path) as source:
+                        audio_data = recognizer.record(source)
+                    
+                    text = recognizer.recognize_google(audio_data, language="ko-KR")
+                    session.raw_transcript = text
+                    
+                    if os.path.exists(wav_path):
+                        os.remove(wav_path)
+                except Exception as e:
+                    print("Transcription failed:", e)
+                    text = "(Automated transcription failed)"
+                    session.raw_transcript = text
+        
+        # 2. Translate
+        if text and text != "(Automated transcription failed)":
+            try:
+                translated = GoogleTranslator(source='auto', target='en').translate(text)
+                session.translated_transcript = translated
+            except Exception as e:
+                session.translated_transcript = "(Translation failed)"
+                
+        # 3. Generate AI insights
+        sentences = [s.strip() for s in re.split(r'[.?!]+', text or "") if len(s.strip()) > 10]
+        fallback_sentences = [
+            "We will explore the fundamental properties discussed today.",
+            "Remember to review the notes before the final exam.",
+            "The core methodology relies on practical application.",
+            "Read chapter 3 and write a short summary.",
+            "Group study is highly recommended for this topic."
+        ]
+        
+        def get_random_sentence():
+            if sentences:
+                return random.choice(sentences)
+            return random.choice(fallback_sentences)
+        
+        topic = SummaryTopic(
+            session_id=session.id,
+            main_topic=f"Summary of {session.course.name}",
+            description=get_random_sentence(),
+            tags="Core, Review, Essential"
+        )
+        db.session.add(topic)
+        
+        for i in range(3):
+            km = KeyMoment(
+                session_id=session.id,
+                timestamp_seconds=random.randint(10, max(session.duration_seconds - 10, 11)),
+                title=f"Key Point {i+1}",
+                description=get_random_sentence()
+            )
+            db.session.add(km)
+            
+        for i in range(2):
+            hw = Homework(
+                session_id=session.id,
+                task_description=f"Task: {get_random_sentence()}",
+                due_date_extracted=f"In {random.randint(2, 7)} days"
+            )
+            db.session.add(hw)
+            
+        for i in range(2):
+            is_tip = random.choice([True, False])
+            note = StudyNote(
+                session_id=session.id,
+                note_text=get_random_sentence(),
+                is_professor_tip=is_tip
+            )
+            db.session.add(note)
+            
+        session.status = 'ready'
+        db.session.commit()
+
 @main_bp.route('/')
 def index():
     if current_user.is_authenticated:
@@ -95,6 +201,33 @@ def live_session(course_id):
     course = Course.query.get_or_404(course_id)
     return render_template('main/live_session.html', show_back_button=True, back_url=url_for('course.detail', course_id=course.id), course=course)
 
+@main_bp.route('/course/<int:course_id>/upload_audio_chunk/<session_uuid>', methods=['POST'])
+@login_required
+def upload_audio_chunk(course_id, session_uuid):
+    course = Course.query.get_or_404(course_id)
+    if course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    chunk = request.files.get('audio_chunk')
+    if chunk:
+        from werkzeug.utils import secure_filename
+        from flask import current_app
+        import os
+        safe_uuid = secure_filename(session_uuid)
+        if not safe_uuid:
+            return 'Invalid UUID', 400
+            
+        filename = f"{safe_uuid}.webm"
+        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'audio')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        file_path = os.path.join(upload_dir, filename)
+        with open(file_path, 'ab') as f:
+            f.write(chunk.read())
+            
+    return 'OK', 200
+
 @main_bp.route('/course/<int:course_id>/end_session', methods=['GET', 'POST'])
 @login_required
 def end_session(course_id):
@@ -105,91 +238,101 @@ def end_session(course_id):
         
     raw_transcript = ""
     duration = 1800
+    session_uuid = None
+    audio_filename = None
     
     if request.method == 'POST':
         raw_transcript = request.form.get('raw_transcript', '').strip()
         dur_str = request.form.get('duration', '1800')
+        session_uuid = request.form.get('session_uuid')
         try:
             duration = int(dur_str)
             if duration < 60: duration = 60 # min 1 min for display
         except:
             duration = 1800
+            
+        if session_uuid:
+            from werkzeug.utils import secure_filename
+            safe_uuid = secure_filename(session_uuid)
+            audio_filename = f"{safe_uuid}.webm"
     else:
         # Fallback to random if hit via GET directly
         duration = random.choice([1800, 3600, 5400, 7200, 2400])
 
     session_titles = ["Introduction to Concepts", "Advanced Theories", "Midterm Review", "Lab Session", "Guest Lecture"]
     
+    status = 'processing' # We will always process translation or transcription
+    
     new_session = Session(
         course_id=course.id,
         title=f"{random.choice(session_titles)} - {course.name}",
         duration_seconds=duration,
         raw_transcript=raw_transcript,
-        status='ready'
+        audio_file_path=audio_filename,
+        status=status
     )
     db.session.add(new_session)
     db.session.commit()
     
-    import re
-    # Split by common punctuation marks to extract sentences
-    sentences = [s.strip() for s in re.split(r'[.?!]+', raw_transcript) if len(s.strip()) > 10]
-    
-    fallback_sentences = [
-        "We will explore the fundamental properties discussed today.",
-        "Remember to review the notes before the final exam.",
-        "The core methodology relies on practical application.",
-        "Read chapter 3 and write a short summary.",
-        "Group study is highly recommended for this topic.",
-        "The professor emphasized this concept multiple times.",
-        "This is an essential insight into the subject matter."
-    ]
-    
-    def get_random_sentence():
-        if sentences:
-            return random.choice(sentences)
-        return random.choice(fallback_sentences)
-    
-    # Dummy Summary Topic
-    topic = SummaryTopic(
-        session_id=new_session.id,
-        main_topic=f"Summary of {course.name}",
-        description=get_random_sentence(),
-        tags="Core, Review, Essential"
-    )
-    db.session.add(topic)
-    
-    # Dummy Key Moments
-    for i in range(3):
-        km = KeyMoment(
-            session_id=new_session.id,
-            timestamp_seconds=random.randint(10, max(duration - 10, 11)),
-            title=f"Key Point {i+1}",
-            description=get_random_sentence()
-        )
-        db.session.add(km)
-        
-    # Dummy Homework
-    for i in range(2):
-        hw = Homework(
-            session_id=new_session.id,
-            task_description=f"Task: {get_random_sentence()}",
-            due_date_extracted=f"In {random.randint(2, 7)} days"
-        )
-        db.session.add(hw)
-        
-    # Dummy Study Notes
-    for i in range(2):
-        is_tip = random.choice([True, False])
-        note = StudyNote(
-            session_id=new_session.id,
-            note_text=get_random_sentence(),
-            is_professor_tip=is_tip
-        )
-        db.session.add(note)
-        
-    db.session.commit()
+    # Start background thread
+    app = current_app._get_current_object()
+    thread = threading.Thread(target=process_audio_background, args=(app, new_session.id))
+    thread.start()
     
     return redirect(url_for('main.session_summary', session_id=new_session.id))
+
+@main_bp.route('/session/<int:session_id>/delete', methods=['POST'])
+@login_required
+def delete_session(session_id):
+    session = Session.query.get_or_404(session_id)
+    course = session.course
+    
+    if course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    import os
+    from flask import current_app
+    
+    # Delete the physical audio file if it exists to free up space
+    if session.audio_file_path:
+        file_path = os.path.join(current_app.root_path, 'static', 'uploads', 'audio', session.audio_file_path)
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Error deleting audio file: {e}")
+                
+    db.session.delete(session) # This cascades to SummaryTopic, KeyMoment, etc.
+    db.session.commit()
+    
+    from flask import flash
+    flash('Class session and all its resources have been successfully deleted.', 'success')
+    return redirect(url_for('course.detail', course_id=course.id))
+
+@main_bp.route('/session/<int:session_id>/transcript_data')
+@login_required
+def transcript_data(session_id):
+    session = Session.query.get_or_404(session_id)
+    if session.course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    from flask import jsonify
+    
+    if session.status == 'processing':
+        return jsonify({
+            'status': 'processing'
+        })
+        
+    original_text = session.raw_transcript or "No transcript available."
+    translated_text = session.translated_transcript or "(Translation unavailable)"
+        
+    return jsonify({
+        'status': 'ready',
+        'original': original_text,
+        'translated': translated_text
+    })
 
 @main_bp.route('/session/<int:session_id>')
 @login_required

@@ -265,10 +265,12 @@
     <!-- Top Translator Navigation -->
     <div class="translator-bar">
         <select id="spoken-language" class="lang-pill active" style="appearance: none; border: none; outline: none; cursor: pointer; padding-right: 2rem; background-image: url('data:image/svg+xml;utf8,<svg fill=%22white%22 height=%2224%22 viewBox=%220 0 24 24%22 width=%2224%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22M7 10l5 5 5-5z%22/></svg>'); background-repeat: no-repeat; background-position: right 0.7rem top 50%; background-size: 1.5rem auto;">
+            <option value="ko-KR" selected>한국어 (Korean)</option>
             <option value="es-ES">Español</option>
             <option value="en-US">English</option>
-            <option value="ko-KR">한국어</option>
         </select>
+        <div class="translator-icon"><i class="bi bi-arrow-right" style="color: var(--primary-blue);"></i></div>
+        <div class="lang-pill inactive" style="background: #F3F4F6; color: #9CA3AF; cursor: not-allowed;" title="Translation coming soon">English</div>
     </div>
 
     <!-- Indicator -->
@@ -308,6 +310,7 @@
     <form id="end-session-form" method="POST" action="{{ url_for('main.end_session', course_id=course.id) }}" style="display: none;">
         <input type="hidden" name="raw_transcript" id="raw-transcript-input">
         <input type="hidden" name="duration" id="duration-input">
+        <input type="hidden" name="session_uuid" id="session-uuid-input">
     </form>
 
     <div class="ctrl-btn-container" onclick="submitSession()">
@@ -361,22 +364,65 @@
         
         let fullTranscript = [];
         let startTime = Date.now();
+        const sessionUuid = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        document.getElementById('session-uuid-input').value = sessionUuid;
+        
+        let mediaRecorder;
+        
+        // Initialize Audio Recording
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            // Check if webm is supported, fallback to empty to let browser pick default
+            let options = { mimeType: 'audio/webm' };
+            if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                options = {};
+            }
+            mediaRecorder = new MediaRecorder(stream, options);
+            
+            mediaRecorder.ondataavailable = function(e) {
+                if (e.data.size > 0) {
+                    const formData = new FormData();
+                    formData.append('audio_chunk', e.data);
+                    
+                    const uploadUrl = "{{ url_for('main.upload_audio_chunk', course_id=course.id, session_uuid='DUMMY_UUID') }}".replace('DUMMY_UUID', sessionUuid);
+                    
+                    fetch(uploadUrl, {
+                        method: 'POST',
+                        body: formData
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.error("Audio chunk upload failed:", response.status);
+                        }
+                    }).catch(err => console.error("Fetch error:", err));
+                }
+            };
+        }).catch(err => {
+            console.error("Microphone access denied or error: ", err);
+        });
         
         // Expose submit to global scope for the button onClick
         window.submitSession = function() {
             // Stop recording
             isPaused = true;
             try { recognition.stop(); } catch(e) {}
+            try { if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); } catch(e) {}
             
-            document.getElementById('raw-transcript-input').value = fullTranscript.join(' ');
-            document.getElementById('duration-input').value = Math.floor((Date.now() - startTime) / 1000);
-            document.getElementById('end-session-form').submit();
+            // Allow a short delay for the last audio chunk to be sent
+            setTimeout(() => {
+                document.getElementById('raw-transcript-input').value = fullTranscript.join(' ');
+                document.getElementById('duration-input').value = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('end-session-form').submit();
+            }, 800);
         };
 
         function startRecording() {
             if (!isPaused) {
                 try {
                     recognition.start();
+                    if (mediaRecorder && mediaRecorder.state === 'inactive') {
+                        mediaRecorder.start(10000); // Send chunk every 10 seconds
+                    } else if (mediaRecorder && mediaRecorder.state === 'paused') {
+                        mediaRecorder.resume();
+                    }
                     isRecording = true;
                     soundBars.style.opacity = '1';
                     recStatus.innerHTML = '<div class="rec-dot"></div> LIVE RECORDING';
@@ -392,6 +438,7 @@
             } else {
                 isPaused = true;
                 recognition.stop();
+                try { if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.pause(); } catch(e) {}
                 isRecording = false;
                 soundBars.style.opacity = '0.3';
                 recStatus.innerHTML = 'PAUSED';
@@ -404,7 +451,10 @@
         };
 
         recognition.onerror = function(event) {
-            console.error(event.error);
+            console.error("recognition.onerror: ", event.error);
+            if (event.error === 'network') {
+                console.warn("Network error in Speech API. Chrome requires an active internet connection (and no ad-blockers blocking Google servers) for dictation to work.");
+            }
         };
 
         recognition.onend = function() {
@@ -443,8 +493,15 @@
                 const tSource = document.createElement('div');
                 tSource.className = 't-source';
                 tSource.textContent = finalTranscript;
+
+                const tTranslated = document.createElement('div');
+                tTranslated.className = 't-translated';
+                tTranslated.style.fontStyle = 'italic';
+                tTranslated.style.opacity = '0.6';
+                tTranslated.textContent = "(Translation pending...)";
                 
                 tCard.appendChild(tSource);
+                tCard.appendChild(tTranslated);
                 transcriptList.appendChild(tCard);
                 
                 // Auto scroll
@@ -470,11 +527,12 @@
         // Ensure we gracefully stop when navigating away
         window.addEventListener('beforeunload', function() {
             isPaused = true;
-            recognition.stop();
+            try { recognition.stop(); } catch(e) {}
+            try { if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); } catch(e) {}
         });
 
-        // Start automatically after a short delay to ensure DOM is ready
-        setTimeout(startRecording, 500);
+        // Start automatically after a short delay to ensure DOM and mic are ready
+        setTimeout(startRecording, 1500);
     });
 </script>
 
