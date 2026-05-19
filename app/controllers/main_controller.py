@@ -15,29 +15,36 @@ def index():
 @login_required # Ruta protegida con auth
 def dashboard():
     courses = Course.query.filter_by(user_id=current_user.id).order_by(Course.created_at.desc()).all()
-    return render_template('main/dashboard.html', active_page='dashboard', courses=courses)
+    return render_template('main/dashboard.html', active_page='dashboard', courses=courses, show_back_button=False)
 
 @main_bp.route('/course/new')
 @login_required
 def add_course():
-    return render_template('main/add_course.html')
+    return render_template('main/add_course.html', show_back_button=True)
 
 @main_bp.route('/settings')
 @login_required
 def settings():
-    return render_template('main/settings.html', active_page='settings')
+    return render_template('main/settings.html', active_page='settings', show_back_button=True)
 
 @main_bp.route('/records')
 @login_required
 def records():
-    return render_template('main/records.html', active_page='records')
+    return render_template('main/records.html', active_page='records', show_back_button=True)
 
-@main_bp.route('/live')
+@main_bp.route('/live/<int:course_id>')
 @login_required
-def live_session():
-    return render_template('main/live_session.html')
+def live_session(course_id):
+    from app.models.course import Course
+    course = Course.query.get_or_404(course_id)
+    return render_template('main/live_session.html', show_back_button=True, back_url=url_for('course.detail', course_id=course.id), course=course)
 
 @main_bp.route('/course/session')
+@main_bp.route('/course/<int:course_id>/session')
 @login_required
-def session_summary():
-    return render_template('main/session_summary.html', active_page='dashboard')
+def session_summary(course_id=None):
+    if course_id:
+        back_url = url_for('course.detail', course_id=course_id)
+    else:
+        back_url = url_for('main.dashboard')
+    return render_template('main/session_summary.html', active_page='dashboard', show_back_button=True, back_url=back_url)

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
-{% block title %}Live Session - Transcript{% endblock %}
-
+{% block title %}Live Session - {{ course.name }}{% endblock %}
+{% block header_title %}<span style="color: #ef4444;"><i class="bi bi-record-circle"></i></span> {{ course.name }}{% endblock %}
 {% block extra_css %}
 <style>
     .live-container {
@@ -326,7 +326,7 @@
     </div>
 
     <div class="ctrl-btn-container">
-        <a href="{{ url_for('main.session_summary') }}" style="text-decoration: none;">
+        <a href="{{ url_for('main.session_summary', course_id=course.id) }}" style="text-decoration: none;">
             <div class="ctrl-circle ctrl-primary">
                 <i class="bi bi-stop-fill"></i>
             </div>

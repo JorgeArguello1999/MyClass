@@ -22,23 +22,7 @@
         margin: 0 auto;
     }
 
-    .btn-close-custom {
-        position: absolute;
-        top: 2rem;
-        right: 2rem;
-        background: transparent;
-        border: none;
-        font-size: 1.5rem;
-        color: var(--text-sec);
-        cursor: pointer;
-        transition: color 0.2s;
-        padding: 0;
-        line-height: 1;
-    }
 
-    .btn-close-custom:hover {
-        color: var(--text-main);
-    }
 
     .form-title {
         color: var(--primary-blue);
@@ -204,9 +188,7 @@
 {% block content %}
 <div class="course-form-container">
     <div class="course-form-card">
-        <a href="{{ url_for('main.dashboard') }}" class="btn-close-custom">
-            <i class="bi bi-x-lg"></i>
-        </a>
+
 
         <h1 class="form-title">Edit Course</h1>
         <p class="form-subtitle">Update your academic intelligence module.</p>

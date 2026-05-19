@@ -22,7 +22,8 @@ body {
     margin: 0;
     padding: 0;
     color: var(--text-main);
-    padding-bottom: 90px; /* Space for bottom nav */
+    padding-bottom: env(safe-area-inset-bottom, 20px); /* Better iOS feel */
+    -webkit-tap-highlight-color: transparent; /* Remove tap blue box on iOS */
 }
 
 /* Mobile Container constraints for realistic feel */
@@ -185,6 +186,12 @@ body {
     padding: 1.25rem;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     position: relative;
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.course-card:active {
+    transform: scale(0.97);
+    background: #FAFAFA;
 }
 
 .course-card.core { border-bottom: 4px solid var(--primary-blue); }
@@ -307,87 +314,9 @@ body {
     font-weight: 700;
 }
 
-/* FAB */
-.fab {
-    position: fixed;
-    bottom: 90px;
-    right: calc(50% - 240px + 1.5rem); /* Adjust for max-width container */
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--primary-blue);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem;
-    box-shadow: 0 4px 15px rgba(3, 59, 129, 0.4);
-    cursor: pointer;
-    z-index: 100;
-    border: none;
-    transition: transform 0.2s;
-}
-
-@media (max-width: 480px) {
-    .fab {
-        right: 1.5rem;
-    }
-}
-
-.fab:hover {
-    transform: scale(1.05);
-}
-
-/* Bottom Nav */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 480px;
-    background: var(--card-bg);
-    border-radius: 30px 30px 0 0;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-    display: flex;
-    justify-content: space-around;
-    padding: 1rem 1.5rem;
-    z-index: 90;
-}
-
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-sec);
-    text-decoration: none;
-    gap: 0.25rem;
-    padding: 0.5rem 1rem;
-    border-radius: 16px;
-    transition: all 0.3s;
-}
-
-.nav-item.active {
-    background: #EBF3FF;
-    color: var(--primary-blue);
-}
-
-.nav-item i {
-    font-size: 1.25rem;
-}
-
-.nav-item span {
-    font-size: 0.65rem;
-    font-weight: 600;
-}
-
 /* ------------------------------------
    Desktop Responsive Layout 
 ------------------------------------- */
-
-.desktop-nav {
-    display: none;
-}
 
 @media (max-width: 767px) {
     .d-md-none {
@@ -456,41 +385,7 @@ body {
         padding: 0 2rem 2rem 2rem;
     }
 
-    /* Desktop Navigation overrides */
-    .desktop-nav {
-        display: flex;
-        gap: 2rem;
-        align-items: center;
-        flex-wrap: wrap; /* Prevents overlap if screen shrinks */
-        justify-content: center;
-    }
-    
-    .desktop-nav a {
-        text-decoration: none;
-        color: var(--text-sec);
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: color 0.2s;
-    }
-    
-    .desktop-nav a:hover, .desktop-nav a.active {
-        color: var(--primary-blue);
-    }
-    
     /* Make cards stretch nicely */
     .course-card { height: 100%; display: flex; flex-direction: column; }
     .course-card p { flex-grow: 1; } /* Push bottom part down */
-    
-    /* Hide bottom nav on desktop since we have top links */
-    .bottom-nav { display: none; }
-    
-    /* Position FAB relative to the new app container size */
-    .fab {
-        position: absolute; /* relative to .mobile-wrapper */
-        bottom: 2rem;
-        right: 2.5rem;
-        width: 64px;
-        height: 64px;
-        font-size: 1.7rem;
-    }
 }
