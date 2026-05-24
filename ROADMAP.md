@@ -46,21 +46,21 @@ This document provides a comprehensive mapping of all the features and templates
   - Contains actions to **Edit** or **Delete** (with confirmation) the current course.
   - Features a prominent, primary action button to **"Record New Class"** which transitions the user to the live recording interface.
   - Displays a historical list of recorded classes specifically tied to this course.
-- **Database Tables**: `Course` (Read), `Session` (Pending)
-- **Current Status**: ⚠️ Partially Functional. Course data, editing, and deletion work. The historical list of classes is currently using hardcoded placeholders since the `Session` logic is not yet built.
+- **Database Tables**: `Course` (Read), `Session` (Read)
+- **Current Status**: ✅ Fully Functional. Course data, editing, deletion, and historical sessions list are fully connected and displayed dynamically from the database.
 
 ---
 
 ## 5. Live Audio Recording (Live Session)
 - **Templates**: `main/live_session.html`
 - **Expected Behavior**: 
-  - This is the active recording screen. It should capture microphone audio in real-time.
+  - This is the active recording screen. It captures microphone audio in real-time.
   - Displays animated waveforms or recording indicators to show active audio capture.
-  - Should display live transcriptions (e.g., translated text) as the professor speaks.
+  - Displays live transcriptions (via Web Speech API / Google Speech Recognition) as the professor speaks.
   - Allows the user to tap a "Key Point" button to mark a specific timestamp during the live lecture.
-  - Contains an "End Session" button that stops the recording, saves the audio, and navigates to the Session Summary for processing.
-- **Database Tables**: `Session` (to store the raw audio file path, start time, and raw transcript text), `KeyPoint` (Pending)
-- **Current Status**: 🎨 UI Ready (Mockup). Requires integration with JavaScript `Web Audio API` or `WebRTC` to capture audio, and a backend endpoint to receive and process the audio stream.
+  - Contains an "End Session" button that stops the recording, saves the audio chunks, and navigates to the Session Summary for processing.
+- **Database Tables**: `Session` (stores the raw audio file path, duration, and raw transcript text)
+- **Current Status**: ✅ Fully Functional. JavaScript Web Audio API chunking records and uploads audio in real-time WebM streams to a dedicated Flask endpoint.
 
 ---
 
@@ -73,8 +73,8 @@ This document provides a comprehensive mapping of all the features and templates
   - **Key Moments (Timeline)**: A chronological list of timestamps and descriptions mapping out the structure of the lecture.
   - **Important Notes**: Curated list of high-value insights, definitions, or professor tips.
   - **Homework/Tasks**: Automatically detected assignments, readings, or deadlines mentioned during the class.
-- **Database Tables**: `Session`, `SummaryTopic`, `KeyMoment`, `Homework` (All Pending)
-- **Current Status**: 🎨 UI Ready (Mockup). This is the core AI feature. It requires backend integration with an LLM (like OpenAI GPT-4) and an audio transcription model (like Whisper) to generate these insights dynamically from the saved audio.
+- **Database Tables**: `Session`, `SummaryTopic`, `KeyMoment`, `Homework`, `StudyNote`
+- **Current Status**: ✅ Fully Functional. Core AI engine processes WebM-to-WAV conversion using FFmpeg, auto-translates Korean speech to English via deep-translator, and uses LangChain (`lang`) with Ollama or LM Studio to extract structured JSON metadata.
 
 ---
 
@@ -83,9 +83,9 @@ This document provides a comprehensive mapping of all the features and templates
 - **Expected Behavior**: 
   - Displays aggregated metrics, such as total hours recorded and overall progress across the semester.
   - Shows a global historical feed of all recorded sessions across all courses.
-  - Each item displays its processing status (e.g., "Summary Ready" or "Unprocessed").
-- **Database Tables**: `Course`, `Session` (Pending)
-- **Current Status**: 🎨 UI Ready (Mockup). Needs backend logic to sum durations and list actual `Session` records from the database.
+  - Each item displays its processing status (e.g., "Ready" or "Processing").
+- **Database Tables**: `Course`, `Session`
+- **Current Status**: ✅ Fully Functional. Dynamically aggregates total lecture hours, total extracted topics count, and lists historical session entries.
 
 ---
 
@@ -93,26 +93,31 @@ This document provides a comprehensive mapping of all the features and templates
 - **Templates**: `main/settings.html`
 - **Expected Behavior**: 
   - Accessed via the profile avatar in the top navigation bar.
-  - Allows the user to update their personal information (Name, Email), change their password, and toggle notification preferences.
+  - Allows the user to update their personal information (Name, Email) and upload a profile picture.
   - Provides a secure "Log Out" button to terminate the session.
 - **Database Tables**: `User` (Update operations)
-- **Current Status**: ⚠️ Partially Functional. The layout is ready and the "Log Out" button works perfectly. The backend endpoints for updating user data and changing passwords are yet to be implemented.
+- **Current Status**: ✅ Fully Functional. Profile details updates, profile picture uploads, and user logout are fully integrated with the database.
 
 ---
 
-## 🛠️ Missing Database Entities to Build Next
+## 💾 Database Entities & Models (Completed)
 
-To fully activate the pending features (Live Recording, Summaries, and Histories), the following SQLAlchemy models need to be created:
+All database schemas are built as SQLAlchemy models and fully integrated:
 
-1. **`Session` / `Lecture`**
+1. **`User`**
+   - Main user table supporting flask-login sessions, securely hashing passwords, and storing user details.
+2. **`Course`**
+   - **Foreign Key**: `user_id` (Links to `User`)
+   - **Fields**: `name`, `professor`, `schedule`, `location`, `icon`, `cover_image`.
+3. **`Session`**
    - **Foreign Key**: `course_id` (Links to `Course`)
-   - **Fields**: `audio_file_path`, `duration_seconds`, `recorded_date`, `raw_transcript`, `status` (Enum: unprocessed, processing, ready).
-2. **`KeyMoment` / `Timeline`**
-   - **Foreign Key**: `session_id`
+   - **Fields**: `title`, `audio_file_path`, `duration_seconds`, `recorded_date`, `raw_transcript`, `translated_transcript`, `status` (processing, ready).
+4. **`KeyMoment`**
+   - **Foreign Key**: `session_id` (Links to `Session`)
    - **Fields**: `timestamp_seconds`, `title`, `description`.
-3. **`Homework` / `Task`**
-   - **Foreign Key**: `session_id`
+5. **`Homework`**
+   - **Foreign Key**: `session_id` (Links to `Session`)
    - **Fields**: `task_description`, `due_date_extracted`, `is_completed`.
-4. **`StudyNote` / `Highlight`**
-   - **Foreign Key**: `session_id`
+6. **`StudyNote`**
+   - **Foreign Key**: `session_id` (Links to `Session`)
    - **Fields**: `note_text`, `is_professor_tip`.
