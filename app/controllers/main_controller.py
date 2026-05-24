@@ -1,6 +1,5 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash
 from flask_login import login_required, current_user
-from flask import request
 
 main_bp = Blueprint('main', __name__)
 

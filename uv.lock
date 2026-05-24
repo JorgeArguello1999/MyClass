@@ -641,6 +641,12 @@ wheels = [
 ]
 
 [[package]]
+name = "jsonify"
+version = "0.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/63/5d/44962520aa458852bbd40ac5553dd1431f6367ab31f39ee7650b57136d9a/jsonify-0.5.tar.gz", hash = "sha256:f340032753577575e9777835809b283fdc9b251867d5d5600389131647f8bfe1", size = 1007, upload-time = "2016-04-29T07:44:02.976Z" }
+
+[[package]]
 name = "jsonpatch"
 version = "1.33"
 source = { registry = "https://pypi.org/simple" }
@@ -1059,6 +1065,7 @@ dependencies = [
     { name = "flask-login" },
     { name = "flask-migrate" },
     { name = "flask-sqlalchemy" },
+    { name = "jsonify" },
     { name = "langchain" },
     { name = "langchain-anthropic" },
     { name = "langchain-community" },
@@ -1074,6 +1081,7 @@ requires-dist = [
     { name = "flask-login", specifier = ">=0.6.3" },
     { name = "flask-migrate", specifier = ">=4.0.5" },
     { name = "flask-sqlalchemy", specifier = ">=3.1.1" },
+    { name = "jsonify", specifier = ">=0.5" },
     { name = "langchain", specifier = ">=1.3.1" },
     { name = "langchain-anthropic", specifier = ">=1.4.3" },
     { name = "langchain-community", specifier = ">=0.4.2" },

@@ -16,4 +16,5 @@ dependencies = [
     "langchain-ollama>=1.1.0",
     "langchain-openai>=1.2.2",
     "langchain-anthropic>=1.4.3",
+    "jsonify>=0.5",
 ]
