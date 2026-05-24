@@ -17,19 +17,19 @@ Welcome to the **LuminaAcademic** repository. LuminaAcademic is an intelligent a
 
 - **Backend Framework**: Python / Flask
 - **Database**: SQLite / SQLAlchemy ORM
-- **Package Manager**: `uv` (Fast Python package manager)
+- **Environment & Package Manager**: `uv` (Fast Python package, environment, and tool manager)
 - **Frontend**: Jinja2 Templates, Bootstrap 5, Custom CSS (`dashboard.css`)
 - **Icons**: Bootstrap Icons
 
 ## ⚙️ Installation & Setup
 
-Follow these detailed instructions to initialize the project environment, configure database migrations, set up the artificial intelligence models, and run the system.
+Follow these detailed instructions using `uv` to initialize the project environment, configure database migrations, set up the artificial intelligence models, and run the system.
 
 ### 1. Prerequisites
 
 Ensure you have the following installed on your host system:
-- **Python 3.12+** (configured in `pyproject.toml`)
-- **[uv](https://github.com/astral-sh/uv)** (Recommended - an extremely fast Python package manager and resolver)
+- **[uv](https://github.com/astral-sh/uv)** (We use `uv` exclusively to manage Python versions, virtual environments, dependencies, and execution commands).
+- **Python 3.12+** (Automatically managed and downloaded by `uv` using the settings in `pyproject.toml`).
 - **FFmpeg & FFprobe**: Required to convert live WebM audio recording chunks into WAV format for speech recognition.
   - **macOS**: `brew install ffmpeg`
   - **Linux (Ubuntu/Debian)**: `sudo apt update && sudo apt install ffmpeg`
@@ -44,19 +44,11 @@ cd MyClass
 
 ### 3. Create the Environment & Install Dependencies
 
-Using `uv`, you can instantly synchronize your virtual environment to match the exact `uv.lock` file:
+We use `uv` to manage the virtual environment. To create the `.venv` and install the exact locked dependencies from `uv.lock`, run:
 
 ```bash
-# This will automatically create a `.venv` and install the locked dependencies
+# This will automatically download the correct Python version (if missing), create the .venv, and sync dependencies
 uv sync
-```
-
-*Alternatively, if you prefer standard pip:*
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On macOS/Linux
-# .\venv\Scripts\activate  # On Windows
-pip install -r requirements.txt
 ```
 
 ### 4. Setup Environment Variables
