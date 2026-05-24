@@ -72,7 +72,7 @@ def process_audio_background(app, session_id):
         llm_provider = os.getenv("LLM_PROVIDER", "mock").lower()
         success = False
         
-        if llm_provider in ("ollama", "lmstudio"):
+        if llm_provider in ("ollama", "lmstudio", "openai", "deepseek", "claude", "anthropic"):
             try:
                 import json
                 model_name = os.getenv("LLM_MODEL")
@@ -83,12 +83,34 @@ def process_audio_background(app, session_id):
                 if llm_provider == "ollama":
                     from langchain_ollama import ChatOllama
                     llm = ChatOllama(model=model_name, base_url=base_url, temperature=0.3)
-                else: # lmstudio
+                elif llm_provider == "lmstudio":
                     from langchain_openai import ChatOpenAI
                     llm = ChatOpenAI(
                         model=model_name,
                         openai_api_key="lm-studio",
                         openai_api_base=base_url,
+                        temperature=0.3
+                    )
+                elif llm_provider == "openai":
+                    from langchain_openai import ChatOpenAI
+                    llm = ChatOpenAI(
+                        model=model_name or "gpt-4o-mini",
+                        openai_api_key=os.getenv("OPENAI_API_KEY"),
+                        temperature=0.3
+                    )
+                elif llm_provider == "deepseek":
+                    from langchain_openai import ChatOpenAI
+                    llm = ChatOpenAI(
+                        model=model_name or "deepseek-chat",
+                        openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
+                        openai_api_base=base_url or "https://api.deepseek.com",
+                        temperature=0.3
+                    )
+                elif llm_provider in ("claude", "anthropic"):
+                    from langchain_anthropic import ChatAnthropic
+                    llm = ChatAnthropic(
+                        model=model_name or "claude-3-5-sonnet-latest",
+                        api_key=os.getenv("ANTHROPIC_API_KEY"),
                         temperature=0.3
                     )
                 

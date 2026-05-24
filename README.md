@@ -104,7 +104,7 @@ We use **LangChain** (often referred to in the codebase as `lang` or `langchain`
 
 ### Supported LLM Providers
 
-The system is configured to support three different LLM providers through environment variables in your `.env` file:
+The system is configured to support multiple LLM providers through environment variables in your `.env` file:
 
 1. **Mock (`mock`)**
    - **How it works**: Bypasses any external network request or local LLM server. It generates randomized, highly structured mock academic insights (summary topics, key moments, homework, and study notes) directly from the text.
@@ -135,6 +135,37 @@ The system is configured to support three different LLM providers through enviro
      LLM_BASE_URL=http://localhost:1234/v1
      ```
    - **Prerequisites**: Open LM Studio, load your desired model, and start the Local Inference Server on port `1234`.
+
+4. **OpenAI (`openai`)**
+   - **How it works**: Connects to the official OpenAI API using `langchain-openai`.
+   - **Configuration**:
+     ```ini
+     LLM_PROVIDER=openai
+     LLM_MODEL=gpt-4o-mini      # Or any OpenAI model (e.g. gpt-4o, gpt-3.5-turbo)
+     OPENAI_API_KEY=your-openai-api-key-here
+     ```
+   - **Prerequisites**: A valid OpenAI API key.
+
+5. **DeepSeek (`deepseek`)**
+   - **How it works**: Connects to the DeepSeek API utilizing OpenAI-compatible protocols.
+   - **Configuration**:
+     ```ini
+     LLM_PROVIDER=deepseek
+     LLM_MODEL=deepseek-chat    # Default DeepSeek chat model
+     DEEPSEEK_API_KEY=your-deepseek-api-key-here
+     LLM_BASE_URL=https://api.deepseek.com
+     ```
+   - **Prerequisites**: A valid DeepSeek API key.
+
+6. **Claude / Anthropic (`claude` or `anthropic`)**
+   - **How it works**: Connects to the Anthropic Claude API using `langchain-anthropic`.
+   - **Configuration**:
+     ```ini
+     LLM_PROVIDER=claude        # Or LLM_PROVIDER=anthropic
+     LLM_MODEL=claude-3-5-sonnet-latest  # Or any Anthropic model (e.g. claude-3-5-haiku-latest)
+     ANTHROPIC_API_KEY=your-anthropic-api-key-here
+     ```
+   - **Prerequisites**: A valid Anthropic API key.
 
 ---
 

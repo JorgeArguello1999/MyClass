@@ -105,6 +105,28 @@ def test_llm():
                 openai_api_base=base_url,
                 temperature=0.3
             )
+        elif provider == "openai":
+            from langchain_openai import ChatOpenAI
+            llm = ChatOpenAI(
+                model=model_name or "gpt-4o-mini",
+                openai_api_key=os.getenv("OPENAI_API_KEY"),
+                temperature=0.3
+            )
+        elif provider == "deepseek":
+            from langchain_openai import ChatOpenAI
+            llm = ChatOpenAI(
+                model=model_name or "deepseek-chat",
+                openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
+                openai_api_base=base_url or "https://api.deepseek.com",
+                temperature=0.3
+            )
+        elif provider in ("claude", "anthropic"):
+            from langchain_anthropic import ChatAnthropic
+            llm = ChatAnthropic(
+                model=model_name or "claude-3-5-sonnet-latest",
+                api_key=os.getenv("ANTHROPIC_API_KEY"),
+                temperature=0.3
+            )
         else:
             print(f"❌ LLM: Unsupported provider '{provider}'")
             return False
