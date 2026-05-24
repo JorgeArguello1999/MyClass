@@ -40,7 +40,45 @@ def check_integrity():
         print(f"❌ Error connecting to Database: {e}")
         sys.exit(1)
         
+    # 4. Check LLM connection if configured
+    provider = os.getenv("LLM_PROVIDER", "mock").lower()
+    if provider == "mock":
+        print("ℹ️ LLM Provider is set to 'mock'. Local LLM connectivity check bypassed.")
+    elif provider in ("ollama", "lmstudio"):
+        model_name = os.getenv("LLM_MODEL")
+        base_url = os.getenv("LLM_BASE_URL")
+        print(f"🔄 Checking local LLM connection ({provider.upper()} - {model_name} at {base_url})...")
+        try:
+            if provider == "ollama":
+                try:
+                    from langchain_ollama import ChatOllama
+                except ImportError:
+                    print("❌ Missing dependency: 'langchain-ollama'. Please run: uv add langchain-ollama")
+                    sys.exit(1)
+                llm = ChatOllama(model=model_name, base_url=base_url, temperature=0.3)
+            else:  # lmstudio
+                try:
+                    from langchain_openai import ChatOpenAI
+                except ImportError:
+                    print("❌ Missing dependency: 'langchain-openai'. Please run: uv add langchain-openai")
+                    sys.exit(1)
+                llm = ChatOpenAI(
+                    model=model_name,
+                    openai_api_key="lm-studio",
+                    openai_api_base=base_url,
+                    temperature=0.3
+                )
+            
+            # Simple test call
+            llm.invoke("test connection")
+            print("✅ Local LLM connection verified.")
+        except Exception as e:
+            print(f"❌ Error connecting to Local LLM ({provider.upper()}): {e}")
+            print("⚠️ Please ensure the local LLM server is running and the model is downloaded.")
+            sys.exit(1)
+        
     print("🚀 Verification completed successfully.\n")
+
 
 if __name__ == "__main__":
     check_integrity()
