@@ -521,3 +521,205 @@ def session_summary(session_id):
         
     back_url = url_for('course.detail', course_id=course.id)
     return render_template('main/session_summary.html', active_page='dashboard', show_back_button=True, back_url=back_url, session=session_obj, course=course)
+
+@main_bp.route('/session/<int:session_id>/update', methods=['POST'])
+@login_required
+def update_session_fields(session_id):
+    session = Session.query.get_or_404(session_id)
+    if session.course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    from flask import jsonify
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'message': 'No data provided'}), 400
+        
+    section = data.get('section')
+    if not section:
+        return jsonify({'status': 'error', 'message': 'No section specified'}), 400
+        
+    try:
+        if section == 'title':
+            title = data.get('title')
+            if title is not None:
+                session.title = title.strip()
+                
+        elif section == 'topic':
+            topic_description = data.get('topic_description')
+            topic_tags = data.get('topic_tags')
+            topic = session.summary_topics.first()
+            if not topic:
+                topic = SummaryTopic(session_id=session.id)
+                db.session.add(topic)
+            if topic_description is not None:
+                topic.description = topic_description.strip()
+            if topic_tags is not None:
+                topic.tags = topic_tags.strip()
+                
+        elif section == 'key_moments':
+            key_moments_data = data.get('key_moments', [])
+            incoming_ids = []
+            for km_data in key_moments_data:
+                km_id = km_data.get('id')
+                if km_id is not None and not str(km_id).startswith('new-'):
+                    incoming_ids.append(int(km_id))
+            
+            KeyMoment.query.filter(KeyMoment.session_id == session.id, ~KeyMoment.id.in_(incoming_ids)).delete(synchronize_session=False)
+            
+            for km_data in key_moments_data:
+                km_id = km_data.get('id')
+                title = km_data.get('title', '').strip()
+                description = km_data.get('description', '').strip()
+                ts_val = km_data.get('timestamp')
+                
+                ts_seconds = 0
+                if ts_val is not None:
+                    if isinstance(ts_val, int):
+                        ts_seconds = ts_val
+                    else:
+                        ts_str = str(ts_val).strip()
+                        if ':' in ts_str:
+                            parts = ts_str.split(':')
+                            try:
+                                ts_seconds = int(parts[0]) * 60 + int(parts[1])
+                            except:
+                                ts_seconds = 0
+                        else:
+                            try:
+                                ts_seconds = int(ts_str)
+                            except:
+                                ts_seconds = 0
+                
+                if km_id is not None and not str(km_id).startswith('new-'):
+                    km = KeyMoment.query.filter_by(id=int(km_id), session_id=session.id).first()
+                    if km:
+                        km.title = title
+                        km.description = description
+                        km.timestamp_seconds = ts_seconds
+                else:
+                    new_km = KeyMoment(
+                        session_id=session.id,
+                        title=title,
+                        description=description,
+                        timestamp_seconds=ts_seconds
+                    )
+                    db.session.add(new_km)
+                        
+        elif section == 'notes':
+            notes_data = data.get('notes', [])
+            incoming_ids = []
+            for note_data in notes_data:
+                note_id = note_data.get('id')
+                if note_id is not None and not str(note_id).startswith('new-'):
+                    incoming_ids.append(int(note_id))
+                    
+            StudyNote.query.filter(StudyNote.session_id == session.id, ~StudyNote.id.in_(incoming_ids)).delete(synchronize_session=False)
+            
+            for note_data in notes_data:
+                note_id = note_data.get('id')
+                note_text = note_data.get('note_text', '').strip()
+                is_professor_tip = note_data.get('is_professor_tip', False)
+                
+                if note_id is not None and not str(note_id).startswith('new-'):
+                    note = StudyNote.query.filter_by(id=int(note_id), session_id=session.id).first()
+                    if note:
+                        note.note_text = note_text
+                else:
+                    new_note = StudyNote(
+                        session_id=session.id,
+                        note_text=note_text,
+                        is_professor_tip=is_professor_tip
+                    )
+                    db.session.add(new_note)
+                        
+        elif section == 'homeworks':
+            homeworks_data = data.get('homeworks', [])
+            incoming_ids = []
+            for hw_data in homeworks_data:
+                hw_id = hw_data.get('id')
+                if hw_id is not None and not str(hw_id).startswith('new-'):
+                    incoming_ids.append(int(hw_id))
+                    
+            Homework.query.filter(Homework.session_id == session.id, ~Homework.id.in_(incoming_ids)).delete(synchronize_session=False)
+            
+            for hw_data in homeworks_data:
+                hw_id = hw_data.get('id')
+                task_description = hw_data.get('task_description', '').strip()
+                due_date_extracted = hw_data.get('due_date_extracted', '').strip()
+                
+                if hw_id is not None and not str(hw_id).startswith('new-'):
+                    hw = Homework.query.filter_by(id=int(hw_id), session_id=session.id).first()
+                    if hw:
+                        hw.task_description = task_description
+                        hw.due_date_extracted = due_date_extracted
+                else:
+                    new_hw = Homework(
+                        session_id=session.id,
+                        task_description=task_description,
+                        due_date_extracted=due_date_extracted,
+                        is_completed=False
+                    )
+                    db.session.add(new_hw)
+                        
+        elif section == 'transcript':
+            raw_transcript = data.get('raw_transcript')
+            translated_transcript = data.get('translated_transcript')
+            if raw_transcript is not None:
+                session.raw_transcript = raw_transcript
+            if translated_transcript is not None:
+                session.translated_transcript = translated_transcript
+                
+        else:
+            return jsonify({'status': 'error', 'message': f'Unknown section: {section}'}), 400
+            
+        db.session.commit()
+        
+        # When returning success, query the updated list and return all details for items
+        # so the frontend can replace the view DOM elements dynamically
+        new_items = []
+        if section == 'notes':
+            new_items = [{
+                'id': n.id,
+                'note_text': n.note_text,
+                'is_professor_tip': n.is_professor_tip
+            } for n in session.study_notes.all()]
+        elif section == 'homeworks':
+            new_items = [{
+                'id': hw.id,
+                'task_description': hw.task_description,
+                'due_date_extracted': hw.due_date_extracted,
+                'is_completed': hw.is_completed
+            } for hw in session.homeworks.all()]
+        elif section == 'key_moments':
+            new_items = [{
+                'id': km.id,
+                'title': km.title,
+                'description': km.description,
+                'timestamp_seconds': km.timestamp_seconds
+            } for km in session.key_moments.order_by(KeyMoment.timestamp_seconds.asc()).all()]
+            
+        return jsonify({'status': 'success', 'items': new_items})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@main_bp.route('/homework/<int:hw_id>/toggle', methods=['POST'])
+@login_required
+def toggle_homework(hw_id):
+    hw = Homework.query.get_or_404(hw_id)
+    if hw.session.course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    from flask import jsonify
+    data = request.get_json() or {}
+    
+    is_completed = data.get('is_completed')
+    if is_completed is not None:
+        hw.is_completed = bool(is_completed)
+        db.session.commit()
+        return jsonify({'status': 'success', 'is_completed': hw.is_completed})
+        
+    return jsonify({'status': 'error', 'message': 'is_completed field required'}), 400
+
