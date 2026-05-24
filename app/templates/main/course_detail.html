@@ -57,7 +57,12 @@
                         <p style="margin: 0; font-size: 0.8rem; color: var(--text-sec);">{{ session.recorded_date.strftime('%b %d, %Y') }} • {{ session.duration_seconds // 60 }} min</p>
                     </div>
                 </div>
-                <i class="bi bi-chevron-right" style="color: #9ca3af;"></i>
+                {% if session.status == 'processing' %}
+                <span class="processing-badge" style="background: #FEF3C7; color: #D97706; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.3rem; margin-left: auto; margin-right: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <i class="bi bi-arrow-repeat" style="display: inline-block; animation: spin 2s linear infinite;"></i> Processing
+                </span>
+                {% endif %}
+                <i class="bi bi-chevron-right" style="color: #9ca3af; {% if session.status != 'processing' %}margin-left: auto;{% endif %}"></i>
             </a>
             {% endfor %}
         {% else %}
@@ -72,6 +77,10 @@
     @keyframes slideIn {
         from { opacity: 0; transform: translateX(20px); }
         to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
     .record-btn-large:active {
         transform: scale(0.97);

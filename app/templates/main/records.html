@@ -345,6 +345,15 @@
             display: none; /* Desktop doesn't need bottom space for nav */
         }
     }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .spin {
+        display: inline-block;
+        animation: spin 2s linear infinite;
+    }
 </style>
 {% endblock %}
 
@@ -421,6 +430,10 @@
                         <div class="status-row">
                             {% if session.status == 'ready' %}
                             <span class="status-badge ready">Summary Ready</span>
+                            {% elif session.status == 'processing' %}
+                            <span class="status-badge processing" style="background: #FEF3C7; color: #D97706; display: inline-flex; align-items: center; gap: 0.2rem;">
+                                <i class="bi bi-arrow-repeat spin"></i> Processing
+                            </span>
                             {% else %}
                             <span class="status-badge unprocessed">Unprocessed</span>
                             {% endif %}
@@ -433,6 +446,8 @@
                     <div class="history-action-btn {% if session.status != 'ready' %}unprocessed{% endif %}">
                         {% if session.status == 'ready' %}
                         <i class="bi bi-chevron-right"></i>
+                        {% elif session.status == 'processing' %}
+                        <i class="bi bi-arrow-repeat spin" style="color: #D97706;"></i>
                         {% else %}
                         <i class="bi bi-arrow-repeat"></i>
                         {% endif %}

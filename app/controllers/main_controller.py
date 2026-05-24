@@ -726,3 +726,88 @@ def toggle_homework(hw_id):
         
     return jsonify({'status': 'error', 'message': 'is_completed field required'}), 400
 
+@main_bp.route('/session/<int:session_id>/download_audio')
+@login_required
+def download_audio(session_id):
+    session = Session.query.get_or_404(session_id)
+    if session.course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    if not session.audio_file_path:
+        flash("No audio file available for this session.", "error")
+        return redirect(url_for('main.session_summary', session_id=session.id))
+        
+    import os
+    from flask import send_from_directory, current_app
+    directory = os.path.join(current_app.root_path, 'static', 'uploads', 'audio')
+    safe_title = "".join([c if c.isalnum() else "_" for c in (session.title or "audio")])
+    download_name = f"{safe_title}.webm"
+    return send_from_directory(directory, session.audio_file_path, as_attachment=True, download_name=download_name)
+
+@main_bp.route('/session/<int:session_id>/retranslate', methods=['POST'])
+@login_required
+def retranslate_session(session_id):
+    session = Session.query.get_or_404(session_id)
+    if session.course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    if not session.raw_transcript:
+        return jsonify({'status': 'error', 'message': 'No original transcript available to translate.'}), 400
+        
+    try:
+        from deep_translator import GoogleTranslator
+        translated = GoogleTranslator(source='auto', target='en').translate(session.raw_transcript)
+        session.translated_transcript = translated
+        db.session.commit()
+        return jsonify({
+            'status': 'success',
+            'message': 'Translation updated successfully!',
+            'translated_transcript': translated
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Translation failed: {str(e)}'}), 500
+
+@main_bp.route('/session/<int:session_id>/regenerate', methods=['POST'])
+@login_required
+def regenerate_ai_content(session_id):
+    session = Session.query.get_or_404(session_id)
+    if session.course.user_id != current_user.id:
+        from flask import abort
+        abort(403)
+        
+    if not session.raw_transcript:
+        return jsonify({'status': 'error', 'message': 'No transcript available to base the AI generation on.'}), 400
+        
+    try:
+        from app.models.summary_topic import SummaryTopic
+        from app.models.key_moment import KeyMoment
+        from app.models.homework import Homework
+        from app.models.study_note import StudyNote
+        
+        # Clear existing AI-generated content
+        SummaryTopic.query.filter_by(session_id=session.id).delete()
+        KeyMoment.query.filter_by(session_id=session.id).delete()
+        Homework.query.filter_by(session_id=session.id).delete()
+        StudyNote.query.filter_by(session_id=session.id).delete()
+        
+        session.status = 'processing'
+        db.session.commit()
+        
+        import threading
+        from flask import current_app
+        app = current_app._get_current_object()
+        
+        # Run background transcription & insights extraction
+        thread = threading.Thread(target=process_audio_background, args=(app, session.id))
+        thread.start()
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'AI re-generation started in the background.'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'status': 'error', 'message': f'Failed to start AI generation: {str(e)}'}), 500
+
