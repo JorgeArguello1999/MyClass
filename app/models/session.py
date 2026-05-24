@@ -18,7 +18,7 @@ class Session(db.Model):
     status = db.Column(db.String(50), default='unprocessed')
 
     # Relationships
-    course = db.relationship('Course', backref=db.backref('sessions', lazy='dynamic'))
+    course = db.relationship('Course', backref=db.backref('sessions', lazy='dynamic', cascade='all, delete-orphan'))
     key_moments = db.relationship('KeyMoment', backref='session', lazy='dynamic', cascade='all, delete-orphan')
     homeworks = db.relationship('Homework', backref='session', lazy='dynamic', cascade='all, delete-orphan')
     study_notes = db.relationship('StudyNote', backref='session', lazy='dynamic', cascade='all, delete-orphan')
