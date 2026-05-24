@@ -116,10 +116,13 @@ def process_audio_background(app, session_id):
                 
                 translated_text = session.translated_transcript or ""
                 original_text = text or ""
+                recorded_date_str = session.recorded_date.strftime('%Y-%m-%d') if session.recorded_date else 'Today'
                 
                 prompt = f"""
                 You are an academic assistant. Analyze the following class lecture transcripts and extract structured insights.
                 You will receive BOTH the original Korean transcript and its automated English translation. Use both to ensure accuracy, but write all your extracted results in English.
+                
+                Session Recorded Date: {recorded_date_str}
                 
                 Original Korean Transcript:
                 \"\"\"
@@ -133,29 +136,29 @@ def process_audio_background(app, session_id):
                 
                 You MUST return ONLY a valid, parsable JSON object matching the schema below. Do not wrap the JSON in markdown code blocks (e.g. ```json ... ```). Output ONLY the JSON block.
                 
+                Guidelines for extraction:
+                1. "main_topic": Concise main topic title of the class session.
+                2. "description": A comprehensive summary of what was taught in the class (2-3 sentences).
+                3. "tags": Comma-separated tag strings (e.g., "tag1, tag2, tag3").
+                4. "key_moments": Key points timeline.
+                5. "homework": Recommended tasks. For the "due_date" key: if a timeline or relative deadline is mentioned (e.g. "next Wednesday", "in 2 weeks"), calculate the absolute date based on the Session Recorded Date ({recorded_date_str}) and output it in YYYY-MM-DD format (e.g., "2026-05-27"). If no specific deadline can be calculated, output "TBD".
+                6. "study_notes": Takeaways or concept notes. For each note, set "is_professor_tip" to true if the note was explicitly emphasized, suggested as an exam tip, or warned as an important recommendation by the professor (e.g., exam warnings, specific study focus). Set it to false for normal core definitions, concepts, or general facts.
+                
                 JSON Schema:
                 {{
-                  "main_topic": "Concise main topic title of the class session",
-                  "description": "A comprehensive summary of what was taught in the class (2-3 sentences)",
+                  "main_topic": "Topic Title",
+                  "description": "2-3 sentences summary",
                   "tags": "tag1, tag2, tag3",
                   "key_moments": [
                     {{
                       "title": "Concise title for key moment 1",
                       "description": "Short explanation of this point"
-                    }},
-                    {{
-                      "title": "Concise title for key moment 2",
-                      "description": "Short explanation of this point"
-                    }},
-                    {{
-                      "title": "Concise title for key moment 3",
-                      "description": "Short explanation of this point"
                     }}
                   ],
                   "homework": [
                     {{
-                      "task_description": "Description of homework assigned or recommended study task",
-                      "due_date": "Extracted timeline or deadline (e.g., 'Next Wednesday', 'In 1 week', or 'TBD')"
+                      "task_description": "Description of homework",
+                      "due_date": "YYYY-MM-DD or TBD"
                     }}
                   ],
                   "study_notes": [
