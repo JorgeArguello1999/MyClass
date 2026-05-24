@@ -370,34 +370,46 @@
         let mediaRecorder;
         
         // Initialize Audio Recording
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-            // Check if webm is supported, fallback to empty to let browser pick default
-            let options = { mimeType: 'audio/webm' };
-            if (!MediaRecorder.isTypeSupported('audio/webm')) {
-                options = {};
-            }
-            mediaRecorder = new MediaRecorder(stream, options);
-            
-            mediaRecorder.ondataavailable = function(e) {
-                if (e.data.size > 0) {
-                    const formData = new FormData();
-                    formData.append('audio_chunk', e.data);
-                    
-                    const uploadUrl = "{{ url_for('main.upload_audio_chunk', course_id=course.id, session_uuid='DUMMY_UUID') }}".replace('DUMMY_UUID', sessionUuid);
-                    
-                    fetch(uploadUrl, {
-                        method: 'POST',
-                        body: formData
-                    }).then(response => {
-                        if (!response.ok) {
-                            console.error("Audio chunk upload failed:", response.status);
-                        }
-                    }).catch(err => console.error("Fetch error:", err));
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                console.log("Microphone access granted. Initializing mediaRecorder...");
+                // Check if webm is supported, fallback to empty to let browser pick default
+                let options = { mimeType: 'audio/webm' };
+                if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                    options = {};
                 }
-            };
-        }).catch(err => {
-            console.error("Microphone access denied or error: ", err);
-        });
+                mediaRecorder = new MediaRecorder(stream, options);
+                
+                mediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) {
+                        const formData = new FormData();
+                        formData.append('audio_chunk', e.data);
+                        
+                        const uploadUrl = "{{ url_for('main.upload_audio_chunk', course_id=course.id, session_uuid='DUMMY_UUID') }}".replace('DUMMY_UUID', sessionUuid);
+                        
+                        fetch(uploadUrl, {
+                            method: 'POST',
+                            body: formData
+                        }).then(response => {
+                            if (!response.ok) {
+                                console.error("Audio chunk upload failed:", response.status);
+                            }
+                        }).catch(err => console.error("Fetch error:", err));
+                    }
+                };
+
+                // Start recording immediately after mic access is granted (ensures user gesture context)
+                console.log("Starting speech recognition and audio recording...");
+                startRecording();
+
+            }).catch(err => {
+                console.error("Microphone access denied or error: ", err);
+                alert("Microphone access is required for real-time transcription and audio recording. Please allow microphone access in your browser settings.");
+            });
+        } else {
+            console.error("navigator.mediaDevices.getUserMedia not supported on this browser or context.");
+            alert("Microphone access is not supported by your browser or is blocked because this page is not served over a secure connection (HTTPS/localhost).");
+        }
         
         // Expose submit to global scope for the button onClick
         window.submitSession = function() {
@@ -418,15 +430,23 @@
             if (!isPaused) {
                 try {
                     recognition.start();
+                } catch(e) {
+                    console.log("Speech recognition start failed or already running:", e);
+                }
+                
+                try {
                     if (mediaRecorder && mediaRecorder.state === 'inactive') {
                         mediaRecorder.start(10000); // Send chunk every 10 seconds
                     } else if (mediaRecorder && mediaRecorder.state === 'paused') {
                         mediaRecorder.resume();
                     }
-                    isRecording = true;
-                    soundBars.style.opacity = '1';
-                    recStatus.innerHTML = '<div class="rec-dot"></div> LIVE RECORDING';
-                } catch(e) {}
+                } catch(e) {
+                    console.log("Media recorder start failed or already running:", e);
+                }
+                
+                isRecording = true;
+                soundBars.style.opacity = '1';
+                recStatus.innerHTML = '<div class="rec-dot"></div> LIVE RECORDING';
             }
         }
         
@@ -452,8 +472,18 @@
 
         recognition.onerror = function(event) {
             console.error("recognition.onerror: ", event.error);
-            if (event.error === 'network') {
+            if (event.error === 'not-allowed') {
+                alert("Microphone access blocked. Please enable microphone permission in your browser settings.");
+                isPaused = true;
+                isRecording = false;
+                soundBars.style.opacity = '0.3';
+                recStatus.innerHTML = 'BLOCKED / PAUSED';
+            } else if (event.error === 'network') {
                 console.warn("Network error in Speech API. Chrome requires an active internet connection (and no ad-blockers blocking Google servers) for dictation to work.");
+            } else if (event.error === 'no-speech') {
+                console.log("No speech detected. Listening...");
+            } else {
+                console.warn("Speech recognition warning: " + event.error);
             }
         };
 
@@ -531,8 +561,6 @@
             try { if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); } catch(e) {}
         });
 
-        // Start automatically after a short delay to ensure DOM and mic are ready
-        setTimeout(startRecording, 1500);
     });
 </script>
 

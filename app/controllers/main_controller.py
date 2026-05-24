@@ -175,6 +175,9 @@ def process_audio_background(app, session_id):
                 )
                 db.session.add(topic)
                 
+                # Update session title with AI-generated topic title
+                session.title = main_topic
+                
                 # Create KeyMoments (evenly spaced timestamp)
                 key_moments = data.get("key_moments", [])
                 duration = session.duration_seconds or 1800
@@ -236,6 +239,10 @@ def process_audio_background(app, session_id):
                 tags="Core, Review, Essential"
             )
             db.session.add(topic)
+            
+            # Set a clean fallback title if LLM processing fails
+            date_str = session.recorded_date.strftime('%b %d') if session.recorded_date else "Today"
+            session.title = f"Lecture: {session.course.name} - {date_str}"
             
             for i in range(3):
                 km = KeyMoment(

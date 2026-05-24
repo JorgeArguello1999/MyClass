@@ -77,6 +77,7 @@ with app.app_context():
         # Reload session from db
         db.session.refresh(dummy_session)
         print(f"Session status after processing: {dummy_session.status}")
+        print(f"Session title after processing: {dummy_session.title}")
         
         # 4. Fetch and display the extracted insights
         print("\n=== Extracted Insights ===")
