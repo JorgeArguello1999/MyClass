@@ -69,53 +69,228 @@ def process_audio_background(app, session_id):
                 session.translated_transcript = "(Translation failed)"
                 
         # 3. Generate AI insights
-        sentences = [s.strip() for s in re.split(r'[.?!]+', text or "") if len(s.strip()) > 10]
-        fallback_sentences = [
-            "We will explore the fundamental properties discussed today.",
-            "Remember to review the notes before the final exam.",
-            "The core methodology relies on practical application.",
-            "Read chapter 3 and write a short summary.",
-            "Group study is highly recommended for this topic."
-        ]
+        llm_provider = os.getenv("LLM_PROVIDER", "mock").lower()
+        success = False
         
-        def get_random_sentence():
-            if sentences:
-                return random.choice(sentences)
-            return random.choice(fallback_sentences)
+        if llm_provider in ("ollama", "lmstudio", "openai", "deepseek", "claude", "anthropic"):
+            try:
+                import json
+                model_name = os.getenv("LLM_MODEL")
+                base_url = os.getenv("LLM_BASE_URL")
+                
+                print(f"[LLM] Initializing provider: {llm_provider.upper()} (Model: {model_name})")
+                
+                if llm_provider == "ollama":
+                    from langchain_ollama import ChatOllama
+                    llm = ChatOllama(model=model_name, base_url=base_url, temperature=0.3)
+                elif llm_provider == "lmstudio":
+                    from langchain_openai import ChatOpenAI
+                    llm = ChatOpenAI(
+                        model=model_name,
+                        openai_api_key="lm-studio",
+                        openai_api_base=base_url,
+                        temperature=0.3
+                    )
+                elif llm_provider == "openai":
+                    from langchain_openai import ChatOpenAI
+                    llm = ChatOpenAI(
+                        model=model_name or "gpt-4o-mini",
+                        openai_api_key=os.getenv("OPENAI_API_KEY"),
+                        temperature=0.3
+                    )
+                elif llm_provider == "deepseek":
+                    from langchain_openai import ChatOpenAI
+                    llm = ChatOpenAI(
+                        model=model_name or "deepseek-chat",
+                        openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
+                        openai_api_base=base_url or "https://api.deepseek.com",
+                        temperature=0.3
+                    )
+                elif llm_provider in ("claude", "anthropic"):
+                    from langchain_anthropic import ChatAnthropic
+                    llm = ChatAnthropic(
+                        model=model_name or "claude-3-5-sonnet-latest",
+                        api_key=os.getenv("ANTHROPIC_API_KEY"),
+                        temperature=0.3
+                    )
+                
+                translated_text = session.translated_transcript or ""
+                original_text = text or ""
+                
+                prompt = f"""
+                You are an academic assistant. Analyze the following class lecture transcripts and extract structured insights.
+                You will receive BOTH the original Korean transcript and its automated English translation. Use both to ensure accuracy, but write all your extracted results in English.
+                
+                Original Korean Transcript:
+                \"\"\"
+                {original_text}
+                \"\"\"
+                
+                English Translation:
+                \"\"\"
+                {translated_text}
+                \"\"\"
+                
+                You MUST return ONLY a valid, parsable JSON object matching the schema below. Do not wrap the JSON in markdown code blocks (e.g. ```json ... ```). Output ONLY the JSON block.
+                
+                JSON Schema:
+                {{
+                  "main_topic": "Concise main topic title of the class session",
+                  "description": "A comprehensive summary of what was taught in the class (2-3 sentences)",
+                  "tags": "tag1, tag2, tag3",
+                  "key_moments": [
+                    {{
+                      "title": "Concise title for key moment 1",
+                      "description": "Short explanation of this point"
+                    }},
+                    {{
+                      "title": "Concise title for key moment 2",
+                      "description": "Short explanation of this point"
+                    }},
+                    {{
+                      "title": "Concise title for key moment 3",
+                      "description": "Short explanation of this point"
+                    }}
+                  ],
+                  "homework": [
+                    {{
+                      "task_description": "Description of homework assigned or recommended study task",
+                      "due_date": "Extracted timeline or deadline (e.g., 'Next Wednesday', 'In 1 week', or 'TBD')"
+                    }}
+                  ],
+                  "study_notes": [
+                    {{
+                      "note_text": "An important concept, formula, or takeaway from the lecture",
+                      "is_professor_tip": true
+                    }},
+                    {{
+                      "note_text": "Another core fact or definition mentioned in class",
+                      "is_professor_tip": false
+                    }}
+                  ]
+                }}
+                """
+                
+                print("[LLM] Invoking local model...")
+                response = llm.invoke(prompt)
+                response_text = response.content.strip()
+                
+                if response_text.startswith("```"):
+                    first_line = response_text.find("\n")
+                    if first_line != -1:
+                        response_text = response_text[first_line:].strip()
+                    if response_text.endswith("```"):
+                        response_text = response_text[:-3].strip()
+                        
+                data = json.loads(response_text)
+                
+                # Create SummaryTopic
+                main_topic = data.get("main_topic", f"Summary of {session.course.name}")
+                description = data.get("description", "No summary generated.")
+                tags = data.get("tags", "Core, Lecture")
+                
+                topic = SummaryTopic(
+                    session_id=session.id,
+                    main_topic=main_topic,
+                    description=description,
+                    tags=tags
+                )
+                db.session.add(topic)
+                
+                # Update session title with AI-generated topic title
+                session.title = main_topic
+                
+                # Create KeyMoments (evenly spaced timestamp)
+                key_moments = data.get("key_moments", [])
+                duration = session.duration_seconds or 1800
+                for idx, km_data in enumerate(key_moments):
+                    ts = int(((idx + 1) / (len(key_moments) + 1)) * duration)
+                    km = KeyMoment(
+                        session_id=session.id,
+                        timestamp_seconds=ts,
+                        title=km_data.get("title", f"Key Point {idx+1}"),
+                        description=km_data.get("description", "")
+                    )
+                    db.session.add(km)
+                    
+                # Create Homework
+                homework_items = data.get("homework", [])
+                for hw_data in homework_items:
+                    hw = Homework(
+                        session_id=session.id,
+                        task_description=hw_data.get("task_description", "Study lecture notes"),
+                        due_date_extracted=hw_data.get("due_date", "TBD")
+                    )
+                    db.session.add(hw)
+                    
+                # Create Study Notes
+                notes = data.get("study_notes", [])
+                for note_data in notes:
+                    note = StudyNote(
+                        session_id=session.id,
+                        note_text=note_data.get("note_text", ""),
+                        is_professor_tip=note_data.get("is_professor_tip", False)
+                    )
+                    db.session.add(note)
+                
+                success = True
+                print("[LLM] Structured insights extracted successfully.")
+            except Exception as e:
+                print(f"[LLM] Error extracting insights with local LLM: {e}")
         
-        topic = SummaryTopic(
-            session_id=session.id,
-            main_topic=f"Summary of {session.course.name}",
-            description=get_random_sentence(),
-            tags="Core, Review, Essential"
-        )
-        db.session.add(topic)
-        
-        for i in range(3):
-            km = KeyMoment(
-                session_id=session.id,
-                timestamp_seconds=random.randint(10, max(session.duration_seconds - 10, 11)),
-                title=f"Key Point {i+1}",
-                description=get_random_sentence()
-            )
-            db.session.add(km)
+        if not success:
+            print("[LLM] Falling back to mock random data generation.")
+            sentences = [s.strip() for s in re.split(r'[.?!]+', text or "") if len(s.strip()) > 10]
+            fallback_sentences = [
+                "We will explore the fundamental properties discussed today.",
+                "Remember to review the notes before the final exam.",
+                "The core methodology relies on practical application.",
+                "Read chapter 3 and write a short summary.",
+                "Group study is highly recommended for this topic."
+            ]
             
-        for i in range(2):
-            hw = Homework(
-                session_id=session.id,
-                task_description=f"Task: {get_random_sentence()}",
-                due_date_extracted=f"In {random.randint(2, 7)} days"
-            )
-            db.session.add(hw)
+            def get_random_sentence():
+                if sentences:
+                    return random.choice(sentences)
+                return random.choice(fallback_sentences)
             
-        for i in range(2):
-            is_tip = random.choice([True, False])
-            note = StudyNote(
+            topic = SummaryTopic(
                 session_id=session.id,
-                note_text=get_random_sentence(),
-                is_professor_tip=is_tip
+                main_topic=f"Summary of {session.course.name}",
+                description=get_random_sentence(),
+                tags="Core, Review, Essential"
             )
-            db.session.add(note)
+            db.session.add(topic)
+            
+            # Set a clean fallback title if LLM processing fails
+            date_str = session.recorded_date.strftime('%b %d') if session.recorded_date else "Today"
+            session.title = f"Lecture: {session.course.name} - {date_str}"
+            
+            for i in range(3):
+                km = KeyMoment(
+                    session_id=session.id,
+                    timestamp_seconds=random.randint(10, max(session.duration_seconds - 10, 11)),
+                    title=f"Key Point {i+1}",
+                    description=get_random_sentence()
+                )
+                db.session.add(km)
+                
+            for i in range(2):
+                hw = Homework(
+                    session_id=session.id,
+                    task_description=f"Task: {get_random_sentence()}",
+                    due_date_extracted=f"In {random.randint(2, 7)} days"
+                )
+                db.session.add(hw)
+                
+            for i in range(2):
+                is_tip = random.choice([True, False])
+                note = StudyNote(
+                    session_id=session.id,
+                    note_text=get_random_sentence(),
+                    is_professor_tip=is_tip
+                )
+                db.session.add(note)
             
         session.status = 'ready'
         db.session.commit()
