@@ -425,7 +425,7 @@
                             <span class="status-badge unprocessed">Unprocessed</span>
                             {% endif %}
                             <i class="bi bi-circle-fill duration-dot"></i>
-                            <span class="duration-text">{{ session.duration_seconds // 60 }} min</span>
+                            <span class="duration-text">{{ session.recorded_date.strftime('%b %d, %Y') }} • {{ session.duration_seconds // 60 }} min</span>
                         </div>
                         <h4 class="history-card-title">{{ session.title }}</h4>
                         <p class="history-card-desc">{% if session.summary_topics.first() %}{{ session.summary_topics.first().main_topic }}{% else %}No topic detected.{% endif %}</p>
