@@ -16,6 +16,10 @@ class Session(db.Model):
     
     # Status can be 'unprocessed', 'processing', or 'ready'
     status = db.Column(db.String(50), default='unprocessed')
+    
+    # Class summary and study group note
+    class_summary = db.Column(db.Text)
+    study_group_note = db.Column(db.Text)
 
     # Relationships
     course = db.relationship('Course', backref=db.backref('sessions', lazy='dynamic', cascade='all, delete-orphan'))

@@ -138,15 +138,17 @@ def process_audio_background(app, session_id):
                 
                 Guidelines for extraction:
                 1. "main_topic": Concise main topic title of the class session.
-                2. "description": A comprehensive summary of what was taught in the class (2-3 sentences).
-                3. "tags": Comma-separated tag strings (e.g., "tag1, tag2, tag3").
-                4. "key_moments": Key points timeline.
-                5. "homework": Recommended tasks. For the "due_date" key: if a timeline or relative deadline is mentioned (e.g. "next Wednesday", "in 2 weeks"), calculate the absolute date based on the Session Recorded Date ({recorded_date_str}) and output it in YYYY-MM-DD format (e.g., "2026-05-27"). If no specific deadline can be calculated, output "TBD".
-                6. "study_notes": Takeaways or concept notes. For each note, set "is_professor_tip" to true if the note was explicitly emphasized, suggested as an exam tip, or warned as an important recommendation by the professor (e.g., exam warnings, specific study focus). Set it to false for normal core definitions, concepts, or general facts.
+                2. "class_summary": A comprehensive, detailed summary of what was taught in the class lecture, explaining the key ideas and content in detail (1-2 paragraphs).
+                3. "description": A short summary of what was taught in the class (2-3 sentences).
+                4. "tags": Comma-separated tag strings (e.g., "tag1, tag2, tag3").
+                5. "key_moments": Key points timeline.
+                6. "homework": Recommended tasks. For the "due_date" key: if a timeline or relative deadline is mentioned (e.g. "next Wednesday", "in 2 weeks"), calculate the absolute date based on the Session Recorded Date ({recorded_date_str}) and output it in YYYY-MM-DD format (e.g., "2026-05-27"). If no specific deadline can be calculated, output "TBD".
+                7. "study_notes": Takeaways or concept notes. For each note, set "is_professor_tip" to true if the note was explicitly emphasized, suggested as an exam tip, or warned as an important recommendation by the professor (e.g., exam warnings, specific study focus). Set it to false for normal core definitions, concepts, or general facts.
                 
                 JSON Schema:
                 {{
                   "main_topic": "Topic Title",
+                  "class_summary": "1-2 paragraphs detailed summary...",
                   "description": "2-3 sentences summary",
                   "tags": "tag1, tag2, tag3",
                   "key_moments": [
@@ -199,6 +201,9 @@ def process_audio_background(app, session_id):
                     tags=tags
                 )
                 db.session.add(topic)
+                
+                # Set class summary in Session
+                session.class_summary = data.get("class_summary", "No detailed summary generated.")
                 
                 # Update session title with AI-generated topic title
                 session.title = main_topic
@@ -264,6 +269,9 @@ def process_audio_background(app, session_id):
                 tags="Core, Review, Essential"
             )
             db.session.add(topic)
+            
+            # Set a fallback class_summary
+            session.class_summary = "This lecture covers the key topics discussed in class today. Please review key moments, notes, and homework guidelines."
             
             # Set a clean fallback title if LLM processing fails
             date_str = session.recorded_date.strftime('%b %d') if session.recorded_date else "Today"
@@ -560,6 +568,16 @@ def update_session_fields(session_id):
             if topic_tags is not None:
                 topic.tags = topic_tags.strip()
                 
+        elif section == 'class_summary':
+            class_summary = data.get('class_summary')
+            if class_summary is not None:
+                session.class_summary = class_summary.strip()
+                
+        elif section == 'study_group':
+            study_group_note = data.get('study_group_note')
+            if study_group_note is not None:
+                session.study_group_note = study_group_note.strip() if study_group_note.strip() else None
+                
         elif section == 'key_moments':
             key_moments_data = data.get('key_moments', [])
             incoming_ids = []
@@ -753,6 +771,39 @@ def retranslate_session(session_id):
         from flask import abort
         abort(403)
         
+    data = request.get_json() or {}
+    source = data.get('source', 'text')
+    
+    if source == 'audio':
+        if not session.audio_file_path:
+            return jsonify({'status': 'error', 'message': 'No audio file available for this session.'}), 400
+            
+        import os
+        from flask import current_app
+        file_path = os.path.join(current_app.root_path, 'static', 'uploads', 'audio', session.audio_file_path)
+        if not os.path.exists(file_path):
+            return jsonify({'status': 'error', 'message': 'Audio file not found on disk.'}), 404
+            
+        try:
+            from pydub import AudioSegment
+            import speech_recognition as sr
+            
+            wav_path = file_path.rsplit('.', 1)[0] + '.wav'
+            audio = AudioSegment.from_file(file_path, format="webm")
+            audio.export(wav_path, format="wav")
+            
+            recognizer = sr.Recognizer()
+            with sr.AudioFile(wav_path) as source_file:
+                audio_data = recognizer.record(source_file)
+            
+            transcribed_text = recognizer.recognize_google(audio_data, language="ko-KR")
+            session.raw_transcript = transcribed_text
+            
+            if os.path.exists(wav_path):
+                os.remove(wav_path)
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': f'Audio transcription failed: {str(e)}'}), 500
+            
     if not session.raw_transcript:
         return jsonify({'status': 'error', 'message': 'No original transcript available to translate.'}), 400
         
@@ -764,9 +815,11 @@ def retranslate_session(session_id):
         return jsonify({
             'status': 'success',
             'message': 'Translation updated successfully!',
+            'raw_transcript': session.raw_transcript,
             'translated_transcript': translated
         })
     except Exception as e:
+        db.session.rollback()
         return jsonify({'status': 'error', 'message': f'Translation failed: {str(e)}'}), 500
 
 @main_bp.route('/session/<int:session_id>/regenerate', methods=['POST'])

@@ -757,6 +757,28 @@
             </div>
             {% endif %}
             
+            <!-- Class Summary -->
+            <div class="summary-card" id="summary-section" style="background: white; border-radius: 24px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <div class="section-label" style="margin-bottom: 0;">Class Summary</div>
+                    <button class="btn-edit" onclick="toggleEdit('class_summary')" title="Edit Class Summary"><i class="bi bi-pencil"></i></button>
+                </div>
+                
+                <!-- View Mode -->
+                <div id="view-container-class_summary">
+                    <p id="view-class_summary" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-main); margin: 0; white-space: pre-wrap;">{{ session.class_summary or 'No class summary available yet.' }}</p>
+                </div>
+
+                <!-- Edit Mode -->
+                <div id="edit-container-class_summary" style="display: none;">
+                    <textarea id="input-class_summary" class="edit-textarea" style="min-height: 120px; font-size: 0.95rem; line-height: 1.6; padding: 0.8rem; border-radius: 12px; border: 1px solid #E5E7EB; width: 100%; box-sizing: border-box; font-family: inherit;">{{ session.class_summary or '' }}</textarea>
+                    <div class="edit-controls">
+                        <button class="btn-save" onclick="saveSection('class_summary', this)"><i class="bi bi-check-lg"></i> Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit('class_summary')"><i class="bi bi-x-lg"></i> Cancel</button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Key Moments -->
             <div>
                 <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
@@ -813,11 +835,31 @@
             </div>
 
             <!-- Study Group Note -->
-            <div class="study-group-note">
-                <div class="section-label">Study Group Note</div>
-                <p class="study-group-desc">
-                    "Hey, check the shared drive for the simulation we ran last semester, it helps with Problem 2!" - Sarah M.
-                </p>
+            <div class="study-group-note" id="study-group-card" {% if not session.study_group_note %}style="display: none;"{% endif %}>
+                <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <div class="section-label" style="margin-bottom: 0; color: var(--text-sec);">Study Group Note</div>
+                    <button class="btn-edit" onclick="toggleEdit('study_group')" title="Edit Study Group Note"><i class="bi bi-pencil"></i></button>
+                </div>
+                
+                <!-- View Mode -->
+                <div id="view-container-study_group">
+                    <p class="study-group-desc" id="view-study_group" style="margin: 0;">{{ session.study_group_note or '' }}</p>
+                </div>
+            </div>
+
+            <!-- Study Group Edit Mode -->
+            <div class="study-group-note" id="edit-container-study_group" style="display: none; background: #F3F4F6; border-radius: 20px; padding: 1.5rem;">
+                <div class="section-label" style="color: var(--text-sec); margin-bottom: 0.5rem;">Edit Study Group Note</div>
+                <textarea id="input-study_group" class="edit-textarea" placeholder="Add study group tips, homework comments, shared drive links..." style="min-height: 80px; font-size: 0.85rem; padding: 0.6rem; border-radius: 12px; border: 1px solid #D1D5DB; width: 100%; box-sizing: border-box; font-family: inherit;">{{ session.study_group_note or '' }}</textarea>
+                <div class="edit-controls">
+                    <button class="btn-save" onclick="saveSection('study_group', this)"><i class="bi bi-check-lg"></i> Save</button>
+                    <button class="btn-cancel" onclick="cancelEdit('study_group')"><i class="bi bi-x-lg"></i> Cancel</button>
+                </div>
+            </div>
+
+            <!-- Add Study Group Note Button -->
+            <div id="add-study-group-container" style="text-align: center; margin-top: 0.5rem; {% if session.study_group_note %}display: none;{% endif %}">
+                <button class="btn-add-item" onclick="toggleEdit('study_group')" style="background: white; border: 1px dashed #D1D5DB; color: var(--primary-blue); box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: inline-flex; width: auto; padding: 0.5rem 1.25rem;"><i class="bi bi-chat-left-text"></i> Add Study Group Note</button>
             </div>
         </div>
 
@@ -966,7 +1008,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <h2 style="margin: 0;">Full Transcript</h2>
             <div id="transcript-edit-actions" style="display: none; align-items: center; gap: 0.5rem;">
-                <button class="btn-edit" id="btn-retranslate-transcript" onclick="retranslateTranscript(this)" style="background: #EFF6FF; color: var(--primary-blue); border: 1px solid #BFDBFE; border-radius: 12px; padding: 0.4rem 0.8rem; font-weight: 600; font-size: 0.85rem;" title="Re-translate Transcript"><i class="bi bi-translate"></i> Re-translate</button>
+                <button class="btn-edit" id="btn-retranslate-transcript" onclick="openRetranslateChoice()" style="background: #EFF6FF; color: var(--primary-blue); border: 1px solid #BFDBFE; border-radius: 12px; padding: 0.4rem 0.8rem; font-weight: 600; font-size: 0.85rem;" title="Re-translate Transcript"><i class="bi bi-translate"></i> Re-translate</button>
                 <button class="btn-edit" id="btn-edit-transcript" onclick="toggleEdit('transcript')" title="Edit Transcript"><i class="bi bi-pencil"></i> Edit</button>
                 <div id="edit-controls-transcript" style="display: none; gap: 0.5rem;">
                     <button class="btn-save" onclick="saveSection('transcript', this)"><i class="bi bi-check-lg"></i> Save</button>
@@ -997,6 +1039,30 @@
                     <textarea id="input-transcript-translated" class="edit-textarea" style="display: none; min-height: 50vh; width: 100%; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border-radius: 8px; border: 1px solid #BFDBFE; padding: 1.5rem; box-sizing: border-box; background: #EFF6FF; color: var(--text-main);"></textarea>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Retranslate Choice Modal -->
+<div id="retranslateChoiceModal" class="modal" style="display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1100;">
+    <div class="modal-content" style="max-width: 450px; text-align: center; padding: 2.5rem; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); background: white; margin: auto;">
+        <div style="background: #EFF6FF; color: var(--primary-blue); width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 1.25rem auto; font-size: 1.75rem;">
+            <i class="bi bi-translate"></i>
+        </div>
+        <h3 style="margin: 0 0 0.5rem 0; color: var(--text-main); font-weight: 800; font-size: 1.25rem;">Re-translate Transcript</h3>
+        <p style="color: var(--text-sec); font-size: 0.875rem; margin: 0 0 1.5rem 0; line-height: 1.5;">
+            Choose how you want to re-translate the session. You can re-transcribe directly from the original audio or translate from the current written text.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <button id="btn-retranslate-audio" onclick="submitRetranslate('audio')" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: none; background: var(--primary-blue); color: white; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="bi bi-mic"></i> Re-transcribe & Translate from Audio
+            </button>
+            <button id="btn-retranslate-text" onclick="submitRetranslate('text')" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #BFDBFE; background: #EFF6FF; color: var(--primary-blue); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="bi bi-file-earmark-text"></i> Translate from Current Text
+            </button>
+            <button onclick="closeRetranslateChoice()" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: none; background: #F3F4F6; color: #4B5563; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;">
+                Cancel
+            </button>
         </div>
     </div>
 </div>
@@ -1144,6 +1210,17 @@ window.toggleEdit = function(section) {
         rebuildHomeworksEditFromView();
         document.getElementById('view-container-homeworks').style.display = 'none';
         document.getElementById('edit-container-homeworks').style.display = 'block';
+    } else if (section === 'class_summary') {
+        document.getElementById('view-container-class_summary').style.display = 'none';
+        document.getElementById('edit-container-class_summary').style.display = 'block';
+        document.getElementById('input-class_summary').focus();
+    } else if (section === 'study_group') {
+        const addBtn = document.getElementById('add-study-group-container');
+        const card = document.getElementById('study-group-card');
+        if (addBtn) addBtn.style.display = 'none';
+        if (card) card.style.display = 'none';
+        document.getElementById('edit-container-study_group').style.display = 'block';
+        document.getElementById('input-study_group').focus();
     } else if (section === 'transcript') {
         document.getElementById('transcript-original').style.display = 'none';
         document.getElementById('transcript-translated').style.display = 'none';
@@ -1178,6 +1255,24 @@ window.cancelEdit = function(section) {
     } else if (section === 'homeworks') {
         document.getElementById('view-container-homeworks').style.display = 'flex';
         document.getElementById('edit-container-homeworks').style.display = 'none';
+    } else if (section === 'class_summary') {
+        document.getElementById('input-class_summary').value = document.getElementById('view-class_summary').textContent.trim();
+        document.getElementById('view-container-class_summary').style.display = 'block';
+        document.getElementById('edit-container-class_summary').style.display = 'none';
+    } else if (section === 'study_group') {
+        const val = document.getElementById('view-study_group').textContent.trim();
+        document.getElementById('input-study_group').value = val;
+        
+        document.getElementById('edit-container-study_group').style.display = 'none';
+        const addBtn = document.getElementById('add-study-group-container');
+        const card = document.getElementById('study-group-card');
+        if (!val) {
+            if (addBtn) addBtn.style.display = 'block';
+            if (card) card.style.display = 'none';
+        } else {
+            if (addBtn) addBtn.style.display = 'none';
+            if (card) card.style.display = 'block';
+        }
     } else if (section === 'transcript') {
         document.getElementById('input-transcript-original').value = document.getElementById('transcript-original').textContent;
         document.getElementById('input-transcript-translated').value = document.getElementById('transcript-translated').textContent;
@@ -1479,6 +1574,10 @@ window.saveSection = function(section, btn) {
                 due_date_extracted: document.getElementById(`input-hw-due-${id}`).value
             };
         });
+    } else if (section === 'class_summary') {
+        data.class_summary = document.getElementById('input-class_summary').value;
+    } else if (section === 'study_group') {
+        data.study_group_note = document.getElementById('input-study_group').value;
     } else if (section === 'transcript') {
         data.raw_transcript = document.getElementById('input-transcript-original').value;
         data.translated_transcript = document.getElementById('input-transcript-translated').value;
@@ -1653,6 +1752,12 @@ window.saveSection = function(section, btn) {
                     }
                 }
                 cancelEdit('homeworks');
+            } else if (section === 'class_summary') {
+                document.getElementById('view-class_summary').textContent = data.class_summary;
+                cancelEdit('class_summary');
+            } else if (section === 'study_group') {
+                document.getElementById('view-study_group').textContent = data.study_group_note;
+                cancelEdit('study_group');
             } else if (section === 'transcript') {
                 document.getElementById('transcript-original').textContent = data.raw_transcript;
                 document.getElementById('transcript-translated').textContent = data.translated_transcript;
@@ -1714,26 +1819,68 @@ window.toggleHomeworkCompleted = function(hwId, checkboxElement) {
     });
 };
 
-// Retranslate transcript via AJAX
-window.retranslateTranscript = function(btn) {
+// Retranslate transcript choice modal opening/closing
+window.openRetranslateChoice = function() {
+    const choiceModal = document.getElementById('retranslateChoiceModal');
+    if (choiceModal) {
+        choiceModal.style.display = 'flex';
+    }
+};
+
+window.closeRetranslateChoice = function() {
+    const choiceModal = document.getElementById('retranslateChoiceModal');
+    if (choiceModal) {
+        choiceModal.style.display = 'none';
+    }
+};
+
+// Retranslate transcript via AJAX with a specific source
+window.submitRetranslate = function(source) {
+    window.closeRetranslateChoice();
+    
+    const btn = document.getElementById('btn-retranslate-transcript');
     const originalHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="width: 0.8rem; height: 0.8rem; border: 0.15em solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: spinner-border .75s linear infinite; margin-right: 4px;"></span> Retranslating...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="width: 0.8rem; height: 0.8rem; border: 0.15em solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: spinner-border .75s linear infinite; margin-right: 4px;"></span> Processing...';
+
+    // Show a loader inside the transcript modal if re-transcribing from audio as it takes time
+    const loader = document.getElementById('transcript-loader');
+    const content = document.getElementById('transcript-content');
+    const txtOrig = document.getElementById('transcript-original');
+    const txtTrans = document.getElementById('transcript-translated');
+    const inputOrig = document.getElementById('input-transcript-original');
+    const inputTrans = document.getElementById('input-transcript-translated');
+    
+    if (source === 'audio' && loader && content) {
+        loader.innerHTML = `
+            <div class="spinner-border text-primary" role="status" style="display: inline-block; width: 2rem; height: 2rem; vertical-align: text-bottom; border: 0.25em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite;"></div>
+            <p style="margin-top: 1rem; color: #6B7280;">Transcribing audio and translating... Please wait.</p>
+        `;
+        loader.style.display = 'block';
+        content.style.display = 'none';
+    }
 
     fetch("{{ url_for('main.retranslate_session', session_id=session.id) }}", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({ source: source })
     })
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
             showToast(data.message || 'Translation updated successfully!', 'success');
-            const transView = document.getElementById('transcript-translated');
-            const transInput = document.getElementById('input-transcript-translated');
-            if (transView) transView.textContent = data.translated_transcript;
-            if (transInput) transInput.value = data.translated_transcript;
+            if (txtOrig) txtOrig.textContent = data.raw_transcript;
+            if (inputOrig) inputOrig.value = data.raw_transcript;
+            if (txtTrans) txtTrans.textContent = data.translated_transcript;
+            if (inputTrans) inputTrans.value = data.translated_transcript;
+            
+            // If from audio, reload the main page when closing transcript modal because it could affect summaries
+            if (source === 'audio') {
+                const span = document.getElementsByClassName('close-modal')[0];
+                if (span) span.dataset.reloadOnClose = "true";
+            }
         } else {
             showToast(data.message || 'An error occurred during translation.', 'error');
         }
@@ -1745,6 +1892,10 @@ window.retranslateTranscript = function(btn) {
     .finally(() => {
         btn.disabled = false;
         btn.innerHTML = originalHtml;
+        if (loader && content) {
+            loader.style.display = 'none';
+            content.style.display = 'block';
+        }
     });
 };
 
@@ -1867,11 +2018,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.onclick = function(event) {
+        const choiceModal = document.getElementById('retranslateChoiceModal');
         if (event.target == modal) {
             modal.style.display = "none";
             if (span.dataset.reloadOnClose === "true") {
                 window.location.reload();
             }
+        } else if (event.target == choiceModal) {
+            choiceModal.style.display = "none";
         }
     }
 
