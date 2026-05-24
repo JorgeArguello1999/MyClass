@@ -6,7 +6,10 @@
 {% block content %}
 <div class="course-detail-container" style="padding: 1.5rem; animation: slideIn 0.3s ease-out;">
     <!-- Course Info Card -->
-    <div class="course-info-card" style="background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <div class="course-info-card" style="background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden;">
+        {% if course.cover_image %}
+        <div style="background-image: url('{{ url_for('static', filename='uploads/courses/' ~ course.cover_image) }}'); background-size: cover; background-position: center; height: 140px; border-top-left-radius: 16px; border-top-right-radius: 16px; margin: -1.5rem -1.5rem 1.5rem -1.5rem;"></div>
+        {% endif %}
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
             <div class="module-icon" style="background: var(--core-bg); color: var(--core-color); width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                 <i class="{{ course.icon }}"></i>

@@ -8,22 +8,51 @@ course_bp = Blueprint('course', __name__)
 @course_bp.route('/create', methods=['POST'])
 @login_required
 def create_course():
+    from flask import current_app
+    from werkzeug.utils import secure_filename
+    import os
+    import uuid
+    
     name = request.form.get('name')
     icon = request.form.get('icon') or 'bi-book'
     professor = request.form.get('professor')
-    schedule = request.form.get('schedule')
     location = request.form.get('location')
     
+    # Process schedule fields
+    day = request.form.get('schedule_day', 'Monday')
+    start = request.form.get('schedule_start', '').strip()
+    end = request.form.get('schedule_end', '').strip()
+    
+    if start and end:
+        schedule = f"{day}, {start} - {end}"
+    elif start:
+        schedule = f"{day}, {start}"
+    else:
+        schedule = day
+        
     if not name:
         flash('Course name is required.', 'error')
         return redirect(url_for('main.add_course'))
         
+    cover_image_filename = None
+    cover_file = request.files.get('cover_image')
+    if cover_file and cover_file.filename != '':
+        ext = cover_file.filename.rsplit('.', 1)[1].lower() if '.' in cover_file.filename else ''
+        if ext in {'png', 'jpg', 'jpeg', 'webp'}:
+            filename = f"{uuid.uuid4().hex}_{secure_filename(cover_file.filename)}"
+            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'courses')
+            os.makedirs(upload_dir, exist_ok=True)
+            save_path = os.path.join(upload_dir, filename)
+            cover_file.save(save_path)
+            cover_image_filename = filename
+
     course = Course(
         name=name,
         icon=icon,
         professor=professor,
         schedule=schedule,
         location=location,
+        cover_image=cover_image_filename,
         user_id=current_user.id
     )
     db.session.add(course)
@@ -34,6 +63,11 @@ def create_course():
 @course_bp.route('/<int:course_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_course(course_id):
+    from flask import current_app
+    from werkzeug.utils import secure_filename
+    import os
+    import uuid
+    
     course = Course.query.get_or_404(course_id)
     if course.user_id != current_user.id:
         abort(403)
@@ -42,12 +76,44 @@ def edit_course(course_id):
         course.name = request.form.get('name', course.name)
         course.icon = request.form.get('icon', course.icon)
         course.professor = request.form.get('professor', course.professor)
-        course.schedule = request.form.get('schedule', course.schedule)
         course.location = request.form.get('location', course.location)
+        
+        # Process schedule fields
+        day = request.form.get('schedule_day', 'Monday')
+        start = request.form.get('schedule_start', '').strip()
+        end = request.form.get('schedule_end', '').strip()
+        
+        if start and end:
+            course.schedule = f"{day}, {start} - {end}"
+        elif start:
+            course.schedule = f"{day}, {start}"
+        else:
+            course.schedule = day
+            
+        cover_file = request.files.get('cover_image')
+        if cover_file and cover_file.filename != '':
+            ext = cover_file.filename.rsplit('.', 1)[1].lower() if '.' in cover_file.filename else ''
+            if ext in {'png', 'jpg', 'jpeg', 'webp'}:
+                # Delete old cover image to save space
+                if course.cover_image:
+                    old_path = os.path.join(current_app.root_path, 'static', 'uploads', 'courses', course.cover_image)
+                    if os.path.exists(old_path):
+                        try:
+                            os.remove(old_path)
+                        except Exception as e:
+                            print(f"Error removing old cover image: {e}")
+                            
+                filename = f"{uuid.uuid4().hex}_{secure_filename(cover_file.filename)}"
+                upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'courses')
+                os.makedirs(upload_dir, exist_ok=True)
+                save_path = os.path.join(upload_dir, filename)
+                cover_file.save(save_path)
+                course.cover_image = filename
         
         db.session.commit()
         flash('Course updated successfully!', 'success')
         return redirect(url_for('main.dashboard'))
+
         
     return render_template('main/edit_course.html', course=course)
 

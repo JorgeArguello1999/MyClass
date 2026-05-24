@@ -9,8 +9,10 @@ class Course(db.Model):
     professor = db.Column(db.String(128))
     schedule = db.Column(db.String(128))
     location = db.Column(db.String(128))
+    cover_image = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
         return f'<Course {self.name}>'
+

@@ -182,6 +182,12 @@
         background: var(--secondary-blue);
         transform: translateY(-2px);
     }
+    
+    .day-pill.active {
+        background: var(--primary-blue) !important;
+        color: white !important;
+        border-color: var(--primary-blue) !important;
+    }
 </style>
 {% endblock %}
 
@@ -193,9 +199,30 @@
         <h1 class="form-title">Edit Course</h1>
         <p class="form-subtitle">Update your academic intelligence module.</p>
 
-        <form action="{{ url_for('course.edit_course', course_id=course.id) }}" method="POST">
+        {% set schedule_parts = course.schedule.split(', ') if course.schedule else [] %}
+        {% set schedule_day = schedule_parts[0] if schedule_parts|length > 0 else 'Monday' %}
+        {% set times_part = schedule_parts[1] if schedule_parts|length > 1 else '' %}
+        {% set time_parts = times_part.split(' - ') if times_part else [] %}
+        {% set schedule_start = time_parts[0] if time_parts|length > 0 else '' %}
+        {% set schedule_end = time_parts[1] if time_parts|length > 1 else '' %}
+
+        <form action="{{ url_for('course.edit_course', course_id=course.id) }}" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="icon" id="selectedIcon" value="{{ course.icon }}">
             
+            <!-- Cover Upload -->
+            <div class="upload-cover" id="uploadCoverBtn">
+                <input type="file" name="cover_image" id="coverImageInput" accept="image/*" style="display: none;">
+                <div class="upload-preview-overlay" style="position: absolute; top:0; left:0; width:100%; height:100%; background-size: cover; background-position: center; {% if course.cover_image %}background-image: url('{{ url_for('static', filename='uploads/courses/' ~ course.cover_image) }}'); display: block;{% else %}display: none;{% endif %}"></div>
+                <div class="upload-content-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; {% if course.cover_image %}color: white;{% endif %}">
+                    <div class="upload-icon-circle" style="{% if course.cover_image %}background: rgba(0,0,0,0.6); color: white;{% endif %}">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <div class="upload-text" style="{% if course.cover_image %}color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.6);{% endif %}">
+                        {% if course.cover_image %}Change Cover Image{% else %}Upload Cover Image{% endif %}
+                    </div>
+                </div>
+            </div>
+
             <!-- Course Name -->
             <label class="form-label-custom">Course Name</label>
             <input type="text" name="name" class="input-underline" value="{{ course.name }}" required>
@@ -206,7 +233,30 @@
 
             <!-- Schedule -->
             <label class="form-label-custom">Schedule</label>
-            <input type="text" name="schedule" class="input-underline" value="{{ course.schedule or '' }}" placeholder="e.g. Mon & Wed 10:00 AM - 12:00 PM">
+            <div style="margin-bottom: 2rem;">
+                <span style="font-size: 0.65rem; color: var(--text-sec); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Days (Select one or more)</span>
+                <div class="day-selector-container" style="display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <div class="day-pill" data-day="Mon" style="padding: 0.4rem 0.75rem; border-radius: 12px; background: #F3F4F6; color: var(--text-sec); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">Mon</div>
+                    <div class="day-pill" data-day="Tue" style="padding: 0.4rem 0.75rem; border-radius: 12px; background: #F3F4F6; color: var(--text-sec); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">Tue</div>
+                    <div class="day-pill" data-day="Wed" style="padding: 0.4rem 0.75rem; border-radius: 12px; background: #F3F4F6; color: var(--text-sec); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">Wed</div>
+                    <div class="day-pill" data-day="Thu" style="padding: 0.4rem 0.75rem; border-radius: 12px; background: #F3F4F6; color: var(--text-sec); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">Thu</div>
+                    <div class="day-pill" data-day="Fri" style="padding: 0.4rem 0.75rem; border-radius: 12px; background: #F3F4F6; color: var(--text-sec); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">Fri</div>
+                    <div class="day-pill" data-day="Sat" style="padding: 0.4rem 0.75rem; border-radius: 12px; background: #F3F4F6; color: var(--text-sec); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">Sat</div>
+                    <div class="day-pill" data-day="Sun" style="padding: 0.4rem 0.75rem; border-radius: 12px; background: #F3F4F6; color: var(--text-sec); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">Sun</div>
+                </div>
+                <input type="hidden" name="schedule_day" id="scheduleDaysInput" value="">
+                
+                <div style="display: flex; gap: 0.75rem; align-items: flex-end;">
+                    <div style="flex: 1; display: flex; flex-direction: column;">
+                        <span style="font-size: 0.65rem; color: var(--text-sec); font-weight: 700; text-transform: uppercase;">Start Time</span>
+                        <input type="time" name="schedule_start" class="input-underline" value="{{ schedule_start }}" style="margin-bottom: 0; padding: 0.5rem 0; font-size: 1.05rem; height: 43px;">
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column;">
+                        <span style="font-size: 0.65rem; color: var(--text-sec); font-weight: 700; text-transform: uppercase;">End Time</span>
+                        <input type="time" name="schedule_end" class="input-underline" value="{{ schedule_end }}" style="margin-bottom: 0; padding: 0.5rem 0; font-size: 1.05rem; height: 43px;">
+                    </div>
+                </div>
+            </div>
 
             <!-- Location -->
             <label class="form-label-custom">Location</label>
@@ -276,6 +326,82 @@
             document.getElementById('selectedIcon').value = iconClass;
         });
     });
+
+    // Handle Cover Image Upload click & preview
+    const uploadCoverBtn = document.getElementById('uploadCoverBtn');
+    const coverImageInput = document.getElementById('coverImageInput');
+    const uploadPreviewOverlay = uploadCoverBtn.querySelector('.upload-preview-overlay');
+    const uploadContentWrapper = uploadCoverBtn.querySelector('.upload-content-wrapper');
+
+    uploadCoverBtn.addEventListener('click', function() {
+        coverImageInput.click();
+    });
+
+    coverImageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadPreviewOverlay.style.backgroundImage = `url('${e.target.result}')`;
+                uploadPreviewOverlay.style.display = 'block';
+                // Adjust text/icon styling to stand out on top of the image
+                uploadContentWrapper.style.color = 'white';
+                const circle = uploadContentWrapper.querySelector('.upload-icon-circle');
+                if (circle) {
+                    circle.style.background = 'rgba(0,0,0,0.6)';
+                    circle.style.color = 'white';
+                }
+                const text = uploadContentWrapper.querySelector('.upload-text');
+                if (text) {
+                    text.style.color = 'white';
+                    text.style.textShadow = '0 2px 4px rgba(0,0,0,0.6)';
+                    text.textContent = 'Change Cover Image';
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    // Toggle active state on day pills and update hidden input
+    const scheduleDaysInput = document.getElementById('scheduleDaysInput');
+    
+    // Pre-populate with saved days
+    const savedDays = "{{ schedule_day }}"; 
+    const dayMap = {
+        'Monday': 'Mon',
+        'Tuesday': 'Tue',
+        'Wednesday': 'Wed',
+        'Thursday': 'Thu',
+        'Friday': 'Fri',
+        'Saturday': 'Sat',
+        'Sunday': 'Sun'
+    };
+    
+    document.querySelectorAll('.day-pill').forEach(pill => {
+        const day = pill.getAttribute('data-day');
+        
+        // Check if the savedDays contains either the short day (e.g. "Mon") or the mapped full name
+        const matchesSaved = savedDays.includes(day) || 
+                             Object.keys(dayMap).some(fullName => savedDays.includes(fullName) && dayMap[fullName] === day);
+                             
+        if (matchesSaved) {
+            pill.classList.add('active');
+        }
+        
+        pill.addEventListener('click', function() {
+            this.classList.toggle('active');
+            updateHiddenInput();
+        });
+    });
+    
+    function updateHiddenInput() {
+        const activeDays = [];
+        document.querySelectorAll('.day-pill.active').forEach(activePill => {
+            activeDays.push(activePill.getAttribute('data-day'));
+        });
+        scheduleDaysInput.value = activeDays.join(', ');
+    }
+    
+    updateHiddenInput();
 </script>
 {% endblock %}
 

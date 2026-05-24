@@ -17,6 +17,4 @@ __pycache__/
 data-dev.sqlite
 data.sqlite
 .DS_Store
-app/static/uploads/audio/*
-app/static/uploads/covers/*
-app/static/uploads/profiles/*
+app/static/uploads/*
