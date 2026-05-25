@@ -291,6 +291,15 @@
         </div>
     </div>
 
+    <!-- Transcription Status Banner -->
+    <div id="transcription-status-banner" style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 16px; padding: 1rem; font-size: 0.85rem; color: #1E40AF; font-weight: 500; display: flex; align-items: flex-start; gap: 0.75rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 0.5rem; transition: all 0.3s ease;">
+        <i class="bi bi-info-circle-fill" id="status-banner-icon" style="font-size: 1.2rem; color: #3B82F6; margin-top: 0.1rem;"></i>
+        <div>
+            <h5 id="status-banner-title" style="margin: 0 0 0.15rem 0; font-size: 0.9rem; font-weight: 700; color: #1E3A8A;">Live Transcription Status</h5>
+            <p id="status-banner-text" style="margin: 0; line-height: 1.4; color: #2563EB;">Initializing microphone access and transcription service...</p>
+        </div>
+    </div>
+
     <!-- Transcripts List -->
     <div class="transcript-list" id="transcript-list">
         <!-- Transcripts will appear here dynamically -->
@@ -311,6 +320,7 @@
         <input type="hidden" name="raw_transcript" id="raw-transcript-input">
         <input type="hidden" name="duration" id="duration-input">
         <input type="hidden" name="session_uuid" id="session-uuid-input">
+        <input type="hidden" name="spoken_language" id="spoken-language-input">
     </form>
 
     <div class="ctrl-btn-container" onclick="submitSession()">
@@ -331,26 +341,82 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Your browser does not support native speech recognition. Please use Chrome, Edge, or Safari.");
-            return;
+        let recognition = null;
+        let speechRecognitionSupported = false;
+        
+        // Status Banner Elements
+        const banner = document.getElementById('transcription-status-banner');
+        const bannerIcon = document.getElementById('status-banner-icon');
+        const bannerTitle = document.getElementById('status-banner-title');
+        const bannerText = document.getElementById('status-banner-text');
+
+        function updateBanner(status) {
+            if (!banner) return;
+            if (status === 'initializing') {
+                banner.style.background = '#EFF6FF';
+                banner.style.borderColor = '#BFDBFE';
+                if (bannerIcon) {
+                    bannerIcon.className = 'bi bi-info-circle-fill';
+                    bannerIcon.style.color = '#3B82F6';
+                }
+                if (bannerTitle) bannerTitle.style.color = '#1E3A8A';
+                if (bannerText) {
+                    bannerText.style.color = '#2563EB';
+                    bannerText.textContent = 'Initializing microphone access and transcription service...';
+                }
+            } else if (status === 'active') {
+                banner.style.background = '#ECFDF5';
+                banner.style.borderColor = '#A7F3D0';
+                if (bannerIcon) {
+                    bannerIcon.className = 'bi bi-mic-fill';
+                    bannerIcon.style.color = '#10B981';
+                }
+                if (bannerTitle) bannerTitle.style.color = '#065F46';
+                if (bannerText) {
+                    bannerText.style.color = '#047857';
+                    bannerText.textContent = 'Voice dictation is active. Speak into your microphone and transcripts will appear in real-time.';
+                }
+            } else if (status === 'unsupported') {
+                banner.style.background = '#F0F9FF';
+                banner.style.borderColor = '#BAE6FD';
+                if (bannerIcon) {
+                    bannerIcon.className = 'bi bi-info-circle-fill';
+                    bannerIcon.style.color = '#0284C7';
+                }
+                if (bannerTitle) bannerTitle.style.color = '#075985';
+                if (bannerText) {
+                    bannerText.style.color = '#0284C7';
+                    bannerText.textContent = 'Live dictation is not natively supported in this browser (e.g. Firefox). Don\'t worry! We are recording your class audio and will transcribe it fully in the background when you end the session.';
+                }
+            } else if (status === 'blocked_privacy') {
+                banner.style.background = '#FFFBEB';
+                banner.style.borderColor = '#FCD34D';
+                if (bannerIcon) {
+                    bannerIcon.className = 'bi bi-exclamation-triangle-fill';
+                    bannerIcon.style.color = '#D97706';
+                }
+                if (bannerTitle) bannerTitle.style.color = '#78350F';
+                if (bannerText) {
+                    bannerText.style.color = '#D97706';
+                    bannerText.textContent = 'Dictation failed to connect. If you are using Brave, please enable Google Speech Services in Brave Settings (under Privacy and Security), or use Chrome/Edge for real-time views. Audio recording remains active and will be transcribed in the background.';
+                }
+            } else if (status === 'permission_denied') {
+                banner.style.background = '#FEF2F2';
+                banner.style.borderColor = '#FCA5A5';
+                if (bannerIcon) {
+                    bannerIcon.className = 'bi bi-slash-circle-fill';
+                    bannerIcon.style.color = '#EF4444';
+                }
+                if (bannerTitle) bannerTitle.style.color = '#7F1D1D';
+                if (bannerText) {
+                    bannerText.style.color = '#DC2626';
+                    bannerText.textContent = 'Microphone permission blocked or denied. Please allow microphone access in your browser settings to record your lecture.';
+                }
+            }
         }
 
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        
-        const langSelect = document.getElementById('spoken-language');
-        recognition.lang = langSelect.value;
-        
-        langSelect.addEventListener('change', function(e) {
-            recognition.lang = e.target.value;
-            // Restart to apply new language if already running
-            if (isRecording) {
-                recognition.stop();
-                setTimeout(() => recognition.start(), 300);
-            }
-        });
+        // Initialize status
+        updateBanner('initializing');
 
         const transcriptList = document.getElementById('transcript-list');
         const soundBars = document.getElementById('sound-bars');
@@ -367,23 +433,60 @@
         const sessionUuid = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         document.getElementById('session-uuid-input').value = sessionUuid;
         
-        let mediaRecorder;
+        let mediaRecorder = null;
+
+        // Configure Speech Recognition
+        if (SpeechRecognition) {
+            try {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                speechRecognitionSupported = true;
+                
+                const langSelect = document.getElementById('spoken-language');
+                recognition.lang = langSelect.value;
+                
+                langSelect.addEventListener('change', function(e) {
+                    recognition.lang = e.target.value;
+                    if (isRecording && speechRecognitionSupported) {
+                        try { recognition.stop(); } catch(e) {}
+                        setTimeout(() => { if (isRecording && !isPaused) startRecording(); }, 400);
+                    }
+                });
+            } catch (e) {
+                console.error("SpeechRecognition initialization failed:", e);
+                speechRecognitionSupported = false;
+            }
+        } else {
+            console.warn("SpeechRecognition not supported in this browser.");
+            speechRecognitionSupported = false;
+            updateBanner('unsupported');
+        }
         
         // Initialize Audio Recording
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 console.log("Microphone access granted. Initializing mediaRecorder...");
-                // Check if webm is supported, fallback to empty to let browser pick default
+                
+                // Inspect browser MediaRecorder mimeType capabilities
                 let options = { mimeType: 'audio/webm' };
                 if (!MediaRecorder.isTypeSupported('audio/webm')) {
-                    options = {};
+                    // Safari uses audio/mp4 by default
+                    if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                        options = { mimeType: 'audio/mp4' };
+                    } else {
+                        options = {}; // Let browser choose default
+                    }
                 }
+                
                 mediaRecorder = new MediaRecorder(stream, options);
                 
                 mediaRecorder.ondataavailable = function(e) {
                     if (e.data.size > 0) {
                         const formData = new FormData();
-                        formData.append('audio_chunk', e.data);
+                        // Append chunk with correct content type matching mediaRecorder
+                        const blob = new Blob([e.data], { type: mediaRecorder.mimeType || e.data.type });
+                        formData.append('audio_chunk', blob);
                         
                         const uploadUrl = "{{ url_for('main.upload_audio_chunk', course_id=course.id, session_uuid='DUMMY_UUID') }}".replace('DUMMY_UUID', sessionUuid);
                         
@@ -398,40 +501,43 @@
                     }
                 };
 
-                // Start recording immediately after mic access is granted (ensures user gesture context)
+                // Start recording session
                 console.log("Starting speech recognition and audio recording...");
                 startRecording();
 
             }).catch(err => {
                 console.error("Microphone access denied or error: ", err);
+                updateBanner('permission_denied');
                 alert("Microphone access is required for real-time transcription and audio recording. Please allow microphone access in your browser settings.");
             });
         } else {
             console.error("navigator.mediaDevices.getUserMedia not supported on this browser or context.");
+            updateBanner('permission_denied');
             alert("Microphone access is not supported by your browser or is blocked because this page is not served over a secure connection (HTTPS/localhost).");
         }
         
-        // Expose submit to global scope for the button onClick
+        // Expose submit to global scope
         window.submitSession = function() {
-            // Stop recording
             isPaused = true;
-            try { recognition.stop(); } catch(e) {}
+            try { if (recognition) recognition.stop(); } catch(e) {}
             try { if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); } catch(e) {}
             
-            // Allow a short delay for the last audio chunk to be sent
             setTimeout(() => {
                 document.getElementById('raw-transcript-input').value = fullTranscript.join(' ');
                 document.getElementById('duration-input').value = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('spoken-language-input').value = document.getElementById('spoken-language').value;
                 document.getElementById('end-session-form').submit();
             }, 800);
         };
 
         function startRecording() {
             if (!isPaused) {
-                try {
-                    recognition.start();
-                } catch(e) {
-                    console.log("Speech recognition start failed or already running:", e);
+                if (speechRecognitionSupported && recognition) {
+                    try {
+                        recognition.start();
+                    } catch(e) {
+                        console.log("Speech recognition start failed or already running:", e);
+                    }
                 }
                 
                 try {
@@ -445,8 +551,8 @@
                 }
                 
                 isRecording = true;
-                soundBars.style.opacity = '1';
-                recStatus.innerHTML = '<div class="rec-dot"></div> LIVE RECORDING';
+                if (soundBars) soundBars.style.opacity = '1';
+                if (recStatus) recStatus.innerHTML = '<div class="rec-dot"></div> LIVE RECORDING';
             }
         }
         
@@ -457,107 +563,138 @@
                 pauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
             } else {
                 isPaused = true;
-                recognition.stop();
+                try { if (recognition) recognition.stop(); } catch(e) {}
                 try { if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.pause(); } catch(e) {}
                 isRecording = false;
-                soundBars.style.opacity = '0.3';
-                recStatus.innerHTML = 'PAUSED';
+                if (soundBars) soundBars.style.opacity = '0.3';
+                if (recStatus) recStatus.innerHTML = 'PAUSED';
                 pauseBtn.innerHTML = '<i class="bi bi-play-fill" style="color: var(--primary-blue);"></i>';
             }
         });
 
-        recognition.onstart = function() {
-            isRecording = true;
-        };
+        // Speech Recognition Events
+        if (speechRecognitionSupported && recognition) {
+            recognition.onstart = function() {
+                isRecording = true;
+                updateBanner('active');
+            };
 
-        recognition.onerror = function(event) {
-            console.error("recognition.onerror: ", event.error);
-            if (event.error === 'not-allowed') {
-                alert("Microphone access blocked. Please enable microphone permission in your browser settings.");
-                isPaused = true;
-                isRecording = false;
-                soundBars.style.opacity = '0.3';
-                recStatus.innerHTML = 'BLOCKED / PAUSED';
-            } else if (event.error === 'network') {
-                console.warn("Network error in Speech API. Chrome requires an active internet connection (and no ad-blockers blocking Google servers) for dictation to work.");
-            } else if (event.error === 'no-speech') {
-                console.log("No speech detected. Listening...");
-            } else {
-                console.warn("Speech recognition warning: " + event.error);
-            }
-        };
-
-        recognition.onend = function() {
-            isRecording = false;
-            currentActiveCard = null;
-            // Auto-restart if not paused manually
-            if (!isPaused) {
-                startRecording();
-            }
-        };
-
-        recognition.onresult = function(event) {
-            let interimTranscript = '';
-            let finalTranscript = '';
-
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
-                    fullTranscript.push(event.results[i][0].transcript.trim());
+            recognition.onerror = function(event) {
+                console.error("recognition.onerror: ", event.error);
+                if (event.error === 'not-allowed') {
+                    updateBanner('permission_denied');
+                    isPaused = true;
+                    isRecording = false;
+                    if (soundBars) soundBars.style.opacity = '0.3';
+                    if (recStatus) recStatus.innerHTML = 'BLOCKED / PAUSED';
+                } else if (event.error === 'network') {
+                    console.warn("Network or privacy block in Speech API.");
+                    updateBanner('blocked_privacy');
+                } else if (event.error === 'no-speech') {
+                    console.log("No speech detected. Listening...");
                 } else {
-                    interimTranscript += event.results[i][0].transcript;
+                    console.warn("Speech recognition warning: " + event.error);
                 }
-            }
+            };
 
-            if (finalTranscript !== '') {
-                // Remove active talking card if it exists
-                if (currentActiveCard) {
-                    currentActiveCard.remove();
-                    currentActiveCard = null;
+            recognition.onend = function() {
+                isRecording = false;
+                currentActiveCard = null;
+                // Auto-restart in Safari and Chrome after pauses
+                if (!isPaused) {
+                    setTimeout(() => { if (!isPaused) startRecording(); }, 400);
                 }
-                
-                // Add permanent card
-                const tCard = document.createElement('div');
-                tCard.className = 't-card';
-                
-                const tSource = document.createElement('div');
-                tSource.className = 't-source';
-                tSource.textContent = finalTranscript;
+            };
 
-                const tTranslated = document.createElement('div');
-                tTranslated.className = 't-translated';
-                tTranslated.style.fontStyle = 'italic';
-                tTranslated.style.opacity = '0.6';
-                tTranslated.textContent = "(Translation pending...)";
-                
-                tCard.appendChild(tSource);
-                tCard.appendChild(tTranslated);
-                transcriptList.appendChild(tCard);
-                
-                // Auto scroll
-                window.scrollTo(0, document.body.scrollHeight);
-            }
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                let finalTranscript = '';
 
-            if (interimTranscript !== '') {
-                if (!currentActiveCard) {
-                    currentActiveCard = document.createElement('div');
-                    currentActiveCard.className = 't-card active-talking';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                        fullTranscript.push(event.results[i][0].transcript.trim());
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                if (finalTranscript !== '') {
+                    if (currentActiveCard) {
+                        currentActiveCard.remove();
+                        currentActiveCard = null;
+                    }
                     
-                    currentActiveText = document.createElement('div');
-                    currentActiveText.className = 't-source';
+                    const tCard = document.createElement('div');
+                    tCard.className = 't-card';
                     
-                    currentActiveCard.appendChild(currentActiveText);
-                    transcriptList.appendChild(currentActiveCard);
-                }
-                currentActiveText.textContent = interimTranscript + "...";
-                window.scrollTo(0, document.body.scrollHeight);
-            }
-        };
+                    const tSource = document.createElement('div');
+                    tSource.className = 't-source';
+                    tSource.textContent = finalTranscript;
 
-        // Ensure we gracefully stop when navigating away
+                    const tTranslated = document.createElement('div');
+                    tTranslated.className = 't-translated';
+                    tTranslated.style.fontStyle = 'italic';
+                    tTranslated.style.opacity = '0.6';
+                    tTranslated.textContent = "(Translating...)";
+                    
+                    tCard.appendChild(tSource);
+                    tCard.appendChild(tTranslated);
+                    transcriptList.appendChild(tCard);
+                    
+                    window.scrollTo(0, document.body.scrollHeight);
+                    
+                    const selectedLang = document.getElementById('spoken-language').value;
+                    if (selectedLang.startsWith('en')) {
+                        tTranslated.textContent = finalTranscript;
+                        tTranslated.style.opacity = '1';
+                        tTranslated.style.fontStyle = 'normal';
+                    } else {
+                        fetch("{{ url_for('main.translate_text') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ text: finalTranscript })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                tTranslated.textContent = data.translated;
+                                tTranslated.style.opacity = '1';
+                                tTranslated.style.fontStyle = 'normal';
+                            } else {
+                                tTranslated.textContent = "(Translation failed)";
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Translation error:", err);
+                            tTranslated.textContent = "(Translation failed)";
+                        });
+                    }
+                }
+
+                if (interimTranscript !== '') {
+                    if (!currentActiveCard) {
+                        currentActiveCard = document.createElement('div');
+                        currentActiveCard.className = 't-card active-talking';
+                        
+                        currentActiveText = document.createElement('div');
+                        currentActiveText.className = 't-source';
+                        
+                        currentActiveCard.appendChild(currentActiveText);
+                        transcriptList.appendChild(currentActiveCard);
+                    }
+                    currentActiveText.textContent = interimTranscript + "...";
+                    window.scrollTo(0, document.body.scrollHeight);
+                }
+            };
+        }
+
+        // Graceful unload
         window.addEventListener('beforeunload', function() {
             isPaused = true;
-            try { recognition.stop(); } catch(e) {}
+            try { if (recognition) recognition.stop(); } catch(e) {}
             try { if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop(); } catch(e) {}
         });
 

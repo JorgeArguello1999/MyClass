@@ -13,6 +13,7 @@ class Session(db.Model):
     recorded_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     raw_transcript = db.Column(db.Text)
     translated_transcript = db.Column(db.Text)
+    spoken_language = db.Column(db.String(10), default='ko-KR')
     
     # Status can be 'unprocessed', 'processing', or 'ready'
     status = db.Column(db.String(50), default='unprocessed')

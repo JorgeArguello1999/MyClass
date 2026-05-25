@@ -42,14 +42,14 @@ def process_audio_background(app, session_id):
                     import speech_recognition as sr
                     
                     wav_path = file_path.rsplit('.', 1)[0] + '.wav'
-                    audio = AudioSegment.from_file(file_path, format="webm")
+                    audio = AudioSegment.from_file(file_path)
                     audio.export(wav_path, format="wav")
                     
                     recognizer = sr.Recognizer()
                     with sr.AudioFile(wav_path) as source:
                         audio_data = recognizer.record(source)
                     
-                    text = recognizer.recognize_google(audio_data, language="ko-KR")
+                    text = recognizer.recognize_google(audio_data, language=session.spoken_language or "ko-KR")
                     session.raw_transcript = text
                     
                     if os.path.exists(wav_path):
@@ -62,8 +62,12 @@ def process_audio_background(app, session_id):
         # 2. Translate
         if text and text != "(Automated transcription failed)":
             try:
-                translated = GoogleTranslator(source='auto', target='en').translate(text)
-                session.translated_transcript = translated
+                lang = session.spoken_language or "ko-KR"
+                if lang.startswith("en"):
+                    session.translated_transcript = text
+                else:
+                    translated = GoogleTranslator(source='auto', target='en').translate(text)
+                    session.translated_transcript = translated
             except Exception as e:
                 session.translated_transcript = "(Translation failed)"
                 
@@ -403,7 +407,15 @@ def upload_audio_chunk(course_id, session_uuid):
         if not safe_uuid:
             return 'Invalid UUID', 400
             
-        filename = f"{safe_uuid}.webm"
+        mime = chunk.content_type or ""
+        if "mp4" in mime or "m4a" in mime or "aac" in mime:
+            ext = "mp4"
+        elif "ogg" in mime:
+            ext = "ogg"
+        else:
+            ext = "webm"
+            
+        filename = f"{safe_uuid}.{ext}"
         upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'audio')
         os.makedirs(upload_dir, exist_ok=True)
         
@@ -425,11 +437,13 @@ def end_session(course_id):
     duration = 1800
     session_uuid = None
     audio_filename = None
+    spoken_language = "ko-KR"
     
     if request.method == 'POST':
         raw_transcript = request.form.get('raw_transcript', '').strip()
         dur_str = request.form.get('duration', '1800')
         session_uuid = request.form.get('session_uuid')
+        spoken_language = request.form.get('spoken_language', 'ko-KR')
         try:
             duration = int(dur_str)
             if duration < 60: duration = 60 # min 1 min for display
@@ -439,11 +453,19 @@ def end_session(course_id):
         if session_uuid:
             from werkzeug.utils import secure_filename
             safe_uuid = secure_filename(session_uuid)
-            audio_filename = f"{safe_uuid}.webm"
+            import os
+            from flask import current_app
+            upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'audio')
+            ext = "webm"
+            for possible_ext in ["webm", "mp4", "ogg", "wav", "m4a"]:
+                if os.path.exists(os.path.join(upload_dir, f"{safe_uuid}.{possible_ext}")):
+                    ext = possible_ext
+                    break
+            audio_filename = f"{safe_uuid}.{ext}"
     else:
         # Fallback to random if hit via GET directly
         duration = random.choice([1800, 3600, 5400, 7200, 2400])
-
+ 
     session_titles = ["Introduction to Concepts", "Advanced Theories", "Midterm Review", "Lab Session", "Guest Lecture"]
     
     status = 'processing' # We will always process translation or transcription
@@ -454,6 +476,7 @@ def end_session(course_id):
         duration_seconds=duration,
         raw_transcript=raw_transcript,
         audio_file_path=audio_filename,
+        spoken_language=spoken_language,
         status=status
     )
     db.session.add(new_session)
@@ -743,6 +766,20 @@ def toggle_homework(hw_id):
         
     return jsonify({'status': 'error', 'message': 'is_completed field required'}), 400
 
+@main_bp.route('/translate', methods=['POST'])
+@login_required
+def translate_text():
+    data = request.get_json() or {}
+    text = data.get('text', '').strip()
+    if not text:
+        return jsonify({'status': 'success', 'translated': ''})
+    try:
+        from deep_translator import GoogleTranslator
+        translated = GoogleTranslator(source='auto', target='en').translate(text)
+        return jsonify({'status': 'success', 'translated': translated})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 @main_bp.route('/session/<int:session_id>/download_audio')
 @login_required
 def download_audio(session_id):
@@ -759,7 +796,8 @@ def download_audio(session_id):
     from flask import send_from_directory, current_app
     directory = os.path.join(current_app.root_path, 'static', 'uploads', 'audio')
     safe_title = "".join([c if c.isalnum() else "_" for c in (session.title or "audio")])
-    download_name = f"{safe_title}.webm"
+    ext = session.audio_file_path.split('.')[-1] if '.' in session.audio_file_path else "webm"
+    download_name = f"{safe_title}.{ext}"
     return send_from_directory(directory, session.audio_file_path, as_attachment=True, download_name=download_name)
 
 @main_bp.route('/session/<int:session_id>/retranslate', methods=['POST'])
@@ -788,14 +826,14 @@ def retranslate_session(session_id):
             import speech_recognition as sr
             
             wav_path = file_path.rsplit('.', 1)[0] + '.wav'
-            audio = AudioSegment.from_file(file_path, format="webm")
+            audio = AudioSegment.from_file(file_path)
             audio.export(wav_path, format="wav")
             
             recognizer = sr.Recognizer()
             with sr.AudioFile(wav_path) as source_file:
                 audio_data = recognizer.record(source_file)
             
-            transcribed_text = recognizer.recognize_google(audio_data, language="ko-KR")
+            transcribed_text = recognizer.recognize_google(audio_data, language=session.spoken_language or "ko-KR")
             session.raw_transcript = transcribed_text
             
             if os.path.exists(wav_path):
@@ -808,7 +846,11 @@ def retranslate_session(session_id):
         
     try:
         from deep_translator import GoogleTranslator
-        translated = GoogleTranslator(source='auto', target='en').translate(session.raw_transcript)
+        lang = session.spoken_language or "ko-KR"
+        if lang.startswith("en"):
+            translated = session.raw_transcript
+        else:
+            translated = GoogleTranslator(source='auto', target='en').translate(session.raw_transcript)
         session.translated_transcript = translated
         db.session.commit()
         return jsonify({
