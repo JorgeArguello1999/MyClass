@@ -8,9 +8,10 @@ ENV PORT=10000
 ENV FLASK_APP=main.py
 ENV FLASK_CONFIG=development
 
-# Install system dependencies: ffmpeg (for audio parsing), curl, and build utilities
+# Install system dependencies: ffmpeg (for audio parsing), flac (for speech to text), curl, and build utilities
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    flac \
     curl \
     build-essential \
     && rm -rf /var/lib/apt/lists/*

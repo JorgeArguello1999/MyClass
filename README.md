@@ -257,7 +257,7 @@ If any required verification check fails, the application prints a pre-flight su
 ## 🐳 Docker Deployment
 
 For easy containerized deployment, the repository includes a `Dockerfile`. The container includes:
-- Automated installation of **FFmpeg** and **FFprobe** inside the container.
+- Automated installation of **FFmpeg**, **FFprobe**, and **FLAC** inside the container (required for audio parsing and speech-to-text transcription).
 - Support for persistent volumes for the SQLite database and uploaded audio files.
 - Support for dynamic network routing (`host.docker.internal`) to connect to LLM servers (like Ollama) running on your host machine.
 

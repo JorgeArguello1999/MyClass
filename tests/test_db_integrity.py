@@ -39,7 +39,7 @@ def run_db_migrations(app):
             perform_migration_cycle()
             print("✅ Database migrations applied successfully.")
         return True
-    except Exception as e:
+    except (Exception, SystemExit) as e:
         print(f"⚠️ Error during database migrations: {e}")
         
         # Self-healing logic for out-of-sync or corrupt database revisions in SQLite
