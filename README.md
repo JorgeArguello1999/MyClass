@@ -8,8 +8,22 @@ Welcome to the **LuminaAcademic** repository. LuminaAcademic is an intelligent a
 ## 🚀 Features
 
 - **Modern Dashboard**: Clean, responsive grid layout for managing courses and getting high-level insights.
-- **Lecture Recording Module**: Live translation visualization, animated audio waves, and dynamic transcription tracking.
-- **Session Summaries**: Study-optimized, dual-column notes combining audio playback, timelines, main topics, and homework tracking.
+- **Lecture Recording & Dictation Module**:
+  - **Cross-Browser Compatibility**: Fully supported across Chrome, Brave, Firefox, Edge, and Safari (macOS/iOS).
+  - **Spoken Language Selector**: Real-time choice of recording language (Korean `ko-KR`, Spanish `es-ES`, English `en-US`), mapped directly to backend STT.
+  - **Real-Time Translation**: Asynchronous segment-by-segment live English translation displayed on-screen as the lecture is recorded.
+  - **Dictation Status Banner**: A responsive status banner featuring active, initializing, unsupported (Firefox), privacy-blocked (Brave shields), and blocked microphone states.
+  - **Auto-Recovery**: SpeechRecognition automatically restarts on transient silence or non-fatal network interruptions.
+- **Fully Editable Session Summaries**:
+  - **Pencil-Locked Inline Editing**: Visual fields remain read-only with sleek toggle inputs unlocked via pencil icons. Supports inline title edits, main topic & tags, key moments, important notes, class summaries, and study group notes.
+  - **Dynamic Item Lists**: Append new entries or delete old ones dynamically on-the-fly inside key moments, notes, and homework sections.
+  - **Homework Checklist & Date Pickers**: Toggle completed tasks directly with fading strikethroughs, utilizing native date picker calendars (`<input type="date">`) for absolute deadline dates.
+  - **Conditional Study Group Notes**: Hides the card layout entirely if empty, rendering a dashed placeholder button to initialize study group notes on demand.
+- **Advanced Actionable Operations**:
+  - **Download Audio**: Downloads the original class recording utilizing correct format extensions dynamically (`.mp4` on Safari/iOS vs `.webm` on Chrome/Brave).
+  - **Selective Re-translation**: Choose between re-transcribing from raw audio container headers or translating from edited text.
+  - **Safe Re-generation**: Re-trigger LLM extraction from current transcripts, locked behind a safety warning modal to prevent accidental data loss.
+  - **Universal Audio Playback**: Direct source binding on HTML5 audio tags to guarantee cross-browser audio playback regardless of local codecs.
 - **MVC Architecture**: Engineered using standard Flask Model-View-Controller patterns via Blueprint separation.
 - **Security Checkup**: Integrity validation running directly during the application startup via `main.py`.
 
