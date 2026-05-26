@@ -73,11 +73,16 @@ touch .env
 ```
 Populate the file with the following variables:
 ```ini
-# Flask Configuration
+# Flask & Server Configuration
 SECRET_KEY=dev-secret-key-12345
 FLASK_APP=main.py
 FLASK_DEBUG=1
 FLASK_CONFIG=development
+PORT=10000
+
+# Verification Pre-flight Configuration
+# Set to 1 to bypass the local LLM connectivity check during startup checks
+SKIP_LLM_CHECK=1
 
 # LLM Provider Configuration
 # Set LLM_PROVIDER to "ollama", "lmstudio", or "mock" (default fallback)
@@ -92,7 +97,10 @@ LLM_BASE_URL=http://localhost:11434
 
 The project uses **SQLite** as its default development database, resulting in a self-contained local file (`data-dev.sqlite`).
 
-1. **Auto-Migrations on Startup**: When you start the application, the system automatically checks the database connection and runs pending migrations via `Flask-Migrate`/`Alembic` before launching the Flask server.
+1. **Auto-Migrations on Startup**: When you launch the application (`python main.py`), the system automatically runs a robust 3-stage migration check:
+   - **Stage 1 (Upgrade)**: Syncs the database table schema to match all existing migrations on disk first, avoiding target mismatches.
+   - **Stage 2 (Migrate)**: Checks for new schema changes in the python models and auto-generates dynamic version scripts in the versions folder.
+   - **Stage 3 (Upgrade)**: Applies any newly generated migration versions to the SQLite database.
 2. **Manual Migrations**: If you need to manually apply migrations or initialize a clean database from scratch, use the following commands:
    ```bash
    # Apply pending migrations to the database file
@@ -222,17 +230,92 @@ Local LLM:   ✅ PASS
 
 ## 🚀 Running the Application
 
-Once your `.env` is configured and your environment verification passes, start the development server:
+Once your `.env` is configured, start the server:
 
 ```bash
 uv run python main.py
 ```
 
-By default, the server will bind to `0.0.0.0` on port `10000`. You can access the interface in your browser at:
+By default, the server will bind to `0.0.0.0` on port `10000` (or the custom port set via the `PORT` env variable). You can access the interface at:
 **[http://localhost:10000](http://localhost:10000)**
+
+### ⚙️ Startup Behavior & Pre-flight Checks
+
+Upon startup, `main.py` automatically initiates the following pre-flight verification sequence before binding to the web port:
+
+1. **Auto-Migrations & Integrity Check**: Sube la base de datos local SQLite al día mediante el flujo de 3 fases (`upgrade` -> `migrate` -> `upgrade`).
+2. **Environment Verification**: Runs the required unit validation checks from `tests/test_environment.py`:
+   - Checks/creates media upload directories.
+   - Verifies SQLite read/write transaction capabilities.
+   - Validates that `ffmpeg` and `ffprobe` binaries are accessible.
+   - **Local LLM Verification**: Skip this connectivity test by setting the environment variable `SKIP_LLM_CHECK=1` or launching the script with the `--skip-llm` argument.
+
+If any required verification check fails, the application prints a pre-flight summary and immediately halts startup with a non-zero exit code to prevent running in a misconfigured environment.
+
+---
+
+## 🐳 Docker Deployment
+
+For easy containerized deployment, the repository includes a `Dockerfile`. The container includes:
+- Automated installation of **FFmpeg** and **FFprobe** inside the container.
+- Support for persistent volumes for the SQLite database and uploaded audio files.
+- Support for dynamic network routing (`host.docker.internal`) to connect to LLM servers (like Ollama) running on your host machine.
+
+### Build the Image
+
+```bash
+docker build -t lumina-academic .
+```
+
+### Run the Container
+
+Start the container and map the required ports, environment variables, and persistent data volumes:
+
+```bash
+docker run -d \
+  -p 10000:10000 \
+  -e SECRET_KEY=dev-secret-key-12345 \
+  -e FLASK_APP=main.py \
+  -e FLASK_DEBUG=1 \
+  -e FLASK_CONFIG=development \
+  -e SKIP_LLM_CHECK=1 \
+  -e LLM_PROVIDER=mock \
+  -e DEV_DATABASE_URL=sqlite:////app/data/data-dev.sqlite \
+  -e DATABASE_URL=sqlite:////app/data/data.sqlite \
+  -e LLM_BASE_URL=http://host.docker.internal:11434 \
+  -v lumina_db_data:/app/data \
+  -v lumina_upload_data:/app/app/static/uploads \
+  --add-host=host.docker.internal:host-gateway \
+  --name lumina-academic-app \
+  lumina-academic
+```
+
+### Manage the Container
+
+- **Check logs**:
+  ```bash
+  docker logs -f lumina-academic-app
+  ```
+- **Stop the container**:
+  ```bash
+  docker stop lumina-academic-app
+  ```
+- **Start the container again**:
+  ```bash
+  docker start lumina-academic-app
+  ```
+- **Remove the container**:
+  ```bash
+  docker rm lumina-academic-app
+  ```
+
+### Volumes & Persistence
+
+- `lumina_db_data`: Mounts to `/app/data` to persist the SQLite database.
+- `lumina_upload_data`: Mounts to `/app/app/static/uploads` to persist recorded class audio and profile files.
+
+---
 
 ## 📱 Responsiveness
 
 The application is fully responsive. It functions symmetrically as a rich mobile web app and scales up seamlessly using CSS Advanced Grids to provide a native-like experience on Desktop and Tablet devices.
-
-

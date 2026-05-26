@@ -148,7 +148,13 @@ if __name__ == "__main__":
     dir_ok = test_directories()
     db_ok = test_database()
     ffmpeg_ok = test_ffmpeg()
-    llm_ok = test_llm()
+    
+    # Support skipping LLM connectivity check
+    if os.getenv("SKIP_LLM_CHECK") == "1" or "--skip-llm" in sys.argv:
+        print("\n[4/4] Local LLM connection check: Bypassed (requested).")
+        llm_ok = True
+    else:
+        llm_ok = test_llm()
     
     print("\n==============================================")
     print("                SUMMARY                       ")
@@ -156,11 +162,11 @@ if __name__ == "__main__":
     print(f"Directories: {'✅ PASS' if dir_ok else '❌ FAIL'}")
     print(f"Database:    {'✅ PASS' if db_ok else '❌ FAIL'}")
     print(f"ffmpeg:      {'✅ PASS' if ffmpeg_ok else '❌ FAIL'}")
-    print(f"Local LLM:   {'✅ PASS' if llm_ok else '❌ FAIL'}")
+    print(f"Local LLM:   {'✅ PASS (Bypassed)' if (os.getenv('SKIP_LLM_CHECK') == '1' or '--skip-llm' in sys.argv) else ('✅ PASS' if llm_ok else '❌ FAIL')}")
     print("==============================================")
     
     if all([dir_ok, db_ok, ffmpeg_ok, llm_ok]):
-        print("🎉 All systems are ready and correctly configured!")
+        print("🎉 All required checks passed successfully!")
         sys.exit(0)
     else:
         print("⚠️ Some checks failed. Please review the output details above.")

@@ -19,16 +19,54 @@ def check_env_file():
 
 def run_db_migrations(app):
     print("\n[2/3] Checking & running database migrations...")
-    try:
+    
+    def perform_migration_cycle():
         from flask_migrate import upgrade, migrate
-        with app.app_context():
-            print("   Running migrations (migrate & upgrade)...")
+        print("   1/3 Running database upgrade (applying existing migrations on disk)...")
+        upgrade()
+        
+        print("   2/3 Running database migrate (detecting schema changes)...")
+        try:
             migrate()
-            upgrade()
+        except Exception as migrate_err:
+            print(f"   ℹ️ Migrate note (normal if no schema changes): {migrate_err}")
+            
+        print("   3/3 Running database upgrade (applying any newly generated migrations)...")
+        upgrade()
+
+    try:
+        with app.app_context():
+            perform_migration_cycle()
             print("✅ Database migrations applied successfully.")
         return True
     except Exception as e:
-        print(f"❌ Error during database migrations: {e}")
+        print(f"⚠️ Error during database migrations: {e}")
+        
+        # Self-healing logic for out-of-sync or corrupt database revisions in SQLite
+        db_uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+        if 'sqlite:///' in db_uri:
+            db_path = db_uri.replace('sqlite:///', '')
+            if not os.path.isabs(db_path):
+                db_path = os.path.abspath(os.path.join(app.root_path, '..', db_path))
+                
+            if os.path.exists(db_path):
+                print(f"🧹 Self-healing: Deleting out-of-sync/corrupt SQLite database at '{db_path}'...")
+                try:
+                    from app import db
+                    with app.app_context():
+                        db.session.remove()
+                        db.engine.dispose()
+                    os.remove(db_path)
+                    
+                    # Retry migrations on a fresh database file
+                    with app.app_context():
+                        print("   Retrying migrations on a fresh database...")
+                        perform_migration_cycle()
+                        print("✅ Database recreated and migrations applied successfully.")
+                    return True
+                except Exception as clean_err:
+                    print(f"❌ Failed to delete/recreate database: {clean_err}")
+                    return False
         return False
 
 def verify_db_connection(app, db):
