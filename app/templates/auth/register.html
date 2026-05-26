@@ -12,15 +12,32 @@
         <h1 class="auth-title-dark">Create Account</h1>
         <p class="auth-subtitle text-start mb-4">Please enter your details to get started.</p>
 
-        <div class="profile-upload-wrapper">
-            <div class="profile-upload-circle">
+        <label for="profile_picture" class="profile-upload-wrapper" style="cursor: pointer; display: block; text-align: center;">
+            <div class="profile-upload-circle" id="profile-preview-circle" style="margin: 0 auto;">
                 <i class="bi bi-camera"></i>
             </div>
-            <div class="profile-upload-title">Profile Picture</div>
-            <div class="profile-upload-sub">PNG, JPG up to 5MB. Circular crop applied.</div>
-        </div>
+            <div class="profile-upload-title" style="margin-top: 10px;">Profile Picture (Optional)</div>
+            <div class="profile-upload-sub">PNG, JPG up to 5MB.</div>
+            <input type="file" id="profile_picture" name="profile_picture" accept="image/png, image/jpeg, image/jpg" style="display: none;" onchange="previewImage(this, 'profile-preview-circle')">
+        </label>
 
-        <form method="POST" action="{{ url_for('auth.register') }}">
+        <script>
+            function previewImage(input, circleId) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var circle = document.getElementById(circleId);
+                        circle.style.backgroundImage = 'url(' + e.target.result + ')';
+                        circle.style.backgroundSize = 'cover';
+                        circle.style.backgroundPosition = 'center';
+                        circle.innerHTML = '';
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+        </script>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" enctype="multipart/form-data">
             <div class="auth-input-group">
                 <label for="full_name" class="form-label">Full Name</label>
                 <input type="text" class="form-control auth-input" id="full_name" name="full_name" placeholder="Alex Johnson" required>

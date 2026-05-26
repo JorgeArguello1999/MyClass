@@ -35,5 +35,10 @@ def create_app(config_name='default'):
     # Import models so they are registered with SQLAlchemy
     from app.models.user import User
     from app.models.course import Course
+    from app.models.session import Session
+    from app.models.summary_topic import SummaryTopic
+    from app.models.key_moment import KeyMoment
+    from app.models.homework import Homework
+    from app.models.study_note import StudyNote
 
     return app

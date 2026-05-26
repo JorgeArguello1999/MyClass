@@ -399,11 +399,235 @@
             top: 2rem; /* Keep right side sticky when scrolling left */
         }
     }
+    
+    /* Editable field styles */
+    .btn-edit {
+        background: transparent;
+        border: none;
+        color: var(--text-sec);
+        cursor: pointer;
+        font-size: 0.95rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50%;
+        transition: background 0.2s, color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-edit:hover {
+        background: #F3F4F6;
+        color: var(--primary-blue);
+    }
+    .notes-card .btn-edit {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .notes-card .btn-edit:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+    .edit-controls {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+    .btn-save, .btn-cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.4rem 0.8rem;
+        border-radius: 12px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+    .btn-save {
+        background: var(--primary-blue);
+        color: white;
+    }
+    .btn-save:hover {
+        background: var(--secondary-blue);
+    }
+    .btn-cancel {
+        background: #F3F4F6;
+        color: var(--text-main);
+        border: 1px solid #E5E7EB;
+    }
+    .btn-cancel:hover {
+        background: #E5E7EB;
+    }
+    .notes-card .btn-save {
+        background: white;
+        color: var(--primary-blue);
+    }
+    .notes-card .btn-save:hover {
+        background: rgba(255, 255, 255, 0.9);
+    }
+    .notes-card .btn-cancel {
+        background: transparent;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    .notes-card .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .edit-input, .edit-textarea {
+        width: 100%;
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: white;
+        color: var(--text-main);
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+    .edit-input:focus, .edit-textarea:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(3, 59, 129, 0.1);
+    }
+    .edit-textarea {
+        resize: vertical;
+        min-height: 80px;
+        line-height: 1.5;
+    }
+    .notes-card .edit-input, .notes-card .edit-textarea {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+    .notes-card .edit-input:focus, .notes-card .edit-textarea:focus {
+        border-color: white;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Checklist UI styles */
+    .hw-checkbox {
+        width: 22px;
+        height: 22px;
+        border: 2px solid #D1D5DB;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+        background: white;
+    }
+    .hw-checkbox:hover {
+        border-color: var(--primary-blue);
+        background: #EFF6FF;
+    }
+    .hw-checkbox.completed {
+        background: var(--primary-blue);
+        border-color: var(--primary-blue);
+    }
+    .hw-checkbox.completed::after {
+        content: '';
+        width: 5px;
+        height: 9px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+        display: block;
+        margin-top: -2px;
+    }
+    .hw-text.completed {
+        text-decoration: line-through;
+        color: var(--text-sec);
+        opacity: 0.7;
+    }
+    
+    /* Edit actions: add and remove items */
+    .btn-remove-item {
+        background: transparent;
+        border: none;
+        color: #EF4444;
+        cursor: pointer;
+        font-size: 0.95rem;
+        padding: 0.25rem;
+        border-radius: 50%;
+        transition: background 0.2s, color 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-remove-item:hover {
+        background: #FEE2E2;
+        color: #DC2626;
+    }
+    .notes-card .btn-remove-item {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .notes-card .btn-remove-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+        color: #FCA5A5;
+    }
+    
+    .btn-add-item {
+        background: transparent;
+        border: 1px dashed #D1D5DB;
+        color: var(--primary-blue);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        transition: all 0.2s;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+    .btn-add-item:hover {
+        background: #EFF6FF;
+        border-color: var(--primary-blue);
+    }
+    .notes-card .btn-add-item {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+    .notes-card .btn-add-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: white;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .spin {
+        display: inline-block;
+        animation: spin 2s linear infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.85; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="session-container">
+    
+    <!-- Processing Banner -->
+    {% if session.status == 'processing' %}
+    <div id="processing-banner" style="background: #FFFBEB; border: 1px solid #FEF3C7; border-radius: 16px; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 0.5rem; animation: pulse 2s infinite ease-in-out;">
+        <div style="background: #F59E0B; color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
+            <i class="bi bi-arrow-repeat spin" style="font-size: 1.3rem;"></i>
+        </div>
+        <div>
+            <h4 style="margin: 0 0 0.15rem 0; font-size: 0.95rem; color: #92400E; font-weight: 700;">Lumina is processing your class summary</h4>
+            <p style="margin: 0; font-size: 0.8rem; color: #B45309; line-height: 1.4;">Transcribing audio and generating AI study notes in the background. This page will update automatically when ready.</p>
+        </div>
+    </div>
+    {% endif %}
     
     <!-- Top Meta -->
     <div>
@@ -411,9 +635,34 @@
         <div class="session-badge">
             <i class="bi bi-journal-text"></i> Session Summary
         </div>
-        <h1 class="session-title">Advanced Quantum Mechanics</h1>
-        <p class="session-meta">October 24, 2024 • Professor Aris Thorne • Lecture Hall B</p>
-        <a href="#" class="btn-transcript">View Full Transcript</a>
+        <div class="session-title-container" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <h1 class="session-title" id="view-title" style="margin: 0;">{{ session.title }}</h1>
+            <button class="btn-edit" onclick="toggleEdit('title')" style="margin-top: -0.25rem;" title="Edit Title"><i class="bi bi-pencil"></i></button>
+        </div>
+        <div id="edit-container-title" style="display: none; width: 100%; max-width: 500px; margin-bottom: 0.5rem; margin-top: 0.5rem;">
+            <input type="text" id="input-title" class="edit-input" value="{{ session.title }}">
+            <div class="edit-controls">
+                <button class="btn-save" onclick="saveSection('title', this)"><i class="bi bi-check-lg"></i> Save</button>
+                <button class="btn-cancel" onclick="cancelEdit('title')"><i class="bi bi-x-lg"></i> Cancel</button>
+            </div>
+        </div>
+        <p class="session-meta" style="margin-top: 0.5rem;">{{ session.recorded_date.strftime('%B %d, %Y') }} • {{ course.professor or 'Professor' }} • {{ course.location or 'Location' }}</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="#" id="btn-view-transcript" class="btn-transcript" style="margin-bottom: 0;">View Full Transcript</a>
+            {% if session.audio_file_path %}
+            <a href="{{ url_for('main.download_audio', session_id=session.id) }}" class="btn-transcript" style="background: #10B981; color: white; margin-bottom: 0;" title="Download original audio recording">
+                <i class="bi bi-download"></i> Download Audio
+            </a>
+            {% endif %}
+            <button type="button" class="btn-transcript" style="background: #F59E0B; color: white; border: none; cursor: pointer; margin-bottom: 0; display: inline-flex; align-items: center; gap: 0.3rem;" onclick="confirmRegenerate()" title="Re-generate AI summaries from current transcript">
+                <i class="bi bi-arrow-clockwise"></i> Re-generate AI
+            </button>
+            <form action="{{ url_for('main.delete_session', session_id=session.id) }}" method="POST" class="confirm-delete-form" data-confirm="Are you sure you want to delete this session and ALL of its resources (audio, transcript, notes, and homework)? This action cannot be undone." style="margin: 0;">
+                <button type="submit" class="btn-transcript" style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; margin-bottom: 0; cursor: pointer;">
+                    <i class="bi bi-trash"></i> Delete Session
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Wrapping Content in Desktop Grid -->
@@ -429,7 +678,7 @@
                         </button>
                         <div class="audio-text">
                             <h4>Audio Recording</h4>
-                            <p>54:12 total duration</p>
+                            <p>{{ session.duration_seconds // 60 }}:{{ "%02d" % (session.duration_seconds % 60) }} total duration</p>
                         </div>
                     </div>
                     <div class="audio-speed">
@@ -437,6 +686,14 @@
                     </div>
                 </div>
                 
+                <!-- Real Audio Player or Fake Waveform -->
+                {% if session.audio_file_path %}
+                <div style="padding: 0.5rem 1rem 1rem 1rem;">
+                    <audio src="{{ url_for('static', filename='uploads/audio/' + session.audio_file_path) }}" controls style="width: 100%; height: 40px; outline: none;">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                {% else %}
                 <!-- Fake Waveform -->
                 <div class="waveform">
                     <div class="wave-bar active" style="height: 20%"></div>
@@ -448,69 +705,160 @@
                     <div class="wave-bar active" style="height: 70%"></div>
                     <div class="wave-bar light" style="height: 90%"></div>
                     <div class="wave-bar light" style="height: 60%"></div>
-                    <div class="wave-bar light" style="height: 30%"></div>
-                    <div class="wave-bar light" style="height: 80%"></div>
-                    <div class="wave-bar light" style="height: 70%"></div>
                     <div class="wave-bar light" style="height: 40%"></div>
-                    <div class="wave-bar light" style="height: 60%"></div>
-                    <div class="wave-bar light" style="height: 50%"></div>
-                    <div class="wave-bar light" style="height: 80%"></div>
                     <div class="wave-bar light" style="height: 30%"></div>
-                    
+                    <div class="wave-bar light" style="height: 70%"></div>
                     <div class="scrub-head">
                         <div class="scrub-time">18:42</div>
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             <!-- Main Topic -->
-            <div>
-                <div class="section-label">Main Topic</div>
-                <div class="topic-desc">
-                    Exploration of Schrödinger's wave equation and the transition from classical mechanics to quantum probability density.
+            {% set topic = session.summary_topics.first() %}
+            {% if topic %}
+            <div class="section-topic-wrapper">
+                <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <div class="section-label" style="margin-bottom: 0;">Main Topic</div>
+                    <button class="btn-edit" onclick="toggleEdit('topic')" title="Edit Topic"><i class="bi bi-pencil"></i></button>
                 </div>
-                <div class="topic-tags">
-                    <div class="topic-tag">Quantum Physics</div>
-                    <div class="topic-tag">Wave Equation</div>
+                
+                <!-- View Mode -->
+                <div id="view-container-topic">
+                    <div class="topic-desc" id="view-topic-desc">
+                        {{ topic.description }}
+                    </div>
+                    <div class="topic-tags" id="view-topic-tags">
+                        {% if topic.tags %}
+                            {% for tag in topic.tags.split(',') %}
+                            <div class="topic-tag">{{ tag.strip() }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Edit Mode -->
+                <div id="edit-container-topic" style="display: none;">
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Description</label>
+                        <textarea id="input-topic-desc" class="edit-textarea">{{ topic.description }}</textarea>
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Tags (comma-separated)</label>
+                        <input type="text" id="input-topic-tags" class="edit-input" value="{{ topic.tags or '' }}">
+                    </div>
+                    <div class="edit-controls">
+                        <button class="btn-save" onclick="saveSection('topic', this)"><i class="bi bi-check-lg"></i> Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit('topic')"><i class="bi bi-x-lg"></i> Cancel</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Class Summary -->
+            <div class="summary-card" id="summary-section" style="background: white; border-radius: 24px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <div class="section-label" style="margin-bottom: 0;">Class Summary</div>
+                    <button class="btn-edit" onclick="toggleEdit('class_summary')" title="Edit Class Summary"><i class="bi bi-pencil"></i></button>
+                </div>
+                
+                <!-- View Mode -->
+                <div id="view-container-class_summary">
+                    <p id="view-class_summary" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-main); margin: 0; white-space: pre-wrap;">{{ session.class_summary or 'No class summary available yet.' }}</p>
+                </div>
+
+                <!-- Edit Mode -->
+                <div id="edit-container-class_summary" style="display: none;">
+                    <textarea id="input-class_summary" class="edit-textarea" style="min-height: 120px; font-size: 0.95rem; line-height: 1.6; padding: 0.8rem; border-radius: 12px; border: 1px solid #E5E7EB; width: 100%; box-sizing: border-box; font-family: inherit;">{{ session.class_summary or '' }}</textarea>
+                    <div class="edit-controls">
+                        <button class="btn-save" onclick="saveSection('class_summary', this)"><i class="bi bi-check-lg"></i> Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit('class_summary')"><i class="bi bi-x-lg"></i> Cancel</button>
+                    </div>
                 </div>
             </div>
             
             <!-- Key Moments -->
             <div>
-                <div class="section-label" style="margin-bottom: 1.5rem;">Key Moments</div>
-                <div class="timeline">
-                    <div class="timeline-item">
+                <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                    <div class="section-label" style="margin-bottom: 0;">Key Moments</div>
+                    <button class="btn-edit" onclick="toggleEdit('key_moments')" title="Edit Key Moments"><i class="bi bi-pencil"></i></button>
+                </div>
+                
+                <!-- View Mode -->
+                <div id="view-container-key_moments" class="timeline">
+                    {% for km in session.key_moments %}
+                    <div class="timeline-item" {% if loop.last %}style="margin-bottom: 0;"{% endif %}>
                         <div class="timeline-header">
-                            <span class="time-badge">04:15</span>
-                            <span class="timeline-title">The Ultraviolet Catastrophe</span>
+                            <span class="time-badge">{{ "%02d" % (km.timestamp_seconds // 60) }}:{{ "%02d" % (km.timestamp_seconds % 60) }}</span>
+                            <span class="timeline-title" id="view-km-title-{{ km.id }}">{{ km.title }}</span>
                         </div>
-                        <p class="timeline-desc">Introduction to why classical physics failed to explain blackbody radiation.</p>
+                        <p class="timeline-desc" id="view-km-desc-{{ km.id }}">{{ km.description }}</p>
                     </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-header">
-                            <span class="time-badge">22:40</span>
-                            <span class="timeline-title">Operators & Observables</span>
-                        </div>
-                        <p class="timeline-desc">Detailed breakdown of how position and momentum operators interact.</p>
-                    </div>
-
+                    {% else %}
                     <div class="timeline-item" style="margin-bottom: 0;">
-                        <div class="timeline-header">
-                            <span class="time-badge">48:12</span>
-                            <span class="timeline-title">Summary of Lab #3 Requirements</span>
+                        <p class="timeline-desc">No key moments recorded.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Edit Mode -->
+                <div id="edit-container-key_moments" style="display: none;">
+                    <div id="edit-list-key_moments">
+                        {% for km in session.key_moments %}
+                        <div class="edit-km-item" id="edit-km-item-{{ km.id }}" style="margin-bottom: 1.25rem; border-bottom: 1px solid #F3F4F6; padding-bottom: 1rem; position: relative;">
+                            <button class="btn-remove-item" onclick="removeEditItem(this)" style="position: absolute; right: 0.5rem; top: 0.5rem;" title="Delete Key Moment"><i class="bi bi-trash"></i></button>
+                            <div style="display: grid; grid-template-columns: 1fr 90px; gap: 0.75rem; margin-bottom: 0.5rem; max-width: calc(100% - 35px);">
+                                <div>
+                                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Title</label>
+                                    <input type="text" id="input-km-title-{{ km.id }}" class="edit-input" value="{{ km.title }}">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Time (MM:SS)</label>
+                                    <input type="text" id="input-km-time-{{ km.id }}" class="edit-input" value="{{ "%02d" % (km.timestamp_seconds // 60) }}:{{ "%02d" % (km.timestamp_seconds % 60) }}" placeholder="00:00">
+                                </div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Description</label>
+                                <textarea id="input-km-desc-{{ km.id }}" class="edit-textarea">{{ km.description }}</textarea>
+                            </div>
                         </div>
-                        <p class="timeline-desc">Instructions for the upcoming experiment on electron diffraction.</p>
+                        {% endfor %}
+                    </div>
+                    <button class="btn-add-item" onclick="addNewKeyMomentItem()"><i class="bi bi-plus-lg"></i> Add Key Moment</button>
+                    <div class="edit-controls" style="margin-top: 0.75rem;">
+                        <button class="btn-save" onclick="saveSection('key_moments', this)"><i class="bi bi-check-lg"></i> Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit('key_moments')"><i class="bi bi-x-lg"></i> Cancel</button>
                     </div>
                 </div>
             </div>
 
             <!-- Study Group Note -->
-            <div class="study-group-note">
-                <div class="section-label">Study Group Note</div>
-                <p class="study-group-desc">
-                    "Hey, check the shared drive for the simulation we ran last semester, it helps with Problem 2!" - Sarah M.
-                </p>
+            <div class="study-group-note" id="study-group-card" {% if not session.study_group_note %}style="display: none;"{% endif %}>
+                <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <div class="section-label" style="margin-bottom: 0; color: var(--text-sec);">Study Group Note</div>
+                    <button class="btn-edit" onclick="toggleEdit('study_group')" title="Edit Study Group Note"><i class="bi bi-pencil"></i></button>
+                </div>
+                
+                <!-- View Mode -->
+                <div id="view-container-study_group">
+                    <p class="study-group-desc" id="view-study_group" style="margin: 0;">{{ session.study_group_note or '' }}</p>
+                </div>
+            </div>
+
+            <!-- Study Group Edit Mode -->
+            <div class="study-group-note" id="edit-container-study_group" style="display: none; background: #F3F4F6; border-radius: 20px; padding: 1.5rem;">
+                <div class="section-label" style="color: var(--text-sec); margin-bottom: 0.5rem;">Edit Study Group Note</div>
+                <textarea id="input-study_group" class="edit-textarea" placeholder="Add study group tips, homework comments, shared drive links..." style="min-height: 80px; font-size: 0.85rem; padding: 0.6rem; border-radius: 12px; border: 1px solid #D1D5DB; width: 100%; box-sizing: border-box; font-family: inherit;">{{ session.study_group_note or '' }}</textarea>
+                <div class="edit-controls">
+                    <button class="btn-save" onclick="saveSection('study_group', this)"><i class="bi bi-check-lg"></i> Save</button>
+                    <button class="btn-cancel" onclick="cancelEdit('study_group')"><i class="bi bi-x-lg"></i> Cancel</button>
+                </div>
+            </div>
+
+            <!-- Add Study Group Note Button -->
+            <div id="add-study-group-container" style="text-align: center; margin-top: 0.5rem; {% if session.study_group_note %}display: none;{% endif %}">
+                <button class="btn-add-item" onclick="toggleEdit('study_group')" style="background: white; border: 1px dashed #D1D5DB; color: var(--primary-blue); box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: inline-flex; width: auto; padding: 0.5rem 1.25rem;"><i class="bi bi-chat-left-text"></i> Add Study Group Note</button>
             </div>
         </div>
 
@@ -518,49 +866,1192 @@
         <div class="session-right-col">
             <!-- Important Notes -->
             <div class="notes-card">
-                <div class="section-label">Important Notes</div>
-                
-                <div class="note-item">
-                    <i class="bi bi-lightbulb"></i>
-                    <div>Focus on normalized wave functions for the midterm exam.</div>
+                <div class="section-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <div class="section-label" style="margin-bottom: 0;">Important Notes</div>
+                    <button class="btn-edit" onclick="toggleEdit('notes')" title="Edit Notes"><i class="bi bi-pencil"></i></button>
                 </div>
                 
-                <div class="note-item" style="margin-bottom: 0;">
-                    <i class="bi bi-hash"></i>
-                    <div>δ (x, t) must be continuous everywhere.</div>
+                {% set regular_notes = [] %}
+                {% set prof_tips = [] %}
+                
+                {% for note in session.study_notes %}
+                    {% if note.is_professor_tip %}
+                        {% set _ = prof_tips.append(note) %}
+                    {% else %}
+                        {% set _ = regular_notes.append(note) %}
+                    {% endif %}
+                {% endfor %}
+                
+                <!-- View Mode -->
+                <div id="view-container-notes">
+                    {% for note in regular_notes %}
+                    <div class="note-item" {% if loop.last and not prof_tips %}style="margin-bottom: 0;"{% endif %}>
+                        <i class="bi bi-lightbulb"></i>
+                        <div id="view-note-text-{{ note.id }}">{{ note.note_text }}</div>
+                    </div>
+                    {% else %}
+                    <div class="note-item" {% if not prof_tips %}style="margin-bottom: 0;"{% endif %}>
+                        <i class="bi bi-journal-text"></i>
+                        <div>No important notes for this session.</div>
+                    </div>
+                    {% endfor %}
+
+                    {% if prof_tips %}
+                    <div class="notes-divider"></div>
+                    {% for tip in prof_tips %}
+                    <div class="prof-tip-label">Professor Tip</div>
+                    <div class="prof-tip-text" id="view-note-text-{{ tip.id }}">"{{ tip.note_text }}"</div>
+                    {% endfor %}
+                    {% endif %}
                 </div>
 
-                <div class="notes-divider"></div>
-
-                <div class="prof-tip-label">Professor Tip</div>
-                <div class="prof-tip-text">"The math is the map, not the territory."</div>
+                <!-- Edit Mode -->
+                <div id="edit-container-notes" style="display: none;">
+                    <div id="edit-list-notes" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        {% for note in regular_notes %}
+                        <div class="edit-note-item" id="edit-note-item-{{ note.id }}" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="flex-grow: 1;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.7); display: block; margin-bottom: 0.25rem;"><i class="bi bi-lightbulb"></i> Note Text</label>
+                                <input type="text" id="input-note-text-{{ note.id }}" class="edit-input" value="{{ note.note_text }}" data-prof-tip="false">
+                            </div>
+                            <button class="btn-remove-item" onclick="removeEditItem(this)" style="margin-top: 1.1rem;" title="Delete Note"><i class="bi bi-trash"></i></button>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if prof_tips %}
+                        {% for tip in prof_tips %}
+                        <div class="edit-note-item" id="edit-note-item-{{ tip.id }}" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="flex-grow: 1;">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.7); display: block; margin-bottom: 0.25rem;"><i class="bi bi-star-fill"></i> Professor Tip Text</label>
+                                <input type="text" id="input-note-text-{{ tip.id }}" class="edit-input" value="{{ tip.note_text }}" data-prof-tip="true">
+                            </div>
+                            <button class="btn-remove-item" onclick="removeEditItem(this)" style="margin-top: 1.1rem;" title="Delete Note"><i class="bi bi-trash"></i></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                        <button class="btn-add-item" onclick="addNewNoteItem(false)" style="flex: 1; margin: 0;"><i class="bi bi-plus-lg"></i> Add Note</button>
+                        <button class="btn-add-item" onclick="addNewNoteItem(true)" style="flex: 1; margin: 0; border-color: rgba(255,255,255,0.5);"><i class="bi bi-star-fill"></i> Add Prof Tip</button>
+                    </div>
+                    
+                    <div class="edit-controls">
+                        <button class="btn-save" onclick="saveSection('notes', this)"><i class="bi bi-check-lg"></i> Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit('notes')"><i class="bi bi-x-lg"></i> Cancel</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Homework -->
             <div>
-                <div class="homework-header" style="margin-bottom: 1rem;">
+                <div class="homework-header" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
                     <div class="section-label" style="margin-bottom: 0;">Homework</div>
-                    <div class="hw-due-badge">Due in 2 Days</div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        {% if session.homeworks.first() %}
+                        <div id="view-hw-due-top" class="hw-due-badge">{{ session.homeworks.first().due_date_extracted or 'Due Soon' }}</div>
+                        {% endif %}
+                        <button class="btn-edit" onclick="toggleEdit('homeworks')" title="Edit Homework"><i class="bi bi-pencil"></i></button>
+                    </div>
                 </div>
                 
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <div class="hw-item">
-                        <div class="hw-circle"></div>
-                        <div class="hw-text">Read Chapter 5: Wave Mechanics</div>
+                <!-- View Mode -->
+                <div id="view-container-homeworks" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    {% for hw in session.homeworks %}
+                    <div class="hw-item" id="hw-item-{{ hw.id }}">
+                        <div class="hw-checkbox {% if hw.is_completed %}completed{% endif %}" onclick="toggleHomeworkCompleted({{ hw.id }}, this)" id="hw-check-{{ hw.id }}"></div>
+                        <div style="flex-grow: 1; cursor: pointer;" onclick="document.getElementById('hw-check-{{ hw.id }}').click()">
+                            <div class="hw-text {% if hw.is_completed %}completed{% endif %}" id="view-hw-desc-{{ hw.id }}">{{ hw.task_description }}</div>
+                            <small style="font-size: 0.75rem; color: var(--text-sec); display: block;" id="view-hw-due-{{ hw.id }}">Due: {{ hw.due_date_extracted or 'TBD' }}</small>
+                        </div>
                     </div>
+                    {% else %}
                     <div class="hw-item">
-                        <div class="hw-circle"></div>
-                        <div class="hw-text">Complete Problem Set #4 (Even Nos.)</div>
+                        <div class="hw-text" style="color: var(--text-sec); font-weight: normal;">No homework detected.</div>
                     </div>
-                    <div class="hw-item">
-                        <div class="hw-circle"></div>
-                        <div class="hw-text">Pre-read Lab Instructions for Wed</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Edit Mode -->
+                <div id="edit-container-homeworks" style="display: none;">
+                    <div id="edit-list-homeworks" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        {% for hw in session.homeworks %}
+                        <div class="edit-hw-item" id="edit-hw-item-{{ hw.id }}" style="background: white; border-radius: 16px; padding: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 0.5rem; position: relative;">
+                            <button class="btn-remove-item" onclick="removeEditItem(this)" style="position: absolute; right: 0.5rem; top: 0.5rem;" title="Delete Task"><i class="bi bi-trash"></i></button>
+                            <div style="max-width: calc(100% - 30px);">
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Task Description</label>
+                                <input type="text" id="input-hw-desc-{{ hw.id }}" class="edit-input" value="{{ hw.task_description }}">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Due Date / Timeline</label>
+                                <input type="date" id="input-hw-due-{{ hw.id }}" class="edit-input edit-date-picker" data-raw-val="{{ hw.due_date_extracted or '' }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="btn-add-item" onclick="addNewHomeworkItem()"><i class="bi bi-plus-lg"></i> Add Homework</button>
+                    <div class="edit-controls" style="margin-top: 0.75rem;">
+                        <button class="btn-save" onclick="saveSection('homeworks', this)"><i class="bi bi-check-lg"></i> Save</button>
+                        <button class="btn-cancel" onclick="cancelEdit('homeworks')"><i class="bi bi-x-lg"></i> Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Transcript Modal -->
+<div id="transcriptModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h2 style="margin: 0;">Full Transcript</h2>
+            <div id="transcript-edit-actions" style="display: none; align-items: center; gap: 0.5rem;">
+                <button class="btn-edit" id="btn-retranslate-transcript" onclick="openRetranslateChoice()" style="background: #EFF6FF; color: var(--primary-blue); border: 1px solid #BFDBFE; border-radius: 12px; padding: 0.4rem 0.8rem; font-weight: 600; font-size: 0.85rem;" title="Re-translate Transcript"><i class="bi bi-translate"></i> Re-translate</button>
+                <button class="btn-edit" id="btn-edit-transcript" onclick="toggleEdit('transcript')" title="Edit Transcript"><i class="bi bi-pencil"></i> Edit</button>
+                <div id="edit-controls-transcript" style="display: none; gap: 0.5rem;">
+                    <button class="btn-save" onclick="saveSection('transcript', this)"><i class="bi bi-check-lg"></i> Save</button>
+                    <button class="btn-cancel" onclick="cancelEdit('transcript')"><i class="bi bi-x-lg"></i> Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="transcript-loader" style="text-align: center; padding: 2rem; display: none;">
+            <div class="spinner-border text-primary" role="status" style="display: inline-block; width: 2rem; height: 2rem; vertical-align: text-bottom; border: 0.25em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite;"></div>
+            <p style="margin-top: 1rem; color: #6B7280;">Translating to English via Deep-Translator...</p>
+        </div>
+        
+        <div id="transcript-content" style="display: none; margin-top: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                    <h4 style="color: var(--primary-blue); margin-bottom: 0.5rem;"><i class="bi bi-mic"></i> Original (Korean)</h4>
+                    <!-- View Mode -->
+                    <div id="transcript-original" style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.6; border: 1px solid #e5e7eb; max-height: 60vh; overflow-y: auto;"></div>
+                    <!-- Edit Mode -->
+                    <textarea id="input-transcript-original" class="edit-textarea" style="display: none; min-height: 50vh; width: 100%; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border-radius: 8px; border: 1px solid #e5e7eb; padding: 1.5rem; box-sizing: border-box;"></textarea>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-blue); margin-bottom: 0.5rem;"><i class="bi bi-translate"></i> English Translation</h4>
+                    <!-- View Mode -->
+                    <div id="transcript-translated" style="background: #EFF6FF; padding: 1.5rem; border-radius: 8px; font-size: 0.95rem; white-space: pre-wrap; line-height: 1.6; border: 1px solid #BFDBFE; max-height: 60vh; overflow-y: auto;"></div>
+                    <!-- Edit Mode -->
+                    <textarea id="input-transcript-translated" class="edit-textarea" style="display: none; min-height: 50vh; width: 100%; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border-radius: 8px; border: 1px solid #BFDBFE; padding: 1.5rem; box-sizing: border-box; background: #EFF6FF; color: var(--text-main);"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Retranslate Choice Modal -->
+<div id="retranslateChoiceModal" class="modal" style="display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1100;">
+    <div class="modal-content" style="max-width: 450px; text-align: center; padding: 2.5rem; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); background: white; margin: auto;">
+        <div style="background: #EFF6FF; color: var(--primary-blue); width: 56px; height: 56px; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 1.25rem auto; font-size: 1.75rem;">
+            <i class="bi bi-translate"></i>
+        </div>
+        <h3 style="margin: 0 0 0.5rem 0; color: var(--text-main); font-weight: 800; font-size: 1.25rem;">Re-translate Transcript</h3>
+        <p style="color: var(--text-sec); font-size: 0.875rem; margin: 0 0 1.5rem 0; line-height: 1.5;">
+            Choose how you want to re-translate the session. You can re-transcribe directly from the original audio or translate from the current written text.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <button id="btn-retranslate-audio" onclick="submitRetranslate('audio')" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: none; background: var(--primary-blue); color: white; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="bi bi-mic"></i> Re-transcribe & Translate from Audio
+            </button>
+            <button id="btn-retranslate-text" onclick="submitRetranslate('text')" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid #BFDBFE; background: #EFF6FF; color: var(--primary-blue); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="bi bi-file-earmark-text"></i> Translate from Current Text
+            </button>
+            <button onclick="closeRetranslateChoice()" style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: none; background: #F3F4F6; color: #4B5563; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Basic Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+}
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+}
+.close-modal {
+    color: #9CA3AF;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+.close-modal:hover {
+    color: #111827;
+}
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    #transcript-content > div {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Date helpers
+function tryFormatDate(dateStr) {
+    if (!dateStr) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+    const parsed = Date.parse(dateStr);
+    if (!isNaN(parsed)) {
+        const d = new Date(parsed);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+    return '';
+}
+
+function initDatePickerValues() {
+    const pickers = document.querySelectorAll('.edit-date-picker');
+    pickers.forEach(picker => {
+        const raw = picker.dataset.rawVal;
+        if (raw) {
+            picker.value = tryFormatDate(raw);
+        }
+    });
+}
+
+// Global Toast Alert Helper
+function showToast(message, category = 'success') {
+    let container = document.getElementById('flash-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'flash-container';
+        container.style.position = 'fixed';
+        container.style.top = '20px';
+        container.style.left = '50%';
+        container.style.transform = 'translateX(-50%)';
+        container.style.zIndex = '9999';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '10px';
+        container.style.width = '90%';
+        container.style.maxWidth = '400px';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `custom-toast toast-${category}`;
+    const bg = category === 'success' ? '#10B981' : (category === 'error' ? '#EF4444' : '#3B82F6');
+    toast.style.background = bg;
+    toast.style.color = 'white';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    toast.style.display = 'flex';
+    toast.style.justifyContent = 'space-between';
+    toast.style.alignItems = 'center';
+    toast.style.fontSize = '0.9rem';
+    toast.style.fontWeight = '500';
+    toast.style.opacity = '0';
+    toast.style.animation = 'slideDown 0.3s forwards';
+    
+    toast.innerHTML = `
+        <span>${message}</span>
+        <button type="button" onclick="this.parentElement.remove()" style="background: transparent; border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 0; margin-left: 10px; opacity: 0.8;">&times;</button>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+
+// Global Functions for Edit Mode
+window.toggleEdit = function(section) {
+    if (section === 'title') {
+        document.getElementById('view-title').parentElement.style.display = 'none';
+        document.getElementById('edit-container-title').style.display = 'block';
+        document.getElementById('input-title').focus();
+    } else if (section === 'topic') {
+        document.getElementById('view-container-topic').style.display = 'none';
+        document.getElementById('edit-container-topic').style.display = 'block';
+        document.getElementById('input-topic-desc').focus();
+    } else if (section === 'key_moments') {
+        rebuildKeyMomentsEditFromView();
+        document.getElementById('view-container-key_moments').style.display = 'none';
+        document.getElementById('edit-container-key_moments').style.display = 'block';
+    } else if (section === 'notes') {
+        rebuildNotesEditFromView();
+        document.getElementById('view-container-notes').style.display = 'none';
+        document.getElementById('edit-container-notes').style.display = 'block';
+    } else if (section === 'homeworks') {
+        rebuildHomeworksEditFromView();
+        document.getElementById('view-container-homeworks').style.display = 'none';
+        document.getElementById('edit-container-homeworks').style.display = 'block';
+    } else if (section === 'class_summary') {
+        document.getElementById('view-container-class_summary').style.display = 'none';
+        document.getElementById('edit-container-class_summary').style.display = 'block';
+        document.getElementById('input-class_summary').focus();
+    } else if (section === 'study_group') {
+        const addBtn = document.getElementById('add-study-group-container');
+        const card = document.getElementById('study-group-card');
+        if (addBtn) addBtn.style.display = 'none';
+        if (card) card.style.display = 'none';
+        document.getElementById('edit-container-study_group').style.display = 'block';
+        document.getElementById('input-study_group').focus();
+    } else if (section === 'transcript') {
+        document.getElementById('transcript-original').style.display = 'none';
+        document.getElementById('transcript-translated').style.display = 'none';
+        document.getElementById('input-transcript-original').style.display = 'block';
+        document.getElementById('input-transcript-translated').style.display = 'block';
+        
+        document.getElementById('btn-edit-transcript').style.display = 'none';
+        const retransBtn = document.getElementById('btn-retranslate-transcript');
+        if (retransBtn) retransBtn.style.display = 'none';
+        document.getElementById('edit-controls-transcript').style.display = 'flex';
+    }
+};
+
+window.cancelEdit = function(section) {
+    if (section === 'title') {
+        document.getElementById('input-title').value = document.getElementById('view-title').textContent.trim();
+        document.getElementById('view-title').parentElement.style.display = 'flex';
+        document.getElementById('edit-container-title').style.display = 'none';
+    } else if (section === 'topic') {
+        document.getElementById('input-topic-desc').value = document.getElementById('view-topic-desc').innerText.trim();
+        const tagElements = document.getElementById('view-topic-tags').getElementsByClassName('topic-tag');
+        document.getElementById('input-topic-tags').value = Array.from(tagElements).map(el => el.textContent.trim()).join(', ');
+        
+        document.getElementById('view-container-topic').style.display = 'block';
+        document.getElementById('edit-container-topic').style.display = 'none';
+    } else if (section === 'notes') {
+        document.getElementById('view-container-notes').style.display = 'block';
+        document.getElementById('edit-container-notes').style.display = 'none';
+    } else if (section === 'key_moments') {
+        document.getElementById('view-container-key_moments').style.display = 'block';
+        document.getElementById('edit-container-key_moments').style.display = 'none';
+    } else if (section === 'homeworks') {
+        document.getElementById('view-container-homeworks').style.display = 'flex';
+        document.getElementById('edit-container-homeworks').style.display = 'none';
+    } else if (section === 'class_summary') {
+        document.getElementById('input-class_summary').value = document.getElementById('view-class_summary').textContent.trim();
+        document.getElementById('view-container-class_summary').style.display = 'block';
+        document.getElementById('edit-container-class_summary').style.display = 'none';
+    } else if (section === 'study_group') {
+        const val = document.getElementById('view-study_group').textContent.trim();
+        document.getElementById('input-study_group').value = val;
+        
+        document.getElementById('edit-container-study_group').style.display = 'none';
+        const addBtn = document.getElementById('add-study-group-container');
+        const card = document.getElementById('study-group-card');
+        if (!val) {
+            if (addBtn) addBtn.style.display = 'block';
+            if (card) card.style.display = 'none';
+        } else {
+            if (addBtn) addBtn.style.display = 'none';
+            if (card) card.style.display = 'block';
+        }
+    } else if (section === 'transcript') {
+        document.getElementById('input-transcript-original').value = document.getElementById('transcript-original').textContent;
+        document.getElementById('input-transcript-translated').value = document.getElementById('transcript-translated').textContent;
+        
+        document.getElementById('transcript-original').style.display = 'block';
+        document.getElementById('transcript-translated').style.display = 'block';
+        document.getElementById('input-transcript-original').style.display = 'none';
+        document.getElementById('input-transcript-translated').style.display = 'none';
+        
+        document.getElementById('btn-edit-transcript').style.display = 'block';
+        const retransBtn = document.getElementById('btn-retranslate-transcript');
+        if (retransBtn) retransBtn.style.display = 'inline-block';
+        document.getElementById('edit-controls-transcript').style.display = 'none';
+    }
+};
+
+// Rebuild Edit views from View DOM
+function rebuildNotesEditFromView() {
+    const list = document.getElementById('edit-list-notes');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    const viewContainer = document.getElementById('view-container-notes');
+    if (!viewContainer) return;
+    
+    const noteItems = viewContainer.querySelectorAll('[id^="view-note-text-"]');
+    noteItems.forEach(item => {
+        const id = item.id.replace('view-note-text-', '');
+        const isProfTip = item.classList.contains('prof-tip-text') || item.parentElement.classList.contains('prof-tip-text') || item.closest('.prof-tip-text') !== null;
+        let text = item.textContent.trim();
+        if (isProfTip) {
+            text = text.replace(/^"|"$/g, '');
+        }
+        
+        const div = document.createElement('div');
+        div.className = 'edit-note-item';
+        div.id = `edit-note-item-${id}`;
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '0.5rem';
+        
+        const icon = isProfTip ? 'bi-star-fill' : 'bi-lightbulb';
+        const label = isProfTip ? 'Professor Tip Text' : 'Note Text';
+        
+        div.innerHTML = `
+            <div style="flex-grow: 1;">
+                <label style="font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.7); display: block; margin-bottom: 0.25rem;"><i class="bi ${icon}"></i> ${label}</label>
+                <input type="text" id="input-note-text-${id}" class="edit-input" value="${text}" data-prof-tip="${isProfTip}">
+            </div>
+            <button class="btn-remove-item" onclick="removeEditItem(this)" style="margin-top: 1.1rem;" title="Delete Note"><i class="bi bi-trash"></i></button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function rebuildHomeworksEditFromView() {
+    const list = document.getElementById('edit-list-homeworks');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    const viewContainer = document.getElementById('view-container-homeworks');
+    if (!viewContainer) return;
+    
+    const hwItems = viewContainer.querySelectorAll('.hw-item');
+    hwItems.forEach(item => {
+        const idAttr = item.id;
+        if (!idAttr) return;
+        const id = idAttr.replace('hw-item-', '');
+        
+        const descEl = document.getElementById(`view-hw-desc-${id}`);
+        const dueEl = document.getElementById(`view-hw-due-${id}`);
+        if (!descEl || !dueEl) return;
+        
+        const desc = descEl.textContent.trim();
+        const due = dueEl.textContent.replace('Due: ', '').trim();
+        
+        const div = document.createElement('div');
+        div.className = 'edit-hw-item';
+        div.id = `edit-hw-item-${id}`;
+        div.style.background = 'white';
+        div.style.borderRadius = '16px';
+        div.style.padding = '1rem';
+        div.style.boxShadow = '0 4px 15px rgba(0,0,0,0.02)';
+        div.style.display = 'flex';
+        div.style.flexDirection = 'column';
+        div.style.gap = '0.5rem';
+        div.style.position = 'relative';
+        
+        div.innerHTML = `
+            <button class="btn-remove-item" onclick="removeEditItem(this)" style="position: absolute; right: 0.5rem; top: 0.5rem;" title="Delete Task"><i class="bi bi-trash"></i></button>
+            <div style="max-width: calc(100% - 30px);">
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Task Description</label>
+                <input type="text" id="input-hw-desc-${id}" class="edit-input" value="${desc}">
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Due Date / Timeline</label>
+                <input type="date" id="input-hw-due-${id}" class="edit-input edit-date-picker" data-raw-val="${due === 'TBD' ? '' : due}">
+            </div>
+        `;
+        list.appendChild(div);
+    });
+    initDatePickerValues();
+}
+
+function rebuildKeyMomentsEditFromView() {
+    const list = document.getElementById('edit-list-key_moments');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    const viewContainer = document.getElementById('view-container-key_moments');
+    if (!viewContainer) return;
+    
+    const kmItems = viewContainer.querySelectorAll('.timeline-item');
+    kmItems.forEach(item => {
+        const titleEl = item.querySelector('[id^="view-km-title-"]');
+        if (!titleEl) return;
+        const id = titleEl.id.replace('view-km-title-', '');
+        
+        const descEl = document.getElementById(`view-km-desc-${id}`);
+        if (!descEl) return;
+        
+        const title = titleEl.textContent.trim();
+        const desc = descEl.textContent.trim();
+        const timeBadge = item.querySelector('.time-badge').textContent.trim();
+        
+        const div = document.createElement('div');
+        div.className = 'edit-km-item';
+        div.id = `edit-km-item-${id}`;
+        div.style.marginBottom = '1.25rem';
+        div.style.borderBottom = '1px solid #F3F4F6';
+        div.style.paddingBottom = '1rem';
+        div.style.position = 'relative';
+        
+        div.innerHTML = `
+            <button class="btn-remove-item" onclick="removeEditItem(this)" style="position: absolute; right: 0.5rem; top: 0.5rem;" title="Delete Key Moment"><i class="bi bi-trash"></i></button>
+            <div style="display: grid; grid-template-columns: 1fr 90px; gap: 0.75rem; margin-bottom: 0.5rem; max-width: calc(100% - 35px);">
+                <div>
+                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Title</label>
+                    <input type="text" id="input-km-title-${id}" class="edit-input" value="${title}">
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Time (MM:SS)</label>
+                    <input type="text" id="input-km-time-${id}" class="edit-input" value="${timeBadge}" placeholder="00:00">
+                </div>
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Description</label>
+                <textarea id="input-km-desc-${id}" class="edit-textarea">${desc}</textarea>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// Add/remove item dynamically
+let newNotesCount = 0;
+window.addNewNoteItem = function(isProfTip) {
+    newNotesCount++;
+    const id = `new-${newNotesCount}`;
+    const container = document.getElementById('edit-list-notes');
+    if (!container) return;
+    
+    const div = document.createElement('div');
+    div.className = 'edit-note-item';
+    div.id = `edit-note-item-${id}`;
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.gap = '0.5rem';
+    
+    const icon = isProfTip ? 'bi-star-fill' : 'bi-lightbulb';
+    const label = isProfTip ? 'Professor Tip Text' : 'Note Text';
+    
+    div.innerHTML = `
+        <div style="flex-grow: 1;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.7); display: block; margin-bottom: 0.25rem;"><i class="bi ${icon}"></i> ${label} (New)</label>
+            <input type="text" id="input-note-text-${id}" class="edit-input" value="" data-prof-tip="${isProfTip}">
+        </div>
+        <button class="btn-remove-item" onclick="removeEditItem(this)" style="margin-top: 1.1rem;" title="Delete Note"><i class="bi bi-trash"></i></button>
+    `;
+    container.appendChild(div);
+    document.getElementById(`input-note-text-${id}`).focus();
+};
+
+let newHwCount = 0;
+window.addNewHomeworkItem = function() {
+    newHwCount++;
+    const id = `new-${newHwCount}`;
+    const container = document.getElementById('edit-list-homeworks');
+    if (!container) return;
+    
+    const div = document.createElement('div');
+    div.className = 'edit-hw-item';
+    div.id = `edit-hw-item-${id}`;
+    div.style.background = 'white';
+    div.style.borderRadius = '16px';
+    div.style.padding = '1rem';
+    div.style.boxShadow = '0 4px 15px rgba(0,0,0,0.02)';
+    div.style.display = 'flex';
+    div.style.flexDirection = 'column';
+    div.style.gap = '0.5rem';
+    div.style.position = 'relative';
+    
+    div.innerHTML = `
+        <button class="btn-remove-item" onclick="removeEditItem(this)" style="position: absolute; right: 0.5rem; top: 0.5rem;" title="Delete Task"><i class="bi bi-trash"></i></button>
+        <div style="max-width: calc(100% - 30px);">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Task Description (New)</label>
+            <input type="text" id="input-hw-desc-${id}" class="edit-input" value="">
+        </div>
+        <div>
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Due Date / Timeline</label>
+            <input type="date" id="input-hw-due-${id}" class="edit-input edit-date-picker" data-raw-val="">
+        </div>
+    `;
+    container.appendChild(div);
+    document.getElementById(`input-hw-desc-${id}`).focus();
+};
+
+let newKmCount = 0;
+window.addNewKeyMomentItem = function() {
+    newKmCount++;
+    const id = `new-${newKmCount}`;
+    const container = document.getElementById('edit-list-key_moments');
+    if (!container) return;
+    
+    const div = document.createElement('div');
+    div.className = 'edit-km-item';
+    div.id = `edit-km-item-${id}`;
+    div.style.marginBottom = '1.25rem';
+    div.style.borderBottom = '1px solid #F3F4F6';
+    div.style.paddingBottom = '1rem';
+    div.style.position = 'relative';
+    
+    div.innerHTML = `
+        <button class="btn-remove-item" onclick="removeEditItem(this)" style="position: absolute; right: 0.5rem; top: 0.5rem;" title="Delete Key Moment"><i class="bi bi-trash"></i></button>
+        <div style="display: grid; grid-template-columns: 1fr 90px; gap: 0.75rem; margin-bottom: 0.5rem; max-width: calc(100% - 35px);">
+            <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Title (New)</label>
+                <input type="text" id="input-km-title-${id}" class="edit-input" value="">
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Time (MM:SS)</label>
+                <input type="text" id="input-km-time-${id}" class="edit-input" value="00:00" placeholder="00:00">
+            </div>
+        </div>
+        <div>
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 0.25rem;">Description</label>
+            <textarea id="input-km-desc-${id}" class="edit-textarea"></textarea>
+        </div>
+    `;
+    container.appendChild(div);
+    document.getElementById(`input-km-title-${id}`).focus();
+};
+
+window.removeEditItem = function(btn) {
+    const item = btn.closest('.edit-note-item, .edit-hw-item, .edit-km-item');
+    if (item) {
+        item.remove();
+    }
+};
+
+// Save a section to backend
+window.saveSection = function(section, btn) {
+    const data = { section: section };
+    
+    if (section === 'title') {
+        data.title = document.getElementById('input-title').value;
+    } else if (section === 'topic') {
+        data.topic_description = document.getElementById('input-topic-desc').value;
+        data.topic_tags = document.getElementById('input-topic-tags').value;
+    } else if (section === 'key_moments') {
+        const kmItems = document.querySelectorAll('#edit-list-key_moments .edit-km-item');
+        data.key_moments = Array.from(kmItems).map(item => {
+            const id = item.id.replace('edit-km-item-', '');
+            return {
+                id: id,
+                title: document.getElementById(`input-km-title-${id}`).value,
+                timestamp: document.getElementById(`input-km-time-${id}`).value,
+                description: document.getElementById(`input-km-desc-${id}`).value
+            };
+        });
+    } else if (section === 'notes') {
+        const noteItems = document.querySelectorAll('#edit-list-notes .edit-note-item');
+        data.notes = Array.from(noteItems).map(item => {
+            const id = item.id.replace('edit-note-item-', '');
+            const input = document.getElementById(`input-note-text-${id}`);
+            return {
+                id: id,
+                note_text: input.value,
+                is_professor_tip: input.dataset.profTip === 'true'
+            };
+        });
+    } else if (section === 'homeworks') {
+        const hwItems = document.querySelectorAll('#edit-list-homeworks .edit-hw-item');
+        data.homeworks = Array.from(hwItems).map(item => {
+            const id = item.id.replace('edit-hw-item-', '');
+            return {
+                id: id,
+                task_description: document.getElementById(`input-hw-desc-${id}`).value,
+                due_date_extracted: document.getElementById(`input-hw-due-${id}`).value
+            };
+        });
+    } else if (section === 'class_summary') {
+        data.class_summary = document.getElementById('input-class_summary').value;
+    } else if (section === 'study_group') {
+        data.study_group_note = document.getElementById('input-study_group').value;
+    } else if (section === 'transcript') {
+        data.raw_transcript = document.getElementById('input-transcript-original').value;
+        data.translated_transcript = document.getElementById('input-transcript-translated').value;
+    }
+    
+    // UI feedback for saving
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="width: 0.8rem; height: 0.8rem; border: 0.15em solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: spinner-border .75s linear infinite; margin-right: 4px;"></span> Saving...';
+    
+    fetch("{{ url_for('main.update_session_fields', session_id=session.id) }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(resData => {
+        if (resData.status === 'success') {
+            showToast('Changes saved successfully!', 'success');
+            
+            // Re-render View Mode DOM elements based on section
+            if (section === 'title') {
+                document.getElementById('view-title').textContent = data.title;
+                cancelEdit('title');
+            } else if (section === 'topic') {
+                document.getElementById('view-topic-desc').textContent = data.topic_description;
+                const viewTags = document.getElementById('view-topic-tags');
+                viewTags.innerHTML = '';
+                if (data.topic_tags) {
+                    data.topic_tags.split(',').forEach(tag => {
+                        const trimmed = tag.trim();
+                        if (trimmed) {
+                            const badge = document.createElement('div');
+                            badge.className = 'topic-tag';
+                            badge.textContent = trimmed;
+                            viewTags.appendChild(badge);
+                        }
+                    });
+                }
+                cancelEdit('topic');
+            } else if (section === 'key_moments') {
+                const items = resData.items;
+                const viewContainer = document.getElementById('view-container-key_moments');
+                viewContainer.innerHTML = '';
+                if (items.length === 0) {
+                    viewContainer.innerHTML = '<div class="timeline-item" style="margin-bottom: 0;"><p class="timeline-desc">No key moments recorded.</p></div>';
+                } else {
+                    items.forEach((km, idx) => {
+                        const isLast = idx === items.length - 1;
+                        const min = String(Math.floor(km.timestamp_seconds / 60)).padStart(2, '0');
+                        const sec = String(km.timestamp_seconds % 60).padStart(2, '0');
+                        const formattedTime = `${min}:${sec}`;
+                        
+                        const div = document.createElement('div');
+                        div.className = 'timeline-item';
+                        if (isLast) div.style.marginBottom = '0';
+                        div.innerHTML = `
+                            <div class="timeline-header">
+                                <span class="time-badge">${formattedTime}</span>
+                                <span class="timeline-title" id="view-km-title-${km.id}">${km.title}</span>
+                            </div>
+                            <p class="timeline-desc" id="view-km-desc-${km.id}">${km.description}</p>
+                        `;
+                        viewContainer.appendChild(div);
+                    });
+                }
+                cancelEdit('key_moments');
+            } else if (section === 'notes') {
+                const items = resData.items;
+                const viewContainer = document.getElementById('view-container-notes');
+                viewContainer.innerHTML = '';
+                
+                const regularNotes = items.filter(n => !n.is_professor_tip);
+                const profTips = items.filter(n => n.is_professor_tip);
+                
+                if (regularNotes.length === 0) {
+                    const div = document.createElement('div');
+                    div.className = 'note-item';
+                    if (profTips.length === 0) div.style.marginBottom = '0';
+                    div.innerHTML = `
+                        <i class="bi bi-journal-text"></i>
+                        <div>No important notes for this session.</div>
+                    `;
+                    viewContainer.appendChild(div);
+                } else {
+                    regularNotes.forEach((note, idx) => {
+                        const isLast = idx === regularNotes.length - 1;
+                        const div = document.createElement('div');
+                        div.className = 'note-item';
+                        if (isLast && profTips.length === 0) div.style.marginBottom = '0';
+                        div.innerHTML = `
+                            <i class="bi bi-lightbulb"></i>
+                            <div id="view-note-text-${note.id}">${note.note_text}</div>
+                        `;
+                        viewContainer.appendChild(div);
+                    });
+                }
+                
+                if (profTips.length > 0) {
+                    const divider = document.createElement('div');
+                    divider.className = 'notes-divider';
+                    viewContainer.appendChild(divider);
+                    
+                    profTips.forEach(tip => {
+                        const labelDiv = document.createElement('div');
+                        labelDiv.className = 'prof-tip-label';
+                        labelDiv.textContent = 'Professor Tip';
+                        
+                        const textDiv = document.createElement('div');
+                        textDiv.className = 'prof-tip-text';
+                        textDiv.id = `view-note-text-${tip.id}`;
+                        textDiv.textContent = `"${tip.note_text}"`;
+                        
+                        viewContainer.appendChild(labelDiv);
+                        viewContainer.appendChild(textDiv);
+                    });
+                }
+                cancelEdit('notes');
+            } else if (section === 'homeworks') {
+                const items = resData.items;
+                const viewContainer = document.getElementById('view-container-homeworks');
+                viewContainer.innerHTML = '';
+                
+                if (items.length === 0) {
+                    const div = document.createElement('div');
+                    div.className = 'hw-item';
+                    div.innerHTML = `
+                        <div class="hw-text" style="color: var(--text-sec); font-weight: normal;">No homework detected.</div>
+                    `;
+                    viewContainer.appendChild(div);
+                } else {
+                    items.forEach(hw => {
+                        const div = document.createElement('div');
+                        div.className = 'hw-item';
+                        div.id = `hw-item-${hw.id}`;
+                        
+                        const completedClass = hw.is_completed ? 'completed' : '';
+                        const due = hw.due_date_extracted || 'TBD';
+                        
+                        div.innerHTML = `
+                            <div class="hw-checkbox ${completedClass}" onclick="toggleHomeworkCompleted(${hw.id}, this)" id="hw-check-${hw.id}"></div>
+                            <div style="flex-grow: 1; cursor: pointer;" onclick="document.getElementById('hw-check-${hw.id}').click()">
+                                <div class="hw-text ${completedClass}" id="view-hw-desc-${hw.id}">${hw.task_description}</div>
+                                <small style="font-size: 0.75rem; color: var(--text-sec); display: block;" id="view-hw-due-${hw.id}">Due: ${due}</small>
+                            </div>
+                        `;
+                        viewContainer.appendChild(div);
+                    });
+                }
+                
+                const dueTop = document.getElementById('view-hw-due-top');
+                if (items.length > 0) {
+                    const firstDue = items[0].due_date_extracted || 'Due Soon';
+                    if (dueTop) {
+                        dueTop.textContent = firstDue;
+                        dueTop.style.display = 'block';
+                    } else {
+                        const badge = document.createElement('div');
+                        badge.id = 'view-hw-due-top';
+                        badge.className = 'hw-due-badge';
+                        badge.textContent = firstDue;
+                        const editBtn = document.querySelector('.homework-header .btn-edit');
+                        if (editBtn) {
+                            editBtn.parentNode.insertBefore(badge, editBtn);
+                        }
+                    }
+                } else {
+                    if (dueTop) {
+                        dueTop.style.display = 'none';
+                    }
+                }
+                cancelEdit('homeworks');
+            } else if (section === 'class_summary') {
+                document.getElementById('view-class_summary').textContent = data.class_summary;
+                cancelEdit('class_summary');
+            } else if (section === 'study_group') {
+                document.getElementById('view-study_group').textContent = data.study_group_note;
+                cancelEdit('study_group');
+            } else if (section === 'transcript') {
+                document.getElementById('transcript-original').textContent = data.raw_transcript;
+                document.getElementById('transcript-translated').textContent = data.translated_transcript;
+                cancelEdit('transcript');
+            }
+        } else {
+            showToast(resData.message || 'An error occurred while saving.', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showToast('A network error occurred. Please try again.', 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    });
+};
+
+// Toggle homework completion status
+window.toggleHomeworkCompleted = function(hwId, checkboxElement) {
+    const isCompleted = !checkboxElement.classList.contains('completed');
+    
+    // Optimistic UI update
+    checkboxElement.classList.toggle('completed', isCompleted);
+    const textEl = document.getElementById(`view-hw-desc-${hwId}`);
+    if (textEl) {
+        textEl.classList.toggle('completed', isCompleted);
+    }
+    
+    fetch(`/homework/${hwId}/toggle`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_completed: isCompleted })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status !== 'success') {
+            // Revert UI on failure
+            checkboxElement.classList.toggle('completed', !isCompleted);
+            if (textEl) {
+                textEl.classList.toggle('completed', !isCompleted);
+            }
+            showToast(data.message || 'Failed to update homework completion status.', 'error');
+        } else {
+            showToast(isCompleted ? 'Task marked as completed!' : 'Task marked as incomplete.');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        // Revert UI on network failure
+        checkboxElement.classList.toggle('completed', !isCompleted);
+        if (textEl) {
+            textEl.classList.toggle('completed', !isCompleted);
+        }
+        showToast('Network error updating homework status.', 'error');
+    });
+};
+
+// Retranslate transcript choice modal opening/closing
+window.openRetranslateChoice = function() {
+    const choiceModal = document.getElementById('retranslateChoiceModal');
+    if (choiceModal) {
+        choiceModal.style.display = 'flex';
+    }
+};
+
+window.closeRetranslateChoice = function() {
+    const choiceModal = document.getElementById('retranslateChoiceModal');
+    if (choiceModal) {
+        choiceModal.style.display = 'none';
+    }
+};
+
+// Retranslate transcript via AJAX with a specific source
+window.submitRetranslate = function(source) {
+    window.closeRetranslateChoice();
+    
+    const btn = document.getElementById('btn-retranslate-transcript');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="width: 0.8rem; height: 0.8rem; border: 0.15em solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: spinner-border .75s linear infinite; margin-right: 4px;"></span> Processing...';
+
+    // Show a loader inside the transcript modal if re-transcribing from audio as it takes time
+    const loader = document.getElementById('transcript-loader');
+    const content = document.getElementById('transcript-content');
+    const txtOrig = document.getElementById('transcript-original');
+    const txtTrans = document.getElementById('transcript-translated');
+    const inputOrig = document.getElementById('input-transcript-original');
+    const inputTrans = document.getElementById('input-transcript-translated');
+    
+    if (source === 'audio' && loader && content) {
+        loader.innerHTML = `
+            <div class="spinner-border text-primary" role="status" style="display: inline-block; width: 2rem; height: 2rem; vertical-align: text-bottom; border: 0.25em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite;"></div>
+            <p style="margin-top: 1rem; color: #6B7280;">Transcribing audio and translating... Please wait.</p>
+        `;
+        loader.style.display = 'block';
+        content.style.display = 'none';
+    }
+
+    fetch("{{ url_for('main.retranslate_session', session_id=session.id) }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ source: source })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showToast(data.message || 'Translation updated successfully!', 'success');
+            if (txtOrig) txtOrig.textContent = data.raw_transcript;
+            if (inputOrig) inputOrig.value = data.raw_transcript;
+            if (txtTrans) txtTrans.textContent = data.translated_transcript;
+            if (inputTrans) inputTrans.value = data.translated_transcript;
+            
+            // If from audio, reload the main page when closing transcript modal because it could affect summaries
+            if (source === 'audio') {
+                const span = document.getElementsByClassName('close-modal')[0];
+                if (span) span.dataset.reloadOnClose = "true";
+            }
+        } else {
+            showToast(data.message || 'An error occurred during translation.', 'error');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        showToast('A network error occurred. Please try again.', 'error');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        if (loader && content) {
+            loader.style.display = 'none';
+            content.style.display = 'block';
+        }
+    });
+};
+
+// Confirm AI regeneration with safety dialog
+window.confirmRegenerate = function() {
+    showCustomDialog({
+        title: "Re-generate AI Insights?",
+        message: "Warning: Re-generating AI content will overwrite all current summaries, notes, timeline key moments, and homework completion checklists. This action cannot be undone. We recommend editing the fields manually if you just want to tweak the results. Do you still wish to proceed?",
+        icon: "bi-exclamation-triangle",
+        iconColor: "#D97706",
+        iconBg: "#FEF3C7",
+        confirmText: "Yes, Re-generate",
+        cancelText: "Cancel",
+        showCancel: true,
+        callback: function(confirmed) {
+            if (confirmed) {
+                // Send post request to regenerate
+                fetch("{{ url_for('main.regenerate_ai_content', session_id=session.id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showToast(data.message || 'AI re-generation started in the background.', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showToast(data.message || 'An error occurred.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('A network error occurred. Please try again.', 'error');
+                });
+            }
+        }
+    });
+};
+
+// Document ready initializations
+document.addEventListener('DOMContentLoaded', function() {
+    initDatePickerValues();
+
+    const modal = document.getElementById('transcriptModal');
+    const btn = document.getElementById('btn-view-transcript');
+    const span = document.getElementsByClassName('close-modal')[0];
+    const loader = document.getElementById('transcript-loader');
+    const content = document.getElementById('transcript-content');
+    const txtOrig = document.getElementById('transcript-original');
+    const txtTrans = document.getElementById('transcript-translated');
+    const editActions = document.getElementById('transcript-edit-actions');
+    const inputOrig = document.getElementById('input-transcript-original');
+    const inputTrans = document.getElementById('input-transcript-translated');
+    
+    let isLoaded = false;
+    let wasProcessing = false;
+
+    if (btn) {
+        btn.onclick = function(e) {
+            e.preventDefault();
+            modal.style.display = "block";
+            
+            if (!isLoaded) {
+                loader.style.display = "block";
+                content.style.display = "none";
+                editActions.style.display = "none";
+                
+                function fetchTranscript() {
+                    fetch("{{ url_for('main.transcript_data', session_id=session.id) }}")
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'processing') {
+                                wasProcessing = true;
+                                loader.innerHTML = `
+                                    <div class="spinner-border text-primary" role="status" style="display: inline-block; width: 2rem; height: 2rem; vertical-align: text-bottom; border: 0.25em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite;"></div>
+                                    <p style="margin-top: 1rem; color: #6B7280;">Transcribing audio and generating AI insights in background... Please wait.</p>
+                                `;
+                                setTimeout(fetchTranscript, 3000);
+                            } else {
+                                txtOrig.textContent = data.original || '';
+                                txtTrans.textContent = data.translated || '';
+                                inputOrig.value = data.original || '';
+                                inputTrans.value = data.translated || '';
+                                
+                                loader.style.display = "none";
+                                content.style.display = "block";
+                                editActions.style.display = "flex";
+                                isLoaded = true;
+                                
+                                if (wasProcessing) {
+                                    span.dataset.reloadOnClose = "true";
+                                }
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            txtOrig.textContent = "Error loading transcript.";
+                            txtTrans.textContent = "Error loading translation.";
+                            loader.style.display = "none";
+                            content.style.display = "block";
+                        });
+                }
+                
+                fetchTranscript();
+            }
+        }
+    }
+
+    if (span) {
+        span.onclick = function() {
+            modal.style.display = "none";
+            if (span.dataset.reloadOnClose === "true") {
+                window.location.reload();
+            }
+        }
+    }
+
+    window.onclick = function(event) {
+        const choiceModal = document.getElementById('retranslateChoiceModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+            if (span.dataset.reloadOnClose === "true") {
+                window.location.reload();
+            }
+        } else if (event.target == choiceModal) {
+            choiceModal.style.display = "none";
+        }
+    };
+
+    // Global auto-polling if session status is processing
+    {% if session.status == 'processing' %}
+    (function() {
+        function checkStatus() {
+            fetch("{{ url_for('main.transcript_data', session_id=session.id) }}")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'processing') {
+                        setTimeout(checkStatus, 3000);
+                    } else {
+                        // Reload the page when ready
+                        window.location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error("Status check failed:", err);
+                    setTimeout(checkStatus, 5000);
+                });
+        }
+        setTimeout(checkStatus, 3000);
+    })();
+    {% endif %}
+});
+</script>
 {% endblock %}
 
 {% block fab %}

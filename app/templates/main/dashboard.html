@@ -26,6 +26,9 @@
                 {% for course in courses %}
                 <a href="{{ url_for('course.detail', course_id=course.id) }}" style="text-decoration: none; color: inherit; display: block;">
                     <div class="course-card" style="border-bottom: 4px solid var(--primary-blue); position: relative; transition: transform 0.2s, box-shadow 0.2s;">
+                        {% if course.cover_image %}
+                        <div style="background-image: url('{{ url_for('static', filename='uploads/courses/' ~ course.cover_image) }}'); background-size: cover; background-position: center; height: 110px; border-top-left-radius: 16px; border-top-right-radius: 16px; margin: -1.25rem -1.25rem 1rem -1.25rem;"></div>
+                        {% endif %}
                         <div class="card-top">
                             <div class="module-icon" style="background: var(--core-bg); color: var(--core-color);">
                                 <i class="{{ course.icon }}"></i>

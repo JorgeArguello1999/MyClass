@@ -345,6 +345,15 @@
             display: none; /* Desktop doesn't need bottom space for nav */
         }
     }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .spin {
+        display: inline-block;
+        animation: spin 2s linear infinite;
+    }
 </style>
 {% endblock %}
 
@@ -353,9 +362,8 @@
     
     <!-- Top Meta -->
     <div style="margin-bottom: 1rem;">
-
-        <h1 class="view-title">Software Development</h1>
-        <p class="view-meta">Computer Science Department • CS304</p>
+        <h1 class="view-title">Academic Records</h1>
+        <p class="view-meta">{{ current_user.full_name or current_user.username }}'s Global History</p>
     </div>
 
     <div class="records-desktop-grid">
@@ -375,10 +383,9 @@
                 
                 <div class="progress-stats-row">
                     <div>
-                        <span class="progress-big-number">12</span>
-                        <span class="progress-light-text"> / 30 Sessions</span>
+                        <span class="progress-big-number">{{ all_sessions|length }}</span>
+                        <span class="progress-light-text"> Sessions Recorded</span>
                     </div>
-                    <div class="progress-percent">40%</div>
                 </div>
                 
                 <div class="progress-bar-container">
@@ -388,11 +395,11 @@
                 <div class="stat-blocks">
                     <div class="stat-block">
                         <div class="stat-block-label">Total Hours</div>
-                        <div class="stat-block-val">18.5h</div>
+                        <div class="stat-block-val">{{ total_hours }}h</div>
                     </div>
                     <div class="stat-block">
                         <div class="stat-block-label">Key Topics</div>
-                        <div class="stat-block-val">42</div>
+                        <div class="stat-block-val">{{ key_topics_count }}</div>
                     </div>
                 </div>
             </div>
@@ -413,81 +420,44 @@
 
             <!-- History List -->
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <a class="history-card" href="{{ url_for('main.session_summary') }}">
+                {% for session in all_sessions %}
+                <a class="history-card" href="{{ url_for('main.session_summary', session_id=session.id) }}">
                     <div class="history-card-date">
-                        <span class="date-month">Mar</span>
-                        <span class="date-day">14</span>
+                        <span class="date-month">{{ session.recorded_date.strftime('%b') }}</span>
+                        <span class="date-day">{{ session.recorded_date.strftime('%d') }}</span>
                     </div>
                     <div class="history-card-body">
                         <div class="status-row">
+                            {% if session.status == 'ready' %}
                             <span class="status-badge ready">Summary Ready</span>
-                            <i class="bi bi-circle-fill duration-dot"></i>
-                            <span class="duration-text">1h 24m</span>
-                        </div>
-                        <h4 class="history-card-title">Software Design Patterns</h4>
-                        <p class="history-card-desc">Discussion on architectural patterns...</p>
-                    </div>
-                    <div class="history-action-btn">
-                        <i class="bi bi-chevron-right"></i>
-                    </div>
-                </a>
-
-                <a class="history-card" href="{{ url_for('main.session_summary') }}">
-                    <div class="history-card-date">
-                        <span class="date-month">Mar</span>
-                        <span class="date-day">11</span>
-                    </div>
-                    <div class="history-card-body">
-                        <div class="status-row">
-                            <span class="status-badge ready">Summary Ready</span>
-                            <i class="bi bi-circle-fill duration-dot"></i>
-                            <span class="duration-text">58m</span>
-                        </div>
-                        <h4 class="history-card-title">Architecture Fundamentals</h4>
-                        <p class="history-card-desc">Introduction to monolithic and microservices structures.</p>
-                    </div>
-                    <div class="history-action-btn">
-                        <i class="bi bi-chevron-right"></i>
-                    </div>
-                </a>
-
-                <a class="history-card" href="#">
-                    <div class="history-card-date">
-                        <span class="date-month">Mar</span>
-                        <span class="date-day">07</span>
-                    </div>
-                    <div class="history-card-body">
-                        <div class="status-row">
+                            {% elif session.status == 'processing' %}
+                            <span class="status-badge processing" style="background: #FEF3C7; color: #D97706; display: inline-flex; align-items: center; gap: 0.2rem;">
+                                <i class="bi bi-arrow-repeat spin"></i> Processing
+                            </span>
+                            {% else %}
                             <span class="status-badge unprocessed">Unprocessed</span>
+                            {% endif %}
                             <i class="bi bi-circle-fill duration-dot"></i>
-                            <span class="duration-text">1h 45m</span>
+                            <span class="duration-text">{{ session.recorded_date.strftime('%b %d, %Y') }} • {{ session.duration_seconds // 60 }} min</span>
                         </div>
-                        <h4 class="history-card-title">Database Normalization</h4>
-                        <p class="history-card-desc">Processing background audio tracking...</p>
+                        <h4 class="history-card-title">{{ session.title }}</h4>
+                        <p class="history-card-desc">{% if session.summary_topics.first() %}{{ session.summary_topics.first().main_topic }}{% else %}No topic detected.{% endif %}</p>
                     </div>
-                    <div class="history-action-btn unprocessed">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </div>
-                </a>
-
-                <a class="history-card" href="{{ url_for('main.session_summary') }}">
-                    <div class="history-card-date">
-                        <span class="date-month">Mar</span>
-                        <span class="date-day">04</span>
-                    </div>
-                    <div class="history-card-body">
-                        <div class="status-row">
-                            <span class="status-badge ready">Summary Ready</span>
-                            <i class="bi bi-circle-fill duration-dot"></i>
-                            <span class="duration-text">1h 10m</span>
-                        </div>
-                        <h4 class="history-card-title">Intro to Git & CI/CD</h4>
-                        <p class="history-card-desc">Version control methodologies and pipeline building.</p>
-                    </div>
-                    <div class="history-action-btn">
+                    <div class="history-action-btn {% if session.status != 'ready' %}unprocessed{% endif %}">
+                        {% if session.status == 'ready' %}
                         <i class="bi bi-chevron-right"></i>
+                        {% elif session.status == 'processing' %}
+                        <i class="bi bi-arrow-repeat spin" style="color: #D97706;"></i>
+                        {% else %}
+                        <i class="bi bi-arrow-repeat"></i>
+                        {% endif %}
                     </div>
                 </a>
+                {% else %}
+                <div class="empty-state" style="text-align: center; padding: 2rem 1rem; opacity: 0.7;">
+                    <p style="color: var(--text-sec); font-size: 0.9rem;">No recorded sessions across any courses yet.</p>
+                </div>
+                {% endfor %}
             </div>
 
             <!-- Spacer to avoid overlapping bottom bar completely -->
